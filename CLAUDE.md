@@ -10,7 +10,7 @@ Antes de escribir código de Next.js lee la guía correspondiente en `node_modul
 HomeTracker: PWA en español para gestionar el hogar (cajas con QR, equipos y mantenimientos, listas, tareas, documentos, contactos, gastos). Multiusuario por "hogar". iPhone primero (PWA instalada); Android compatible.
 
 ## Stack
-Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`) · auth propia (OTP + sesiones) · almacenamiento S3 compatible · service worker propio en `public/sw.js` · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
+Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`) · auth propia (correo + contraseña + sesiones; OTP desactivado) · almacenamiento S3 compatible · service worker propio en `public/sw.js` · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
 
 ## Reglas de trabajo
 - Trabajar en la rama indicada por la sesión; no abrir PR salvo que se pida.
@@ -35,7 +35,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 
 ## iOS / Safari
 - Probar siempre pensando en iPhone: sin BarcodeDetector (usar `@zxing/browser`), sin Background Sync, push solo con PWA instalada.
-- Login por OTP de 6 dígitos, nunca depender de enlaces que abran Safari.
+- Login con correo + contraseña (scrypt, bloqueo de 15 min tras 5 fallos). El acceso por OTP por correo está **desactivado** (código en `src/lib/auth/otp.ts` y `src/lib/mail.ts`, sin rutas ni UI); nunca depender de enlaces que abran Safari.
 - Incluir metas `apple-mobile-web-app-*`, `apple-touch-icon` y respetar safe-area (`env(safe-area-inset-*)`).
 - Subir fotos con `<input type="file" accept="image/*" capture>`.
 - La URL base sale de `NEXT_PUBLIC_APP_URL` (dominio pendiente); nunca hardcodearla.
@@ -52,7 +52,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 ## Seguridad
 - MySQL no tiene RLS: toda tabla de hogar lleva `household_id` y toda consulta debe filtrar por él tras `requireMember`. Incluir pruebas de aislamiento.
 - Nunca exponer `DATABASE_URL`, claves S3/SMTP, `SESSION_SECRET` ni la clave privada VAPID al cliente.
-- OTP, tokens de sesión e invitaciones se guardan solo como hash.
+- Contraseñas (scrypt con sal), tokens de sesión e invitaciones se guardan solo como hash.
 - El QR solo contiene `https://<dominio>/b/<uuid>` (caja) o `/e/<uuid>` (equipo); la autorización la hace el servidor.
 - No commitear secretos; usar `.env.local` (ignorado) y `.env.example`.
 
@@ -60,7 +60,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Páginas: `requireUser()` / `requireActiveHousehold()` / `requireMember()` (redirigen). Route Handlers: `requireApiUser()` / `requireApiMember()` (lanzan 401/403; capturar con `handleError`).
 - El `householdId` de una consulta sale de `requireMember`, nunca directamente del cuerpo de la petición.
 - Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
-- En desarrollo sin `SMTP_URL`, el código OTP se imprime en la consola del servidor.
+- Rutas de auth: `/api/auth/register` y `/api/auth/login` (el correo es el usuario). No se reclaman cuentas existentes al registrar (409).
 
 ## Documentos y contactos
 - Los archivos de documentos se suben a `/api/documents/<id>/file` (PDF o imagen, máx. 4 MB) y se sirven solo por esa ruta autenticada; los metadatos usan `mutate()` y funcionan offline, el archivo requiere conexión.

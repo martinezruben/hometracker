@@ -32,11 +32,11 @@ El diseño visual oficial está en `docs/design/HomeTracker_iOS.pdf` y sus regla
 | Decisión | Valor |
 |---|---|
 | Plataforma inicial | **iPhone** (iOS 16.4+, PWA instalada); Android compatible |
-| Login | OTP de 6 dígitos por correo (evita el salto Safari → PWA) |
+| Login | Correo + contraseña (OTP por correo desactivado por ahora; se retomará cuando haya SMTP) |
 | Dominio | Pendiente; `NEXT_PUBLIC_APP_URL` |
 | Frontend | Next.js + TypeScript + Tailwind |
 | Base de datos | MySQL 8 + Drizzle ORM (decisión del usuario: no Supabase) |
-| Backend | Next.js Route Handlers/Server Actions; auth propia OTP; archivos en S3 compatible |
+| Backend | Next.js Route Handlers/Server Actions; auth propia correo + contraseña; archivos en S3 compatible |
 | Offline | Service worker + IndexedDB; cola de cambios; LWW por `updated_at` |
 | Push | Web Push (VAPID) |
 | Hosting | Vercel / Cloudflare Pages |
@@ -46,7 +46,7 @@ El diseño visual oficial está en `docs/design/HomeTracker_iOS.pdf` y sus regla
 - Push solo con PWA instalada en pantalla de inicio, iOS 16.4+, permiso pedido con gesto del usuario.
 - Escanear el QR con la cámara nativa abre Safari, no la PWA; por eso la vista de caja es una ruta web normal con login.
 - Sin sync en segundo plano ni BarcodeDetector en Safari; la cola offline se vacía al abrir la app y en eventos `online`.
-- Safari y la PWA instalada no comparten sesión: por eso el login es por código OTP, no por enlace.
+- Safari y la PWA instalada no comparten sesión: por eso el login no usa enlaces (hoy: correo + contraseña).
 - Alternativa de respaldo: Capacitor o recordatorios por correo.
 
 ## Glosario

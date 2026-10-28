@@ -13,13 +13,13 @@ PWA en español para que varias personas gestionen el hogar: cajas con QR, equip
 | Plataformas | **iPhone primero** (Safari/PWA instalada, iOS 16.4+); Android compatible |
 | Dominio | Pendiente; se usa variable `NEXT_PUBLIC_APP_URL` hasta tenerlo (los QR dependen de él) |
 | Offline | "Offline-light": app shell en caché + lecturas cacheadas + **cola de cambios** que se sincroniza al reconectar. No se exige uso 100% offline. |
-| Login | **Código OTP de 6 dígitos por correo** (no magic link: en iOS el enlace abre Safari y la sesión no pasa a la PWA instalada) |
+| Login | **Correo + contraseña** (OTP por correo desactivado por ahora; antes: código OTP de 6 dígitos; no magic link: en iOS el enlace abre Safari y la sesión no pasa a la PWA instalada) |
 | Idioma | Solo español (`es`). Textos centralizados para poder i18n más adelante. |
 | Prioridad | 1) Cajas con QR, 2) Equipos y mantenimientos con recordatorios push |
 | Frontend | Next.js (App Router) + TypeScript + Tailwind |
 | Base de datos | **MySQL 8** (utf8mb4) con **Drizzle ORM** + `mysql2`; migraciones en `db/migrations/` |
 | Backend | Next.js (Route Handlers / Server Actions) sobre MySQL; sin Supabase |
-| Auth | Propia: OTP de 6 dígitos por correo (SMTP) + sesión en cookie httpOnly (hash en tabla `sessions`) |
+| Auth | Propia: correo + contraseña (scrypt; OTP por correo desactivado) + sesión en cookie httpOnly (hash en tabla `sessions`) |
 | Archivos | Almacenamiento S3 compatible (URLs firmadas); la BD solo guarda las llaves |
 | Tiempo real | Sondeo (polling) / revalidación al enfocar la app; SSE si hace falta |
 | Recordatorios | Cron externo (Vercel Cron / Cloud Scheduler) → endpoint protegido con `CRON_SECRET` → `web-push` |
@@ -53,7 +53,7 @@ Android Chrome / PWA instalada
 - Archivos en rutas `household_id/...` con URLs firmadas de corta duración.
 - QR contiene solo URL con el id de la caja (`/b/<uuid>`); la vista exige login y pertenencia al hogar. No hay datos en el QR.
 - La BD nunca se expone al navegador. Claves (VAPID, S3, SMTP, `SESSION_SECRET`) solo en el servidor.
-- OTP y tokens se guardan como hash; límite de intentos por código y de envíos por correo.
+- Contraseñas (scrypt), OTP y tokens se guardan como hash; bloqueo tras 5 fallos de login.
 
 ## 4. Modelo de datos (inicial)
 
@@ -93,7 +93,7 @@ docs/               notas técnicas
 - [x] Next.js + TS + Tailwind + ESLint + Vitest (Playwright y Prettier pendientes)
 - [x] Esquema MySQL (Drizzle) con 20 tablas y migración inicial aplicada
 - [x] Capa de acceso `requireMember` / `requireApiMember` y pruebas de aislamiento entre hogares
-- [x] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
+- [x] Auth propia (OTP por correo + sesiones; luego sustituida por correo + contraseña, OTP desactivado) + creación de hogar + invitar miembros por enlace
 - [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); guía de instalación en Inicio
 - [x] Layout móvil (barra inferior), tema claro/oscuro
 - [x] CI en GitHub Actions (lint, tipos, migraciones, tests con MySQL 8, build); deploy preview pendiente de elegir hosting
@@ -156,7 +156,7 @@ docs/               notas técnicas
 |---|---|
 | Sincronización offline compleja | Alcance "offline-light", IDs de cliente, LWW, borrado lógico |
 | Push en iOS (solo PWA instalada, sin sync en segundo plano) | Probar en iPhone real desde la Fase 2; respaldo por correo para vencimientos críticos |
-| Sesión Safari vs PWA instalada separadas | Login por OTP dentro de la PWA |
+| Sesión Safari vs PWA instalada separadas | Login con correo + contraseña dentro de la PWA |
 | Crecimiento de fotos | Compresión en cliente, miniaturas, límites por hogar |
 | Fuga entre hogares (sin RLS en MySQL) | Capa única de acceso con filtro de hogar + pruebas automatizadas |
 | QR cambia de dominio | Dominio propio estable desde el inicio |
