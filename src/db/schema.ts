@@ -122,11 +122,14 @@ export const boxes = mysqlTable(
   "boxes",
   {
     ...householdScoped(),
+    /** Número correlativo por hogar ("N.º 07"); se asigna al crear. */
+    number: int("number").notNull(),
+    color: mysqlEnum("color", ["blue", "orange", "green", "purple"]).notNull().default("blue"),
     name: varchar("name", { length: 160 }).notNull(),
     location: varchar("location", { length: 160 }),
     notes: text("notes"),
   },
-  (t) => [index("boxes_hh_idx").on(t.householdId, t.deletedAt)],
+  (t) => [index("boxes_hh_idx").on(t.householdId, t.deletedAt), uniqueIndex("boxes_hh_number_uq").on(t.householdId, t.number)],
 );
 
 export const boxItems = mysqlTable(
@@ -137,6 +140,8 @@ export const boxItems = mysqlTable(
       .notNull()
       .references(() => boxes.id),
     title: varchar("title", { length: 200 }).notNull(),
+    quantity: int("quantity").notNull().default(1),
+    category: varchar("category", { length: 80 }),
     notes: text("notes"),
   },
   (t) => [index("box_items_box_idx").on(t.boxId)],

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, inArray, isNull, like, or } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, like, or, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import type { Role } from "@/lib/auth/roles";
 
@@ -105,7 +105,21 @@ export async function listBoxes(householdId: string, q?: string) {
   const coverByBox = new Map<string, string>();
   for (const c of covers) if (!coverByBox.has(c.entityId)) coverByBox.set(c.entityId, c.id);
 
-  return rows.map((b) => ({ ...b, coverPhotoId: coverByBox.get(b.id) ?? null }));
+  const counts = rows.length
+    ? await db
+        .select({ boxId: boxItems.boxId, objects: sql<string>`sum(${boxItems.quantity})` })
+        .from(boxItems)
+        .where(and(eq(boxItems.householdId, householdId), isNull(boxItems.deletedAt), inArray(boxItems.boxId, rows.map((r) => r.id))))
+        .groupBy(boxItems.boxId)
+    : [];
+  const objectsByBox = new Map(counts.map((c) => [c.boxId, Number(c.objects)]));
+
+  return rows.map((b) => ({ ...b, coverPhotoId: coverByBox.get(b.id) ?? null, objects: objectsByBox.get(b.id) ?? 0 }));
+}
+
+/** Marca la caja como actualizada (contenido o fotos cambiaron). */
+export async function touchBox(boxId: string) {
+  await db.update(boxes).set({ updatedAt: new Date() }).where(eq(boxes.id, boxId));
 }
 
 export async function getBoxContent(box: typeof boxes.$inferSelect) {
@@ -135,20 +149,39 @@ export async function getBoxContent(box: typeof boxes.$inferSelect) {
 export async function createBox(
   householdId: string,
   userId: string,
-  input: { id?: string; name: string; location?: string | null; notes?: string | null },
+  input: { id?: string; name: string; location?: string | null; notes?: string | null; color?: (typeof boxes.$inferSelect)["color"] },
 ) {
   const id = input.id ?? randomUUID();
-  await db
-    .insert(boxes)
-    .values({
-      id,
-      householdId,
-      createdBy: userId,
-      name: input.name,
-      location: input.location ?? null,
-      notes: input.notes ?? null,
-    })
-    .onDuplicateKeyUpdate({ set: { id } }); // reintento: no modifica nada
+  const [existing] = await db.select().from(boxes).where(eq(boxes.id, id));
+  if (existing) return existing.householdId === householdId ? existing : null; // reintento, o id de otro hogar
+
+  // Número correlativo por hogar; si dos cajas se crean a la vez, el índice único obliga a reintentar.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const [{ next }] = await db
+      .select({ next: sql<number>`coalesce(max(${boxes.number}), 0) + 1` })
+      .from(boxes)
+      .where(eq(boxes.householdId, householdId));
+    const number = Number(next);
+    const colors = ["blue", "orange", "green", "purple"] as const;
+    try {
+      await db.insert(boxes).values({
+        id,
+        householdId,
+        createdBy: userId,
+        number,
+        color: input.color ?? colors[(number - 1) % colors.length],
+        name: input.name,
+        location: input.location ?? null,
+        notes: input.notes ?? null,
+      });
+      break;
+    } catch (err) {
+      const code = (err as { code?: string; cause?: { code?: string } }).code ?? (err as { cause?: { code?: string } }).cause?.code;
+      if (code !== "ER_DUP_ENTRY") throw err;
+      const [now] = await db.select().from(boxes).where(eq(boxes.id, id));
+      if (now) return now.householdId === householdId ? now : null; // otro envío del mismo id ganó
+    }
+  }
   const [row] = await db.select().from(boxes).where(eq(boxes.id, id));
-  return row.householdId === householdId ? row : null; // el id pertenece a otro hogar → rechazar
+  return row && row.householdId === householdId ? row : null;
 }

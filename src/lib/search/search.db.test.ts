@@ -35,9 +35,9 @@ if (!process.env.DATABASE_URL) {
       const box = randomUUID();
       const list = randomUUID();
       await db.insert(schema.boxes).values([
-        { id: box, householdId: h1, name: `Caja ${word}` },
-        { id: randomUUID(), householdId: h2, name: `Caja ajena ${word}` },
-        { id: randomUUID(), householdId: h1, name: `Borrada ${word}`, deletedAt: new Date() },
+        { id: box, householdId: h1, number: 1, name: `Caja ${word}` },
+        { id: randomUUID(), householdId: h2, number: 1, name: `Caja ajena ${word}` },
+        { id: randomUUID(), householdId: h1, number: 2, name: `Borrada ${word}`, deletedAt: new Date() },
       ]);
       await db.insert(schema.boxItems).values({ id: randomUUID(), householdId: h1, boxId: box, title: "Cosa" });
       await db.insert(schema.lists).values({ id: list, householdId: h1, name: "Súper" });

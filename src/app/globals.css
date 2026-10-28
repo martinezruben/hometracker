@@ -10,6 +10,7 @@
   --muted: #5b6785; /* texto secundario */
   --card: #ffffff;
   --border: #e3e9f6;
+  --tile: #eef2fb; /* fondo de mini tarjetas dentro de una tarjeta */
   --primary: #1d4ed8; /* relleno de acciones (texto blanco encima) */
   --primary-2: #2563eb;
   --link: #1d4ed8; /* texto azul sobre fondo claro */
@@ -51,6 +52,7 @@
     --muted: #9aa7c7;
     --card: #131d36;
     --border: #22304f;
+    --tile: #1b2847;
     --primary: #2563eb;
     --primary-2: #3b82f6;
     --link: #93c5fd;
@@ -85,6 +87,7 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-border: var(--border);
+  --color-tile: var(--tile);
   --color-primary: var(--primary);
   --color-primary-2: var(--primary-2);
   --color-link: var(--link);

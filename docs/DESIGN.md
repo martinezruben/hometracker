@@ -14,6 +14,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 | Token | Valor de referencia | Uso |
 |---|---|---|
 | Fondo de pantalla | degradado vertical `#dbe6fb → #f6f8fd` (arriba azul muy claro, abajo casi blanco) | `body` |
+| Mini tarjeta | `#eef2fb` (oscuro `#1b2847`), radio 16 px | estadísticas y formularios dentro de una tarjeta (`bg-tile`) |
 | Tarjeta | `#ffffff`, radio 20–24 px, sombra `0 4px 16px rgb(15 27 61 / .06)` | tarjetas y filas |
 | Texto principal | azul marino `#0f1b3d` | títulos y datos |
 | Texto secundario | gris azulado `#64708f` | subtítulos, metadatos |
@@ -62,6 +63,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 - Componentes: `src/components/ui/` (`Avatar`, `IconTile`, `PageHeader`, `Chip`, `StatusPill`/`StatusBar`) e iconos lineales en `src/components/icons.tsx`. Emojis no se usan como iconos en pantallas nuevas.
 - `BottomNav` ya es la barra flotante con botón central de escaneo; Ajustes se abre desde el avatar de Inicio.
 - Inicio ya sigue el diseño: saludo (`Greeting`, según la hora del dispositivo) con avatar y campana, buscador con filtros, `HealthCard` (puntaje `healthScore` de `src/lib/home/health.ts`: parte de 100 y resta por mantenimientos/pendientes/documentos vencidos, con tope por categoría), accesos rápidos y `UpcomingRow` (`/upcoming` lista todo). El nombre de la persona se pide al crear el hogar y se edita en Más.
+- Cajas ya sigue el diseño: número correlativo por hogar (`boxes.number`, único y asignado con reintento si hay concurrencia), color pastel (`boxes.color`, editable), objetos con cantidad y categoría (`box_items.quantity/category`), `BoxCard` en rejilla, filtros por ubicación con conteo, banner de escaneo y detalle con portada/carrusel, QR, estadísticas y contenido. La caja se marca como actualizada al cambiar contenido o fotos.
 - Las pantallas se van migrando una a una (ver Fase 6 de `PLAN.md`); mientras tanto heredan tarjetas, colores y tipografía por los tokens.
 
 ## 6. Cómo aplicarlo

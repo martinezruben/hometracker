@@ -45,9 +45,26 @@ if (!process.env.DATABASE_URL) {
       expect((await listBoxes(h1, "luces")).map((b) => b.id)).toEqual([id]);
       expect(await listBoxes(h2, "luces")).toEqual([]);
       expect((await getBoxContent(box!)).items).toHaveLength(1);
+      expect(box?.number).toBe(1);
+      expect(box?.color).toBe("blue");
+      expect((await listBoxes(h1))[0].objects).toBe(1); // suma de cantidades
 
       await db.update(schema.boxes).set({ deletedAt: new Date() }).where(eq(schema.boxes.id, id));
       expect(await getBoxAccess(users[0], id)).toBeNull();
+    });
+
+    it("numera las cajas por hogar sin repetir, incluso si se crean a la vez", async () => {
+      const u = users[0];
+      const h = await createHousehold(u, "Casa numerada");
+      hogares.push(h);
+      const made = await Promise.all(Array.from({ length: 6 }, (_, i) => createBox(h, u, { name: `Caja ${i}` })));
+      const numbers = made.map((b) => b!.number).sort((a, b) => a - b);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6]);
+      expect(new Set(made.map((b) => b!.color)).size).toBe(4); // colores en ciclo
+      // el reintento con el mismo id no consume otro número
+      const again = await createBox(h, u, { id: made[0]!.id, name: "otra vez" });
+      expect(again?.number).toBe(made[0]!.number);
+      expect((await createBox(h, u, { name: "siguiente" }))!.number).toBe(7);
     });
   });
 }
