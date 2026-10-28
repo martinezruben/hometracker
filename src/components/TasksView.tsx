@@ -52,9 +52,9 @@ export function TasksView({
   return (
     <div className="space-y-4">
       {view.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.empty}</p>
+        <p className="card p-4 text-muted">{t.empty}</p>
       ) : (
-        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+        <ul className="divide-y divide-border card">
           {view.map((task) => (
             <li key={task.id} className="flex items-center gap-3 p-3">
               <input
@@ -97,7 +97,7 @@ export function TasksView({
 
       {canEdit && (
         <form
-          className="space-y-3 rounded-xl border border-border bg-card p-4"
+          className="space-y-3 card p-4"
           onSubmit={(e) => {
             e.preventDefault();
             const name = title.trim();
@@ -151,7 +151,7 @@ export function TasksView({
       )}
 
       {done.length > 0 && (
-        <details className="rounded-xl border border-border bg-card p-3">
+        <details className="card p-3">
           <summary className="min-h-11 cursor-pointer py-2 font-medium">{t.done}</summary>
           <ul className="divide-y divide-border">
             {done.map((d) => (

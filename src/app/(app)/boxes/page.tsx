@@ -21,18 +21,18 @@ export default async function BoxesPage({
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{es.boxes.title}</h1>
         {canCreate && (
-          <Link href="/boxes/new" className="min-h-11 rounded-xl bg-primary px-4 py-2.5 font-semibold text-white dark:text-slate-900">
+          <Link href="/boxes/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {es.boxes.new}
           </Link>
         )}
       </header>
       <SearchForm q={q} placeholder={es.boxes.searchPlaceholder} />
-      <Link href="/scan" className="flex min-h-12 items-center justify-center rounded-xl border border-primary font-semibold text-primary">
+      <Link href="/scan" className="flex min-h-12 items-center justify-center rounded-xl border border-primary font-semibold text-link">
         📷 {es.scan.open}
       </Link>
       <PendingCreates op="box-create" hint={es.sync.pendingBox} />
       {boxes.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">
+        <p className="card p-4 text-muted">
           {q ? es.boxes.emptySearch : es.boxes.empty}
         </p>
       ) : (
@@ -40,7 +40,7 @@ export default async function BoxesPage({
           <ul className="space-y-3">
             {boxes.map((b) => (
               <li key={b.id}>
-                <Link href={`/b/${b.id}`} className="flex min-h-20 items-center gap-3 rounded-xl border border-border bg-card p-3">
+                <Link href={`/b/${b.id}`} className="flex min-h-20 items-center gap-3 card p-3">
                   <div className="size-16 shrink-0 overflow-hidden rounded-lg bg-border">
                     {b.coverPhotoId && (
                       // eslint-disable-next-line @next/next/no-img-element

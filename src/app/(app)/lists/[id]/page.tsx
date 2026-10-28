@@ -12,7 +12,7 @@ export default async function ListPage({ params }: { params: Promise<{ id: strin
   if (!parsed.success) notFound();
   const user = await requireUser();
   const access = await getListAccess(user.id, parsed.data);
-  if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{es.lists.noAccess}</p>;
+  if (!access) return <p className="card p-4 text-muted">{es.lists.noAccess}</p>;
   const { list, role } = access;
   const items = await getListContent(list);
   return (

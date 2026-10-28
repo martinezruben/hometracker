@@ -51,7 +51,7 @@ export function PushSettings() {
   };
 
   return (
-    <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+    <section className="space-y-3 card p-4">
       <h2 className="font-semibold">{t.title}</h2>
       <p className="text-sm text-muted">{t.description}</p>
       {state === "loading" ? null : note[state] ? (

@@ -57,7 +57,13 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 | Interruptores de recordatorios | tabla `notification_prefs` (por usuario y tipo) que consulta el cron |
 | Resumen semanal | nuevo tipo de recordatorio (domingo por la noche) |
 
-## 5. Cómo aplicarlo
+## 5. Implementación (estado)
+- Tokens en `src/app/globals.css` (claro y oscuro): `bg-brand`, `card`, `text-link`, `text-muted`, estados `text-late|soon|ok` con `bg-*-bg` y `bg-*-bar`, pasteles `--tint-*`/`--on-tint-*`.
+- Componentes: `src/components/ui/` (`Avatar`, `IconTile`, `PageHeader`, `Chip`, `StatusPill`/`StatusBar`) e iconos lineales en `src/components/icons.tsx`. Emojis no se usan como iconos en pantallas nuevas.
+- `BottomNav` ya es la barra flotante con botón central de escaneo; Ajustes se abre desde el avatar de Inicio.
+- Las pantallas se van migrando una a una (ver Fase 6 de `PLAN.md`); mientras tanto heredan tarjetas, colores y tipografía por los tokens.
+
+## 6. Cómo aplicarlo
 1. Estas reglas viven en el código como tokens en `src/app/globals.css` y componentes en `src/components/ui/`; no usar colores sueltos.
 2. Textos siempre en `src/lib/i18n/es.ts`.
 3. Cada pantalla rediseñada debe seguir pasando axe (claro y oscuro) y las pruebas end-to-end.

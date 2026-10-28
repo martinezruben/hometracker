@@ -18,7 +18,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
   if (!parsed.success) notFound();
   const user = await requireUser();
   const access = await getDocumentAccess(user.id, parsed.data);
-  if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noAccess}</p>;
+  if (!access) return <p className="card p-4 text-muted">{t.noAccess}</p>;
   const { document: d, role } = access;
   const [contacts, appliances] = await Promise.all([listContacts(d.householdId), listAppliances(d.householdId)]);
   const provider = contacts.find((c) => c.id === d.providerId);
@@ -36,12 +36,12 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
         {d.expiresAt && <p className="text-sm text-muted">{t.expires(formatDate(d.expiresAt))}</p>}
         {provider && (
           <p className="text-sm">
-            {t.providerLabel}: <Link className="text-primary underline" href={`/contacts/${provider.id}`}>{provider.name}</Link>
+            {t.providerLabel}: <Link className="text-link underline" href={`/contacts/${provider.id}`}>{provider.name}</Link>
           </p>
         )}
         {appliance && (
           <p className="text-sm">
-            {t.applianceLabel}: <Link className="text-primary underline" href={`/appliances/${appliance.id}`}>{appliance.name}</Link>
+            {t.applianceLabel}: <Link className="text-link underline" href={`/appliances/${appliance.id}`}>{appliance.name}</Link>
           </p>
         )}
         {d.notes && <p className="whitespace-pre-line text-sm">{d.notes}</p>}

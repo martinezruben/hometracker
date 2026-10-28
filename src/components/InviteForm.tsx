@@ -30,7 +30,7 @@ export function InviteForm({ householdId }: { householdId: string }) {
   }
 
   return (
-    <form onSubmit={create} className="space-y-3 rounded-xl border border-border bg-card p-4">
+    <form onSubmit={create} className="space-y-3 card p-4">
       <h2 className="font-semibold">{es.invite.title}</h2>
       <label className="block space-y-1">
         <span className="text-sm text-muted">{es.invite.roleLabel}</span>

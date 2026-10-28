@@ -30,20 +30,20 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
           defaultValue={q}
           autoFocus={!q}
           placeholder={t.placeholder}
-          className="w-full min-h-12 rounded-xl border border-border bg-card px-4 text-base outline-none focus:border-primary"
+          className="w-full min-h-12 rounded-2xl border border-border bg-card px-4 text-base outline-none focus:border-primary"
         />
       </form>
       {!searched ? (
         <p className="text-muted">{t.hint}</p>
       ) : total === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.none}</p>
+        <p className="card p-4 text-muted">{t.none}</p>
       ) : (
         sections
           .filter((s) => results[s.key].length > 0)
           .map((s) => (
             <div key={s.key} className="space-y-2">
               <h2 className="font-semibold">{s.label}</h2>
-              <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+              <ul className="divide-y divide-border card">
                 {results[s.key].map((hit) => (
                   <li key={hit.id}>
                     <Link href={hit.href} className="flex min-h-14 flex-col justify-center p-4">

@@ -132,8 +132,8 @@ docs/               notas técnicas
 - [ ] Rendimiento (Lighthouse PWA ≥ 90), accesibilidad, respaldos
 
 ### Fase 6 — Rediseño iOS (en cola; reglas en `docs/DESIGN.md`)
-- [ ] 6.1 Tokens (fondo degradado, tarjetas, azul real, estados) y fuente; componentes base en `src/components/ui/`
-- [ ] 6.2 Barra inferior flotante con botón central de escaneo QR; "Más/Ajustes" desde el avatar
+- [x] 6.1 Tokens (fondo degradado, tarjetas, azul real, estados) y fuente Manrope; componentes base en `src/components/ui/` (Avatar, IconTile, PageHeader, Chip, Status) e iconos en `src/components/icons.tsx`
+- [x] 6.2 Barra inferior flotante con botón central de escaneo QR; "Más/Ajustes" desde el avatar
 - [ ] 6.3 Inicio: saludo con avatar, campana, buscador con filtros, tarjeta Salud del hogar, accesos rápidos y "Próximos"
 - [ ] 6.4 Cajas: número por hogar, color, rejilla de 2 columnas, filtros por ubicación, banner de escaneo, detalle con hero/estadísticas/contenido con cantidad y categoría
 - [ ] 6.5 Equipos: tarjetas de resumen, tira semanal, calendario y tarjetas con barra de progreso

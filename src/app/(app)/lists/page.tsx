@@ -14,12 +14,12 @@ export default async function ListsPage() {
       {household.role !== "viewer" && <NewListForm />}
       <PendingCreates op="list-create" hint={es.lists.pendingList} />
       {lists.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{es.lists.empty}</p>
+        <p className="card p-4 text-muted">{es.lists.empty}</p>
       ) : (
         <ul className="space-y-3">
           {lists.map((l) => (
             <li key={l.id}>
-              <Link href={`/lists/${l.id}`} className="flex min-h-16 items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+              <Link href={`/lists/${l.id}`} className="flex min-h-16 items-center justify-between gap-3 card p-4">
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{l.name}</p>
                   <p className="text-sm text-muted">{es.lists.types[l.type]}</p>

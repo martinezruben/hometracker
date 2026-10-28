@@ -10,7 +10,7 @@ export default async function MorePage() {
   return (
     <section className="space-y-6">
       <h1 className="text-2xl font-bold">{es.more.title}</h1>
-      <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+      <ul className="divide-y divide-border card">
         <li>
           <Link href="/tasks" className="flex min-h-14 items-center justify-between p-4">
             <span>{es.tasks.title}</span>
@@ -33,10 +33,10 @@ export default async function MorePage() {
       <PushSettings />
       {household.role === "admin" && <InviteForm householdId={household.id} />}
       {household.role === "admin" && (
-        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <section className="space-y-2 card p-4">
           <h2 className="font-semibold">{es.data.title}</h2>
           <p className="text-sm text-muted">{es.data.description}</p>
-          <a href="/api/export" download className="flex min-h-12 items-center justify-center rounded-xl border border-primary font-semibold text-primary">
+          <a href="/api/export" download className="flex min-h-12 items-center justify-center rounded-2xl border border-primary font-bold text-link">
             {es.data.export}
           </a>
         </section>

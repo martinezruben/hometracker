@@ -13,7 +13,7 @@ export default async function BoxPage({ params }: { params: Promise<{ id: string
   const user = await requireUser();
   const access = await getBoxAccess(user.id, parsed.data);
   if (!access) {
-    return <p className="rounded-xl border border-border bg-card p-4 text-muted">{es.boxes.noAccess}</p>;
+    return <p className="card p-4 text-muted">{es.boxes.noAccess}</p>;
   }
   const { box, role } = access;
   const content = await getBoxContent(box);

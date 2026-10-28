@@ -16,7 +16,7 @@ export default async function ExpensePage({ params }: { params: Promise<{ id: st
   if (!parsed.success) notFound();
   const user = await requireUser();
   const access = await getExpenseAccess(user.id, parsed.data);
-  if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noAccess}</p>;
+  if (!access) return <p className="card p-4 text-muted">{t.noAccess}</p>;
   const { expense: e, role } = access;
   const contacts = await listContacts(e.householdId);
   const provider = contacts.find((c) => c.id === e.providerId);
@@ -29,7 +29,7 @@ export default async function ExpensePage({ params }: { params: Promise<{ id: st
         <p className="text-muted">{formatDate(e.spentAt)}{e.category && ` · ${e.category}`}</p>
         {provider && (
           <p className="text-sm">
-            {t.providerLabel}: <Link className="text-primary underline" href={`/contacts/${provider.id}`}>{provider.name}</Link>
+            {t.providerLabel}: <Link className="text-link underline" href={`/contacts/${provider.id}`}>{provider.name}</Link>
           </p>
         )}
         {e.notes && <p className="whitespace-pre-line text-sm">{e.notes}</p>}

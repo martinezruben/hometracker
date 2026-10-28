@@ -1,40 +1,135 @@
 @import "tailwindcss";
 
+/*
+ * Tokens de diseño — ver docs/DESIGN.md. No usar colores sueltos en los componentes.
+ */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #0f766e;
-  --muted: #64748b;
+  --bg-top: #dbe6fb;
+  --bg-bottom: #f6f8fd;
+  --foreground: #0f1b3d; /* texto principal (azul marino) */
+  --muted: #5b6785; /* texto secundario */
   --card: #ffffff;
-  --border: #e2e8f0;
+  --border: #e3e9f6;
+  --primary: #1d4ed8; /* relleno de acciones (texto blanco encima) */
+  --primary-2: #2563eb;
+  --link: #1d4ed8; /* texto azul sobre fondo claro */
+  --dark: #0f172a; /* chip seleccionado, botón flotante */
   --danger: #b91c1c;
-}
+  --shadow-card: 0 4px 16px rgb(15 27 61 / 0.06);
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-muted: var(--muted);
-  --color-card: var(--card);
-  --color-border: var(--border);
-  --color-danger: var(--danger);
+  /* Estados */
+  --late: #b91c1c;
+  --late-bg: #fee2e2;
+  --late-bar: #ef4444;
+  --soon: #b45309;
+  --soon-bg: #fef3c7;
+  --soon-bar: #f59e0b;
+  --ok: #047857;
+  --ok-bg: #d1fae5;
+  --ok-bar: #10b981;
+
+  /* Pasteles de iconos e ilustraciones */
+  --tint-blue: #dbeafe;
+  --tint-orange: #ffedd5;
+  --tint-green: #d1fae5;
+  --tint-purple: #ede9fe;
+  --tint-red: #fee2e2;
+  --tint-yellow: #fef3c7;
+  --on-tint-blue: #1d4ed8;
+  --on-tint-orange: #c2410c;
+  --on-tint-green: #047857;
+  --on-tint-purple: #6d28d9;
+  --on-tint-red: #b91c1c;
+  --on-tint-yellow: #a16207;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0b1220;
-    --foreground: #e2e8f0;
-    --primary: #2dd4bf;
-    --muted: #94a3b8;
-    --card: #111a2e;
-    --border: #1e293b;
+    --bg-top: #101c38;
+    --bg-bottom: #0b1220;
+    --foreground: #e6ecff;
+    --muted: #9aa7c7;
+    --card: #131d36;
+    --border: #22304f;
+    --primary: #2563eb;
+    --primary-2: #3b82f6;
+    --link: #93c5fd;
+    --dark: #e6ecff;
     --danger: #f87171;
+    --shadow-card: 0 4px 16px rgb(0 0 0 / 0.3);
+
+    --late: #fca5a5;
+    --late-bg: #4c1d1d;
+    --soon: #fcd34d;
+    --soon-bg: #4a3410;
+    --ok: #6ee7b7;
+    --ok-bg: #0f3d2e;
+
+    --tint-blue: #1e3a8a;
+    --tint-orange: #5a2d0c;
+    --tint-green: #0f3d2e;
+    --tint-purple: #3b2a73;
+    --tint-red: #4c1d1d;
+    --tint-yellow: #4a3410;
+    --on-tint-blue: #bfdbfe;
+    --on-tint-orange: #fed7aa;
+    --on-tint-green: #a7f3d0;
+    --on-tint-purple: #ddd6fe;
+    --on-tint-red: #fecaca;
+    --on-tint-yellow: #fde68a;
   }
 }
 
+@theme inline {
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-2: var(--primary-2);
+  --color-link: var(--link);
+  --color-dark: var(--dark);
+  --color-danger: var(--danger);
+  --color-late: var(--late);
+  --color-late-bg: var(--late-bg);
+  --color-late-bar: var(--late-bar);
+  --color-soon: var(--soon);
+  --color-soon-bg: var(--soon-bg);
+  --color-soon-bar: var(--soon-bar);
+  --color-ok: var(--ok);
+  --color-ok-bg: var(--ok-bg);
+  --color-ok-bar: var(--ok-bar);
+  --font-sans: var(--font-manrope), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* Tarjeta blanca redondeada con sombra suave (sin borde). */
+@utility card {
+  background: var(--card);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+
+@utility bg-brand {
+  background: linear-gradient(135deg, var(--primary-2), var(--primary));
+}
+
+html {
+  min-height: 100%;
+  background: var(--bg-bottom);
+}
+
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 360px) no-repeat, var(--bg-bottom);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 500;
   -webkit-tap-highlight-color: transparent;
+}
+
+h1,
+h2 {
+  letter-spacing: -0.01em;
 }

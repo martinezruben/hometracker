@@ -54,11 +54,11 @@ export function ApplianceMaintenance({
     <section className="space-y-3">
       <h2 className="font-semibold">{t.maintenance}</h2>
       {plans.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.maintenanceEmpty}</p>
+        <p className="card p-4 text-muted">{t.maintenanceEmpty}</p>
       ) : (
         <ul className="space-y-3">
           {plans.map((p) => (
-            <li key={p.id} className="space-y-2 rounded-xl border border-border bg-card p-4">
+            <li key={p.id} className="space-y-2 card p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold">{p.title}</p>
@@ -132,7 +132,7 @@ export function ApplianceMaintenance({
       {canEdit &&
         (adding ? (
           <form
-            className="space-y-3 rounded-xl border border-border bg-card p-4"
+            className="space-y-3 card p-4"
             onSubmit={(e) => {
               e.preventDefault();
               void run(() =>

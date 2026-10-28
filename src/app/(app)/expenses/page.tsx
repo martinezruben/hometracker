@@ -21,7 +21,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t.title}</h1>
         {household.role !== "viewer" && (
-          <Link href="/expenses/new" className="min-h-11 rounded-xl bg-primary px-4 py-2.5 font-semibold text-white dark:text-slate-900">
+          <Link href="/expenses/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {t.new}
           </Link>
         )}
@@ -33,7 +33,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
         {isCurrent ? <span className="size-11" /> : <Link href={`/expenses?month=${shiftMonth(month, 1)}`} aria-label={t.nextMonth} className={navCls}>›</Link>}
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="card p-4">
         <p className="text-sm text-muted">{t.total}</p>
         <p className="text-3xl font-bold">{formatMoney(total)}</p>
         {byCategory.length > 0 && (
@@ -45,7 +45,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
                   <span className="text-muted">{formatMoney(c.total)}</span>
                 </div>
                 <div className="mt-1 h-2 rounded-full bg-border" role="presentation">
-                  <div className="h-2 rounded-full bg-primary" style={{ width: `${Math.max(4, (c.total / max) * 100)}%` }} />
+                  <div className="h-2 rounded-full bg-brand" style={{ width: `${Math.max(4, (c.total / max) * 100)}%` }} />
                 </div>
               </li>
             ))}
@@ -55,12 +55,12 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
 
       <PendingCreates op="expense-create" hint={t.pending} />
       {items.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.empty}</p>
+        <p className="card p-4 text-muted">{t.empty}</p>
       ) : (
         <ul className="space-y-3">
           {items.map((e) => (
             <li key={e.id}>
-              <Link href={`/expenses/${e.id}`} className="flex min-h-16 items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+              <Link href={`/expenses/${e.id}`} className="flex min-h-16 items-center justify-between gap-3 card p-4">
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{e.title}</p>
                   <p className="truncate text-sm text-muted">

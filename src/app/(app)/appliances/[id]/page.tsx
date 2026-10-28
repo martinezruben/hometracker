@@ -21,7 +21,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
   if (!parsed.success) notFound();
   const user = await requireUser();
   const access = await getApplianceAccess(user.id, parsed.data);
-  if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noAccess}</p>;
+  if (!access) return <p className="card p-4 text-muted">{t.noAccess}</p>;
 
   const { appliance: a, role } = access;
   const [{ plans, logs, photos }, contacts] = await Promise.all([getApplianceContent(a), listContacts(a.householdId)]);
@@ -88,9 +88,9 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
       <section className="space-y-3">
         <h2 className="font-semibold">{t.history}</h2>
         {logs.length === 0 ? (
-          <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.historyEmpty}</p>
+          <p className="card p-4 text-muted">{t.historyEmpty}</p>
         ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border card">
             {logs.map((l) => {
               const plan = plans.find((p) => p.id === l.planId);
               return (

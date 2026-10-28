@@ -25,7 +25,7 @@ export function InstallHint() {
 
   if (!show) return null;
   return (
-    <aside className="space-y-2 rounded-xl border border-primary bg-card p-4">
+    <aside className="space-y-2 card border border-primary p-4">
       <h2 className="font-semibold">{es.install.title}</h2>
       <ol className="list-decimal space-y-1 pl-5 text-sm">
         {es.install.steps.map((s) => (
