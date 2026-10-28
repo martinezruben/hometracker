@@ -27,7 +27,15 @@ export type OutboxMeta = {
     | "task-add"
     | "task-complete"
     | "task-update"
-    | "task-delete";
+    | "task-delete"
+    | "contact-create"
+    | "contact-update"
+    | "contact-delete"
+    | "document-create"
+    | "document-update"
+    | "document-delete";
+  contactId?: string;
+  documentId?: string;
   listId?: string;
   taskId?: string;
   /** Contenido del cambio, para mostrarlo de forma optimista. */
