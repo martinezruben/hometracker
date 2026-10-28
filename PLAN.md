@@ -131,7 +131,17 @@ docs/               notas técnicas
 - [ ] Mejoras de sync (reintentos, indicador de estado, resolución de conflictos)
 - [ ] Rendimiento (Lighthouse PWA ≥ 90), accesibilidad, respaldos
 
-### Fase 6 — Android y extras (futuro)
+### Fase 6 — Rediseño iOS (en cola; reglas en `docs/DESIGN.md`)
+- [ ] 6.1 Tokens (fondo degradado, tarjetas, azul real, estados) y fuente; componentes base en `src/components/ui/`
+- [ ] 6.2 Barra inferior flotante con botón central de escaneo QR; "Más/Ajustes" desde el avatar
+- [ ] 6.3 Inicio: saludo con avatar, campana, buscador con filtros, tarjeta Salud del hogar, accesos rápidos y "Próximos"
+- [ ] 6.4 Cajas: número por hogar, color, rejilla de 2 columnas, filtros por ubicación, banner de escaneo, detalle con hero/estadísticas/contenido con cantidad y categoría
+- [ ] 6.5 Equipos: tarjetas de resumen, tira semanal, calendario y tarjetas con barra de progreso
+- [ ] 6.6 Listas: segmentado (Pendientes / Súper / Para vender), resumen con anillo, grupos Hoy/Esta semana, urgente, hora, pasos y avatares
+- [ ] 6.7 Recordatorios: pantalla de activación con interruptores por tipo y preferencias guardadas (`notification_prefs`), resumen semanal
+- [ ] 6.8 Revisión final: axe en claro/oscuro, capturas en iPhone 13 y pruebas end-to-end actualizadas
+
+### Fase 7 — Android y extras (futuro)
 - [ ] Probar en Android; Background Sync donde exista
 - [ ] Si el push en iPhone no es fiable: Capacitor o respaldo por correo
 

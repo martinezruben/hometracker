@@ -38,7 +38,9 @@ export function LoginForm({ next }: { next: string }) {
     setError(null);
     const { res, data } = await post("/api/auth/verify", { email, code });
     if (res.ok) {
-      router.replace(data.hasHousehold ? next : `/onboarding?next=${encodeURIComponent(next)}`);
+      // Quien llega con una invitación va directo a unirse; el resto, sin hogar, crea el suyo.
+      const joining = next.startsWith("/join/");
+      router.replace(data.hasHousehold || joining ? next : `/onboarding?next=${encodeURIComponent(next)}`);
       router.refresh();
       return;
     }
@@ -60,7 +62,7 @@ export function LoginForm({ next }: { next: string }) {
           onChange={(e) => setEmail(e.target.value)}
         />
       </label>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button className={buttonCls} disabled={busy}>{es.auth.sendCode}</button>
     </form>
   ) : (
@@ -79,7 +81,7 @@ export function LoginForm({ next }: { next: string }) {
         />
         <span className="block text-xs text-muted">{es.auth.codeHint}</span>
       </label>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button className={buttonCls} disabled={busy || code.length !== 6}>{es.auth.verify}</button>
       <button type="button" className={linkBtnCls} onClick={() => { setStep("email"); setCode(""); setError(null); }}>
         {es.auth.changeEmail}

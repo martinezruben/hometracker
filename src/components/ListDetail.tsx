@@ -190,7 +190,7 @@ export function ListDetail({
 
       {canEdit && (
         <button
-          className={`${linkBtnCls} !text-red-600`}
+          className={`${linkBtnCls} !text-danger`}
           onClick={() => {
             if (!confirm(t.confirmDelete)) return;
             void run({ url: `/api/lists/${list.id}`, method: "DELETE", meta: { op: "list-delete", listId: list.id } }).then((ok) => ok && router.replace("/lists"));
@@ -199,7 +199,7 @@ export function ListDetail({
           {t.delete}
         </button>
       )}
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

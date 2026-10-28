@@ -42,7 +42,7 @@ export function OnboardingForm({ next }: { next: string }) {
           onChange={(e) => setName(e.target.value)}
         />
       </label>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button className={buttonCls} disabled={busy || !name.trim()}>{es.onboarding.create}</button>
       <p className="text-sm text-muted">{es.onboarding.inviteHint}</p>
     </form>

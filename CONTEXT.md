@@ -10,6 +10,9 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - Roles: admin, miembro, solo lectura.
 - Idioma: **español** únicamente por ahora.
 
+## Diseño
+El diseño visual oficial está en `docs/design/HomeTracker_iOS.pdf` y sus reglas en `docs/DESIGN.md`; se aplicará en la Fase 6 de `PLAN.md` (en cola) y rige todo cambio visual.
+
 ## Funcionalidades clave (por prioridad)
 1. **Cajas con QR** — crear una caja, subir fotos y texto de su contenido, generar un QR imprimible; al escanearlo se abre la vista de la caja (fotos + textos).
 2. **Equipos y mantenimientos** — ficha del equipo/electrodoméstico, planes recurrentes, historial, próximo mantenimiento y **notificaciones push** de recordatorio.
@@ -53,7 +56,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-**Fases 0 a 4 completas** y gran parte de la **Fase 5**: búsqueda global, exportación, refresco entre miembros, QR por equipo, manual del equipo (PDF/foto) y proveedor al registrar un mantenimiento (validado por hogar). CI verde en GitHub Actions contra MySQL 8. Pendiente: dashboard, Playwright dentro del repo, auditoría de accesibilidad y rendimiento, limpieza programada de archivos de borrados lógicos. **Sin validar en hardware real**: push en iPhone, cámara del escáner y driver S3; falta elegir hosting, proveedor de MySQL/correo/S3 y dominio.
+Fases 0 a 4 completas y casi toda la Fase 5 (búsqueda, exportación, refresco entre miembros, QR por equipo, manual, proveedor en mantenimientos, accesibilidad auditada con axe y pruebas end-to-end con Playwright en el repo y en la CI). **Siguiente: Fase 6, rediseño iOS** según `docs/DESIGN.md` (requiere nuevos datos: número de caja, color, cantidad/categoría de objetos, urgente/hora/pasos en pendientes, preferencias de recordatorios, salud del hogar). Pendiente aparte: limpieza programada de archivos de borrados lógicos. **Sin validar en hardware real**: push en iPhone, cámara del escáner y driver S3; falta elegir hosting, proveedor de MySQL/correo/S3 y dominio.
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.

@@ -59,8 +59,8 @@ export function ApplianceActions({ id, initial }: { id: string; initial: Values 
     return (
       <div className="flex gap-4">
         <button className={linkBtnCls} onClick={() => setEditing(true)}>{t.edit}</button>
-        <button className={`${linkBtnCls} !text-red-600`} onClick={remove}>{t.delete}</button>
-        {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+        <button className={`${linkBtnCls} !text-danger`} onClick={remove}>{t.delete}</button>
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       </div>
     );
   }
@@ -80,7 +80,7 @@ export function ApplianceActions({ id, initial }: { id: string; initial: Values 
       {input(t.purchaseLabel, "purchaseDate", { type: "date" })}
       {input(t.warrantyLabel, "warrantyUntil", { type: "date" })}
       <textarea className={`${inputCls} py-3`} rows={3} placeholder={t.notesLabel} value={f.notes} onChange={set("notes")} />
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <div className="flex items-center gap-3">
         <button className={buttonCls}>{t.save}</button>
         <button type="button" className={linkBtnCls} onClick={() => setEditing(false)}>{t.cancel}</button>

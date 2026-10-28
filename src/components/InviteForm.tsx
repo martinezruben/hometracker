@@ -41,7 +41,7 @@ export function InviteForm({ householdId }: { householdId: string }) {
         </select>
       </label>
       <button className={buttonCls}>{es.invite.create}</button>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       {url && (
         <div className="space-y-2">
           <input readOnly className={inputCls} value={url} onFocus={(e) => e.currentTarget.select()} />

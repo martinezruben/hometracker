@@ -119,7 +119,7 @@ export function ExpenseForm({
           <input className={inputCls} type="file" accept="application/pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </label>
       )}
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <div className="flex items-center gap-3">
         <button className={buttonCls} disabled={busy || !f.title.trim() || !f.amount}>{expenseId ? t.save : t.create}</button>
         {onDone && <button type="button" className={linkBtnCls} onClick={onDone}>{t.cancel}</button>}

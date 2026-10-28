@@ -50,7 +50,7 @@ export function NewListForm() {
           ))}
         </select>
       </label>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <div className="flex items-center gap-3">
         <button className={buttonCls} disabled={!name.trim()}>{t.create}</button>
         <button type="button" className={linkBtnCls} onClick={() => setOpen(false)}>{es.boxes.cancel}</button>
