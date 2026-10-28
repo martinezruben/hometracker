@@ -13,7 +13,7 @@ export default async function MorePage() {
       <h1 className="text-2xl font-bold">{es.more.title}</h1>
       <ul className="divide-y divide-border card">
         <li>
-          <Link href="/tasks" className="flex min-h-14 items-center justify-between p-4">
+          <Link href="/lists" className="flex min-h-14 items-center justify-between p-4">
             <span>{es.tasks.title}</span>
             <span aria-hidden>›</span>
           </Link>

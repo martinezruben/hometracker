@@ -135,7 +135,7 @@ export async function runReminders(send: PushSender, now = new Date()): Promise<
         entityId: task.id,
         title: `Pendiente: ${task.title}`,
         body: `Vence el ${formatDate(task.dueAt!)}`,
-        url: "/tasks",
+        url: "/lists",
         fireAt: task.dueAt!,
       });
       if (inserted) result.created++;

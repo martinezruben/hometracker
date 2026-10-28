@@ -15,6 +15,13 @@
       "when": 1793162180322,
       "tag": "0001_cajas_numero_color_cantidad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1793162825505,
+      "tag": "0002_pendientes_urgente_hora_pasos",
+      "breakpoints": true
     }
   ]
 }

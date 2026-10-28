@@ -52,7 +52,7 @@ export async function loadUpcoming(householdId: string, now = new Date()): Promi
 
   const all: UpcomingItem[] = [
     ...plans.map((p) => ({ key: `m-${p.id}`, kind: "maintenance" as const, title: p.title, context: p.appliance, date: p.due, href: `/appliances/${p.applianceId}` })),
-    ...openTasks.map((t) => ({ key: `t-${t.id}`, kind: "task" as const, title: t.title, context: t.assignee ?? t.assigneeEmail?.split("@")[0] ?? "", date: t.due!, href: "/tasks" })),
+    ...openTasks.map((t) => ({ key: `t-${t.id}`, kind: "task" as const, title: t.title, context: t.assignee ?? t.assigneeEmail?.split("@")[0] ?? "", date: t.due!, href: "/lists" })),
     ...docs.map((d) => ({ key: `d-${d.id}`, kind: "document" as const, title: d.title, context: "", date: d.due!, href: `/documents/${d.id}` })),
   ]
     .map((i) => ({ ...i, status: dueStatus(i.date, now), days: daysUntil(i.date, now) }))

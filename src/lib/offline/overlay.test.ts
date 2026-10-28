@@ -37,7 +37,7 @@ describe("overlayListItems", () => {
 });
 
 describe("overlayTasks", () => {
-  const task = (id: string, over: Partial<TaskView> = {}): TaskView => ({ id, title: id, notes: null, dueAt: null, repeatRule: null, assignedTo: null, ...over });
+  const task = (id: string, over: Partial<TaskView> = {}): TaskView => ({ id, title: id, notes: null, dueAt: null, dueTime: null, repeatRule: null, assignedTo: null, urgent: false, category: null, stepsTotal: 0, stepsDone: 0, ...over });
   const now = new Date("2026-06-10T12:00:00Z");
   it("completar quita las tareas simples y reprograma las recurrentes", () => {
     const out = overlayTasks(

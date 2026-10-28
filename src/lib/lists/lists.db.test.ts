@@ -9,7 +9,7 @@ if (!process.env.DATABASE_URL) {
   const { db, schema } = await import("@/db");
   const { createHousehold } = await import("@/lib/households");
   const { createList, getListAccess, getListContent, getListItemAccess, listLists } = await import("./data");
-  const { completeTask, createTask, getTaskAccess, listTasks, listMembers } = await import("@/lib/tasks/data");
+  const { completeTask, createStep, createTask, getStepAccess, getTaskAccess, listSteps, listTasks, listMembers } = await import("@/lib/tasks/data");
   const { formatDateOnly, parseDateOnly } = await import("@/lib/maintenance/schedule");
 
   describe("listas y pendientes (MySQL)", () => {
@@ -20,6 +20,7 @@ if (!process.env.DATABASE_URL) {
     afterAll(async () => {
       await db.delete(schema.listItems).where(inArray(schema.listItems.householdId, hogares));
       await db.delete(schema.lists).where(inArray(schema.lists.householdId, hogares));
+      await db.delete(schema.taskSteps).where(inArray(schema.taskSteps.householdId, hogares));
       await db.delete(schema.tasks).where(inArray(schema.tasks.householdId, hogares));
       await db.delete(schema.householdMembers).where(inArray(schema.householdMembers.householdId, hogares));
       await db.delete(schema.households).where(inArray(schema.households.id, hogares));
@@ -83,6 +84,33 @@ if (!process.env.DATABASE_URL) {
       expect(r2.repeated).toBe(true);
       const [still] = await db.select().from(schema.tasks).where(eq(schema.tasks.id, rid));
       expect(formatDateOnly(still.dueAt!)).toBe("2026-06-17");
+    });
+
+    it("pendientes: urgente, hora, categoría, quién lo hizo y pasos aislados por hogar", async () => {
+      const [h1, h2] = hogares;
+      const id = randomUUID();
+      const task = await createTask(h1, A, { id, title: "Llamar al técnico", dueAt: parseDateOnly("2026-06-10"), dueTime: "18:00", urgent: true, category: "Equipos", repeatRule: null, assignedTo: null, notes: null });
+      expect(task).toMatchObject({ urgent: true, dueTime: "18:00", category: "Equipos", doneBy: null });
+
+      // pasos: crear (idempotente), contar, aislar
+      const stepId = randomUUID();
+      const s1 = await createStep(task!, A, { id: stepId, title: "Buscar el número" });
+      expect(s1?.title).toBe("Buscar el número");
+      await createStep(task!, A, { id: stepId, title: "otra vez" }); // reintento: no duplica
+      await createStep(task!, A, { title: "Pedir presupuesto" });
+      expect(await listSteps(h1, id)).toHaveLength(2);
+      expect(await getStepAccess(B, stepId)).toBeNull();
+      expect((await getStepAccess(A, stepId))?.role).toBe("admin");
+      await db.update(schema.taskSteps).set({ done: true }).where(eq(schema.taskSteps.id, stepId));
+      const open = (await listTasks(h1)).open.find((x) => x.id === id)!;
+      expect([open.stepsTotal, open.stepsDone]).toEqual([2, 1]);
+      expect((await listTasks(h2)).open.find((x) => x.id === id)).toBeUndefined();
+
+      // completar guarda quién lo hizo
+      const now = new Date("2026-06-10T12:00:00Z");
+      await completeTask(task!, now, undefined, A);
+      const done = (await listTasks(h1)).done.find((x) => x.id === id)!;
+      expect(done.doneBy).toBe(A);
     });
   });
 }

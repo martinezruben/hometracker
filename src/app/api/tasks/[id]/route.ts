@@ -23,7 +23,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
     if (changes.assignedTo && !(await isMember(task.householdId, changes.assignedTo))) throw new ForbiddenError();
     await db
       .update(schema.tasks)
-      .set({ ...changes, ...(reopen ? { doneAt: null } : {}) })
+      .set({ ...changes, ...(reopen ? { doneAt: null, doneBy: null } : {}) })
       .where(eq(schema.tasks.id, task.id));
     return json({ ok: true });
   } catch (err) {

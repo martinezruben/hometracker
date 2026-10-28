@@ -44,15 +44,9 @@ export function overlayListItems(items: ListItemView[], outbox: OutboxItem[], li
   return result;
 }
 
-export type TaskView = {
-  id: string;
-  title: string;
-  notes: string | null;
-  dueAt: string | null; // YYYY-MM-DD
-  repeatRule: string | null;
-  assignedTo: string | null;
-  pending?: boolean;
-};
+import type { TaskView } from "@/lib/tasks/groups";
+
+export type { TaskView };
 
 const today = (now: Date) => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
@@ -68,8 +62,13 @@ export function overlayTasks(tasks: TaskView[], outbox: OutboxItem[], now = new 
         title: String(data?.title ?? ""),
         notes: null,
         dueAt: (data?.dueAt as string | null) ?? null,
+        dueTime: (data?.dueTime as string | null) ?? null,
         repeatRule: (data?.repeatRule as string | null) ?? null,
         assignedTo: (data?.assignedTo as string | null) ?? null,
+        urgent: !!data?.urgent,
+        category: (data?.category as string | null) ?? null,
+        stepsTotal: 0,
+        stepsDone: 0,
         pending: true,
       });
     } else if (op === "task-complete") {

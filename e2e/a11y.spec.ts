@@ -29,7 +29,7 @@ for (const scheme of ["light", "dark"] as const) {
 
     const paths = [
       "/", "/boxes", "/boxes/new", `/b/${box}`, `/b/${box}/label`, "/appliances", "/appliances/new", `/appliances/${app}`,
-      `/appliances/${app}/label`, "/lists", `/lists/${list}`, `/lists/${sale}`, "/tasks", "/documents", "/documents/new",
+      `/appliances/${app}/label`, "/lists", "/lists?tab=super", "/lists?tab=venta", `/lists/${list}`, `/lists/${sale}`, "/documents", "/documents/new",
       `/documents/${doc}`, "/contacts", "/contacts/new", `/contacts/${contact}`, "/expenses", "/expenses/new", `/expenses/${exp}`,
       "/more", "/search?q=lu", "/scan", "/upcoming", "/calendar",
     ];

@@ -281,9 +281,28 @@ export const tasks = mysqlTable(
     dueAt: ts("due_at"),
     repeatRule: varchar("repeat_rule", { length: 120 }), // RRULE simple
     assignedTo: char("assigned_to", { length: 36 }),
+    urgent: boolean("urgent").notNull().default(false),
+    /** Hora opcional "HH:MM" del vencimiento. */
+    dueTime: varchar("due_time", { length: 5 }),
+    category: varchar("category", { length: 80 }),
     doneAt: ts("done_at"),
+    doneBy: char("done_by", { length: 36 }),
   },
   (t) => [index("tasks_hh_idx").on(t.householdId, t.doneAt, t.dueAt)],
+);
+
+/** Pasos de un pendiente ("2 de 4 pasos"). */
+export const taskSteps = mysqlTable(
+  "task_steps",
+  {
+    ...householdScoped(),
+    taskId: char("task_id", { length: 36 })
+      .notNull()
+      .references(() => tasks.id),
+    title: varchar("title", { length: 200 }).notNull(),
+    done: boolean("done").notNull().default(false),
+  },
+  (t) => [index("task_steps_task_idx").on(t.taskId)],
 );
 
 // ───────────── Documentos y gastos ─────────────

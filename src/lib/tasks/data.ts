@@ -1,9 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { addInterval, formatDateOnly, type IntervalUnit } from "@/lib/maintenance/schedule";
 
-const { tasks, householdMembers, users } = schema;
+const { tasks, taskSteps, householdMembers, users } = schema;
 
 export async function getTaskAccess(userId: string, id: string) {
   const [row] = await db
@@ -49,8 +49,21 @@ export async function createTask(
   return row.householdId === householdId ? row : null;
 }
 
+export type TaskWithSteps = typeof tasks.$inferSelect & { stepsTotal: number; stepsDone: number };
+
+async function withStepCounts(householdId: string, rows: (typeof tasks.$inferSelect)[]): Promise<TaskWithSteps[]> {
+  if (!rows.length) return [];
+  const counts = await db
+    .select({ taskId: taskSteps.taskId, total: sql<number>`count(*)`, done: sql<number>`sum(${taskSteps.done})` })
+    .from(taskSteps)
+    .where(and(eq(taskSteps.householdId, householdId), isNull(taskSteps.deletedAt), inArray(taskSteps.taskId, rows.map((r) => r.id))))
+    .groupBy(taskSteps.taskId);
+  const byTask = new Map(counts.map((c) => [c.taskId, { total: Number(c.total), done: Number(c.done ?? 0) }]));
+  return rows.map((r) => ({ ...r, stepsTotal: byTask.get(r.id)?.total ?? 0, stepsDone: byTask.get(r.id)?.done ?? 0 }));
+}
+
 /** Pendientes abiertos (con fecha primero, por vencimiento) y los últimos completados. */
-export async function listTasks(householdId: string, doneLimit = 15) {
+export async function listTasks(householdId: string, doneLimit = 100) {
   const [open, done] = await Promise.all([
     db
       .select()
@@ -64,7 +77,38 @@ export async function listTasks(householdId: string, doneLimit = 15) {
       .orderBy(desc(tasks.doneAt))
       .limit(doneLimit),
   ]);
-  return { open, done };
+  const [openRows, doneRows] = await Promise.all([withStepCounts(householdId, open), withStepCounts(householdId, done)]);
+  return { open: openRows, done: doneRows };
+}
+
+export async function getStepAccess(userId: string, stepId: string) {
+  const [row] = await db
+    .select({ step: taskSteps, role: householdMembers.role })
+    .from(taskSteps)
+    .innerJoin(
+      householdMembers,
+      and(eq(householdMembers.householdId, taskSteps.householdId), eq(householdMembers.userId, userId)),
+    )
+    .where(and(eq(taskSteps.id, stepId), isNull(taskSteps.deletedAt)));
+  return row ?? null;
+}
+
+export async function listSteps(householdId: string, taskId: string) {
+  return db
+    .select()
+    .from(taskSteps)
+    .where(and(eq(taskSteps.householdId, householdId), eq(taskSteps.taskId, taskId), isNull(taskSteps.deletedAt)))
+    .orderBy(asc(taskSteps.createdAt));
+}
+
+export async function createStep(task: typeof tasks.$inferSelect, userId: string, input: { id?: string; title: string }) {
+  const id = input.id ?? randomUUID();
+  await db
+    .insert(taskSteps)
+    .values({ id, householdId: task.householdId, taskId: task.id, createdBy: userId, title: input.title })
+    .onDuplicateKeyUpdate({ set: { id } });
+  const [row] = await db.select().from(taskSteps).where(eq(taskSteps.id, id));
+  return row.taskId === task.id && row.householdId === task.householdId ? row : null;
 }
 
 export async function upcomingTasks(householdId: string, limit = 5) {
@@ -90,13 +134,14 @@ export async function completeTask(
   task: typeof tasks.$inferSelect,
   now: Date,
   seenDue?: string | null,
+  userId?: string | null,
 ): Promise<{ done: boolean; nextDue: Date | null; repeated: boolean }> {
   const repeat = parseRepeat(task.repeatRule);
   if (!repeat) {
     if (task.doneAt) return { done: true, nextDue: null, repeated: true };
     const [res] = await db
       .update(tasks)
-      .set({ doneAt: now })
+      .set({ doneAt: now, doneBy: userId ?? null })
       .where(and(eq(tasks.id, task.id), isNull(tasks.doneAt)));
     return { done: true, nextDue: null, repeated: res.affectedRows !== 1 };
   }
