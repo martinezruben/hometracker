@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { es } from "@/lib/i18n/es";
-import { formatDate } from "@/lib/format";
 import type { PlanCardData } from "@/lib/appliances/overview";
 import { intervalLabel } from "@/lib/maintenance/progress";
 import { WrenchIcon } from "@/components/icons";
@@ -17,7 +16,7 @@ export function PlanCard({ plan }: { plan: PlanCardData }) {
   const chip = plan.status === "overdue" ? es.appliances.overdueChip : plan.days <= 6 && plan.days >= 0 ? `${es.calendarPage.weekdays[(plan.nextDue.getUTCDay() + 6) % 7]} ${plan.nextDue.getUTCDate()}` : short(plan.nextDue);
   return (
     <li>
-      <Link href={`/appliances/${plan.applianceId}`} className="card block space-y-3 p-4" aria-label={`${plan.appliance}, ${plan.title}, ${formatDate(plan.nextDue)}`}>
+      <Link href={`/appliances/${plan.applianceId}`} className="card block space-y-3 p-4">
         <div className="flex items-center gap-3">
           <IconTile tint={plan.status === "overdue" ? "red" : tintFor(plan.applianceId)} size={48}><WrenchIcon width={24} height={24} /></IconTile>
           <div className="min-w-0 flex-1">

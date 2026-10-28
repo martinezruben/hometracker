@@ -22,13 +22,13 @@ export function WeekStrip({ days, today }: { days: DayMark[]; today: string }) {
           <li key={d.date}>
             <Link
               href={`/calendar?d=${d.date}`}
-              aria-label={`${es.calendarPage.weekdays[i]} ${Number(d.date.slice(8))}${d.status ? `, ${es.calendarPage.hasEvents}` : ""}`}
               aria-current={isToday ? "date" : undefined}
               className={`flex h-[72px] w-[44px] flex-col items-center justify-center gap-1 rounded-full ${isToday ? "bg-primary text-white shadow-[0_6px_14px_rgb(29_78_216/0.35)]" : "card"}`}
             >
-              <span className={`text-[11px] font-bold ${isToday ? "text-white/85" : "text-muted"}`}>{es.calendarPage.weekdays[i]}</span>
+              <span className={`text-[11px] font-bold ${isToday ? "text-white" : "text-muted"}`}>{es.calendarPage.weekdays[i]}</span>
               <span className="text-lg font-extrabold leading-none">{Number(d.date.slice(8))}</span>
               <span className={`size-1.5 rounded-full ${d.status ? (isToday ? "bg-white" : dot[d.status]) : "opacity-0"}`} />
+              {d.status && <span className="sr-only">, {es.calendarPage.hasEvents}</span>}
             </Link>
           </li>
         );

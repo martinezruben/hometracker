@@ -65,12 +65,12 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
               <li key={day} className="flex justify-center">
                 <Link
                   href={link(day)}
-                  aria-label={`${Number(day.slice(8))}${evs ? `, ${es.calendarPage.hasEvents}` : ""}`}
                   aria-current={day === today ? "date" : undefined}
                   className={`flex h-12 w-10 flex-col items-center justify-center gap-0.5 rounded-full text-[15px] font-extrabold ${isSel ? "bg-primary text-white" : day === today ? "text-link" : ""}`}
                 >
                   {Number(day.slice(8))}
                   <span className={`size-1.5 rounded-full ${evs && worst ? (isSel ? "bg-white" : dot[worst]) : "opacity-0"}`} />
+                  {evs && <span className="sr-only">, {es.calendarPage.hasEvents}</span>}
                 </Link>
               </li>
             );
