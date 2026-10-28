@@ -6,7 +6,7 @@ Contexto de producto y decisiones de HomeTracker. Fuente de verdad para el "por 
 Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caja, cuándo toca mantener cada equipo, qué falta comprar, qué papeles y contratos existen y a quién llamar.
 
 ## Usuarios
-- Varias personas por hogar (pareja/familia), inicialmente en **Android**.
+- Varias personas por hogar (pareja/familia), inicialmente en **iPhone** (Android compatible).
 - Roles: admin, miembro, solo lectura.
 - Idioma: **español** únicamente por ahora.
 
@@ -28,7 +28,9 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 ## Decisiones (resumen)
 | Decisión | Valor |
 |---|---|
-| Plataforma inicial | Android; iOS más adelante |
+| Plataforma inicial | **iPhone** (iOS 16.4+, PWA instalada); Android compatible |
+| Login | OTP de 6 dígitos por correo (evita el salto Safari → PWA) |
+| Dominio | Pendiente; `NEXT_PUBLIC_APP_URL` |
 | Frontend | Next.js + TypeScript + Tailwind |
 | Backend | Supabase (Auth, Postgres, Storage, Realtime, Edge Functions, pg_cron) |
 | Offline | Service worker + IndexedDB; cola de cambios; LWW por `updated_at` |
@@ -36,10 +38,12 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 | Hosting | Vercel / Cloudflare Pages |
 | QR | URL `https://<dominio>/b/<uuid>`, requiere login |
 
-## Notas sobre iOS (para la Fase 6)
+## Notas sobre iOS (aplican desde ya)
 - Push solo con PWA instalada en pantalla de inicio, iOS 16.4+, permiso pedido con gesto del usuario.
 - Escanear el QR con la cámara nativa abre Safari, no la PWA; por eso la vista de caja es una ruta web normal con login.
-- Sin sync en segundo plano; alternativa de respaldo: Capacitor o recordatorios por correo.
+- Sin sync en segundo plano ni BarcodeDetector en Safari; la cola offline se vacía al abrir la app y en eventos `online`.
+- Safari y la PWA instalada no comparten sesión: por eso el login es por código OTP, no por enlace.
+- Alternativa de respaldo: Capacitor o recordatorios por correo.
 
 ## Glosario
 - **Hogar (household)**: unidad que agrupa miembros y datos.
@@ -48,10 +52,9 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Repositorio recién inicializado; solo documentación (`PLAN.md`, `CLAUDE.md`, `CONTEXT.md`). Siguiente paso: **Fase 0 — Base**.
+Fase 0 en curso. Hecho: app Next.js 16 con shell PWA (manifest, iconos, service worker, navegación inferior, banner sin conexión, textos en `es.ts`), Vitest. Pendiente: proyecto Supabase, auth OTP, hogares/invitaciones, CI, guía de instalación en iPhone.
 
 ## Preguntas abiertas
-- Dominio definitivo (los QR impresos dependen de él).
-- Login: magic link vs Google.
+- Dominio definitivo (lo dará el usuario; los QR impresos dependen de él).
 - Formato de etiquetas QR (A4 o térmica).
 - Moneda y formato de fecha.

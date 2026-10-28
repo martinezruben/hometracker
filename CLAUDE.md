@@ -3,10 +3,12 @@
 Guía para Claude Code en este repositorio. Lee también `CONTEXT.md` (producto y decisiones) y `PLAN.md` (fases).
 
 ## Proyecto
-HomeTracker: PWA en español para gestionar el hogar (cajas con QR, equipos y mantenimientos, listas, tareas, documentos, contactos, gastos). Multiusuario por "hogar". Android primero.
+Antes de escribir código de Next.js lee la guía correspondiente en `node_modules/next/dist/docs/` (esta versión difiere de lo habitual; ver `AGENTS.md`).
+
+HomeTracker: PWA en español para gestionar el hogar (cajas con QR, equipos y mantenimientos, listas, tareas, documentos, contactos, gastos). Multiusuario por "hogar". iPhone primero (PWA instalada); Android compatible.
 
 ## Stack
-Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) · Serwist (service worker) · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
+Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) · service worker propio en `public/sw.js` · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
 
 ## Reglas de trabajo
 - Trabajar en la rama indicada por la sesión; no abrir PR salvo que se pida.
@@ -24,6 +26,13 @@ Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storag
 - Fechas en UTC en BD; mostrar en zona horaria local.
 - Mobile-first: diseñar para pantallas de ~360 px, objetivos táctiles ≥ 44 px.
 
+## iOS / Safari
+- Probar siempre pensando en iPhone: sin BarcodeDetector (usar `@zxing/browser`), sin Background Sync, push solo con PWA instalada.
+- Login por OTP de 6 dígitos, nunca depender de enlaces que abran Safari.
+- Incluir metas `apple-mobile-web-app-*`, `apple-touch-icon` y respetar safe-area (`env(safe-area-inset-*)`).
+- Subir fotos con `<input type="file" accept="image/*" capture>`.
+- La URL base sale de `NEXT_PUBLIC_APP_URL` (dominio pendiente); nunca hardcodearla.
+
 ## Offline y sincronización
 - Escrituras siempre vía la capa de mutaciones (`src/lib/offline`): optimista → cola → envío con reintentos.
 - Lecturas con caché en IndexedDB; mostrar estado de sincronización al usuario.
@@ -39,15 +48,15 @@ Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storag
 - Cambios solo mediante migraciones en `supabase/migrations/` (SQL versionado).
 - Regenerar tipos de Supabase tras cada migración.
 
-## Comandos (se completarán en la Fase 0)
+## Comandos
 ```
 npm run dev        # desarrollo
 npm run build      # build de producción
 npm run lint       # ESLint
 npm run typecheck  # tsc --noEmit
 npm run test       # Vitest
-npm run e2e        # Playwright
+npm run e2e        # Playwright (pendiente de configurar)
 ```
 
 ## Definition of done
-Tipos, lint y tests en verde · RLS verificada · funciona en Android real · funciona offline-light · `PLAN.md` actualizado.
+Tipos, lint y tests en verde · RLS verificada · funciona en iPhone real · funciona offline-light · `PLAN.md` actualizado.

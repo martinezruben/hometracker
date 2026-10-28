@@ -4,21 +4,23 @@ Plan maestro. Se actualiza al cerrar cada fase (marcar `[x]`).
 
 ## 1. Objetivo
 
-PWA en español para que varias personas gestionen el hogar: cajas con QR, equipos y mantenimientos, listas, pendientes, documentos, contactos/proveedores y compras. Abre rápido y guarda cambios al reconectar. Dispositivos iniciales: **Android** (iOS queda como compatibilidad futura).
+PWA en español para que varias personas gestionen el hogar: cajas con QR, equipos y mantenimientos, listas, pendientes, documentos, contactos/proveedores y compras. Abre rápido y guarda cambios al reconectar. Dispositivos iniciales: **iPhone (iOS 16.4+, PWA instalada)**; Android funciona con el mismo código.
 
 ## 2. Decisiones tomadas
 
 | Tema | Decisión |
 |---|---|
-| Plataformas | Android (Chrome) primero; iOS después (push solo con PWA instalada, iOS 16.4+) |
+| Plataformas | **iPhone primero** (Safari/PWA instalada, iOS 16.4+); Android compatible |
+| Dominio | Pendiente; se usa variable `NEXT_PUBLIC_APP_URL` hasta tenerlo (los QR dependen de él) |
 | Offline | "Offline-light": app shell en caché + lecturas cacheadas + **cola de cambios** que se sincroniza al reconectar. No se exige uso 100% offline. |
+| Login | **Código OTP de 6 dígitos por correo** (no magic link: en iOS el enlace abre Safari y la sesión no pasa a la PWA instalada) |
 | Idioma | Solo español (`es`). Textos centralizados para poder i18n más adelante. |
 | Prioridad | 1) Cajas con QR, 2) Equipos y mantenimientos con recordatorios push |
 | Frontend | Next.js (App Router) + TypeScript + Tailwind |
 | Backend | Supabase: Postgres, Auth, Storage, Realtime, Edge Functions, `pg_cron` |
-| Push | Web Push (VAPID) con `web-push`; funciona en Android sin instalar, mejor instalada |
+| Push | Web Push (VAPID) con `web-push`; **en iPhone solo funciona con la PWA instalada en pantalla de inicio** |
 | Hosting | Vercel (o Cloudflare Pages), HTTPS |
-| Offline técnico | Service worker (Serwist) + IndexedDB (Dexie) para cola y caché de lectura |
+| Offline técnico | Service worker propio (`public/sw.js`; Serwist se evalúa si crece) + IndexedDB (Dexie) para cola y caché de lectura |
 
 ## 3. Arquitectura
 
@@ -28,7 +30,7 @@ Android Chrome / PWA instalada
   ├─ Service Worker: caché app shell, push, background sync (cuando exista)
   ├─ IndexedDB (Dexie): caché de lectura + cola de mutaciones
   └─ Supabase JS client ──► Supabase
-                             ├─ Auth (email magic link / Google)
+                             ├─ Auth (OTP por correo)
                              ├─ Postgres + RLS por household
                              ├─ Storage (fotos, PDFs) con URLs firmadas
                              ├─ Realtime (cambios entre miembros)
@@ -81,11 +83,11 @@ docs/               notas técnicas
 ## 6. Fases
 
 ### Fase 0 — Base (≈1 semana)
-- [ ] Next.js + TS + Tailwind + ESLint/Prettier + Vitest + Playwright
+- [x] Next.js + TS + Tailwind + ESLint + Vitest (Playwright y Prettier pendientes)
 - [ ] Proyecto Supabase, migraciones iniciales, RLS de households
-- [ ] Auth (magic link) + creación de hogar + invitar miembros por enlace
-- [ ] PWA: manifest, iconos, service worker, instalable en Android
-- [ ] Layout móvil (barra inferior), tema claro/oscuro
+- [ ] Auth (OTP por correo) + creación de hogar + invitar miembros por enlace
+- [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); *pendiente*: pantalla guía de instalación
+- [x] Layout móvil (barra inferior), tema claro/oscuro
 - [ ] CI (lint, tipos, tests) y deploy preview
 
 ### Fase 1 — Cajas con QR (≈1–2 semanas) ★
@@ -94,7 +96,7 @@ docs/               notas técnicas
 - [ ] Elementos de texto por caja; búsqueda por contenido
 - [ ] Generación de QR por caja + hoja de etiquetas imprimible (PDF)
 - [ ] Ruta `/b/<id>`: vista de contenido (fotos + texto); redirige a login y vuelve
-- [ ] Escáner QR dentro de la app (BarcodeDetector con respaldo `zxing`)
+- [ ] Escáner QR dentro de la app (Safari no tiene BarcodeDetector: usar `@zxing/browser`); la cámara nativa del iPhone abre Safari
 - [ ] Offline-light: ver cajas cacheadas y crear/editar en cola
 
 ### Fase 2 — Equipos y mantenimientos + push (≈1–2 semanas) ★
@@ -102,7 +104,7 @@ docs/               notas técnicas
 - [ ] Planes de mantenimiento recurrentes; cálculo de próximo vencimiento
 - [ ] Registrar mantenimiento realizado (costo, proveedor, notas) y recalcular
 - [ ] Vista "Próximos mantenimientos" y calendario
-- [ ] Suscripción Web Push + pantalla de permisos
+- [ ] Suscripción Web Push + pantalla de permisos (botón con gesto del usuario, solo en PWA instalada iOS)
 - [ ] Edge Function `send-reminders` con `pg_cron` (diario) y recordatorio N días antes
 - [ ] QR opcional por equipo
 
@@ -121,21 +123,22 @@ docs/               notas técnicas
 - [ ] Mejoras de sync (reintentos, indicador de estado, resolución de conflictos)
 - [ ] Rendimiento (Lighthouse PWA ≥ 90), accesibilidad, respaldos
 
-### Fase 6 — iOS (futuro)
-- [ ] Probar push en iPhone real con PWA instalada; guía de instalación in-app
-- [ ] Si falla: envolver con Capacitor o respaldo por correo
+### Fase 6 — Android y extras (futuro)
+- [ ] Probar en Android; Background Sync donde exista
+- [ ] Si el push en iPhone no es fiable: Capacitor o respaldo por correo
 
 ## 7. Calidad
 - Tests unitarios (Vitest) para cálculo de mantenimientos y cola de sync.
 - E2E (Playwright) para flujos: crear caja → QR → abrir; crear equipo → plan → recordatorio.
-- Pruebas manuales en Android real en cada fase.
+- Pruebas manuales en iPhone real (PWA instalada) en cada fase; Safari no soporta Background Sync: la cola se vacía al abrir la app y en eventos `online`.
 - Definition of done: tipos OK, lint OK, tests OK, RLS probada, funciona offline-light.
 
 ## 8. Riesgos
 | Riesgo | Mitigación |
 |---|---|
 | Sincronización offline compleja | Alcance "offline-light", IDs de cliente, LWW, borrado lógico |
-| Push poco fiable | Respaldo por correo para vencimientos críticos |
+| Push en iOS (solo PWA instalada, sin sync en segundo plano) | Probar en iPhone real desde la Fase 2; respaldo por correo para vencimientos críticos |
+| Sesión Safari vs PWA instalada separadas | Login por OTP dentro de la PWA |
 | Crecimiento de fotos | Compresión en cliente, miniaturas, límites por hogar |
 | Fuga entre hogares | RLS + pruebas automatizadas de políticas |
 | QR cambia de dominio | Dominio propio estable desde el inicio |
@@ -144,7 +147,6 @@ docs/               notas técnicas
 Supabase y Vercel gratis para empezar; Supabase Pro ≈ 25 USD/mes si crecen las fotos; dominio ≈ 12 USD/año.
 
 ## 10. Pendientes por definir
-- Dominio definitivo (afecta los QR impresos).
-- Método de login preferido (magic link vs Google).
+- Dominio definitivo (afecta los QR impresos); lo dará el usuario más adelante.
 - Moneda y formato de fecha por defecto.
 - Tamaño de etiqueta QR (hoja A4 de etiquetas o impresora térmica).
