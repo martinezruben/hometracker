@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { es } from "@/lib/i18n/es";
-import { BottomNav } from "@/components/BottomNav";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
 
@@ -29,10 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <OfflineBanner />
-        <main className="flex-1 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-24">
-          {children}
-        </main>
-        <BottomNav />
+        {children}
         <PwaRegister />
       </body>
     </html>

@@ -5,7 +5,9 @@ import * as schema from "./schema";
 const globalForDb = globalThis as unknown as { pool?: mysql.Pool };
 
 function createPool() {
-  const url = process.env.DATABASE_URL;
+  // Durante `next build` no hay base de datos: el pool no conecta hasta la primera consulta.
+  const building = process.env.NEXT_PHASE === "phase-production-build";
+  const url = process.env.DATABASE_URL ?? (building ? "mysql://build@localhost/build" : undefined);
   if (!url) throw new Error("Falta DATABASE_URL");
   return mysql.createPool({
     uri: url,

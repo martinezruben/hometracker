@@ -92,8 +92,8 @@ docs/               notas técnicas
 ### Fase 0 — Base (≈1 semana)
 - [x] Next.js + TS + Tailwind + ESLint + Vitest (Playwright y Prettier pendientes)
 - [x] Esquema MySQL (Drizzle) con 20 tablas y migración inicial aplicada
-- [ ] Capa de acceso `requireMember` y pruebas de aislamiento entre hogares
-- [ ] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
+- [x] Capa de acceso `requireMember` / `requireApiMember` y pruebas de aislamiento entre hogares
+- [x] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
 - [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); *pendiente*: pantalla guía de instalación
 - [x] Layout móvil (barra inferior), tema claro/oscuro
 - [ ] CI (lint, tipos, tests) y deploy preview
