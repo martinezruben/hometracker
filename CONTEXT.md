@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fase 0 en curso. Hecho: app Next.js 16 con shell PWA (manifest, iconos, service worker, navegación inferior, banner sin conexión, textos en `es.ts`), Vitest. Base de datos: esquema MySQL (20 tablas, Drizzle) con migración inicial. Pendiente: auth OTP + sesiones, `requireMember`, hogares/invitaciones, almacenamiento de archivos, CI, guía de instalación en iPhone.
+Fase 0 casi completa. Hecho: shell PWA, esquema MySQL (20 tablas, Drizzle), login por OTP con sesiones en cookie, roles, hogares e invitaciones por enlace (de un solo uso, 7 días), pruebas unitarias y de integración. Pendiente: almacenamiento de archivos (S3), CI, Playwright, guía de instalación en iPhone. Siguiente: Fase 1 (cajas con QR).
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.

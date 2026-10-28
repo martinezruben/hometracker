@@ -45,6 +45,12 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - El QR solo contiene `https://<dominio>/b/<uuid>`; la autorización la hace el servidor.
 - No commitear secretos; usar `.env.local` (ignorado) y `.env.example`.
 
+## Auth y acceso
+- Páginas: `requireUser()` / `requireActiveHousehold()` / `requireMember()` (redirigen). Route Handlers: `requireApiUser()` / `requireApiMember()` (lanzan 401/403; capturar con `handleError`).
+- El `householdId` de una consulta sale de `requireMember`, nunca directamente del cuerpo de la petición.
+- Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
+- En desarrollo sin `SMTP_URL`, el código OTP se imprime en la consola del servidor.
+
 ## Base de datos
 - Esquema en `src/db/schema.ts` (Drizzle). Cambios solo con migraciones: `npm run db:generate` y `npm run db:migrate` (SQL en `db/migrations/`, se commitea).
 - IDs `CHAR(36)` UUID, fechas `DATETIME(3)` en UTC, importes `DECIMAL(12,2)`, charset utf8mb4.
