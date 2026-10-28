@@ -4,6 +4,7 @@ import { db, schema } from "@/db";
 import { requireApiUser } from "@/lib/auth/access";
 import { assertRole, ForbiddenError, NotFoundError } from "@/lib/auth/roles";
 import { getBoxAccess } from "@/lib/boxes/data";
+import { getApplianceAccess } from "@/lib/appliances/data";
 import { uuid } from "@/lib/boxes/schemas";
 import { handleError, json } from "@/lib/http";
 import { getStorage } from "@/lib/storage";
@@ -14,7 +15,7 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 const meta = z.object({
   id: uuid,
-  entityType: z.literal("box"), // se ampliará a equipos, listas, etc.
+  entityType: z.enum(["box", "appliance"]), // se ampliará a listas, documentos, etc.
   entityId: uuid,
   caption: z.string().trim().max(300).optional(),
   width: z.coerce.number().int().positive().max(20000).optional(),
@@ -36,10 +37,13 @@ export async function POST(request: Request) {
       return json({ error: "invalid_file" }, 400);
     }
 
-    const access = await getBoxAccess(user.id, m.entityId);
+    const access =
+      m.entityType === "box"
+        ? await getBoxAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.box.householdId })
+        : await getApplianceAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.appliance.householdId });
     if (!access) throw new NotFoundError();
     assertRole(access.role, "member");
-    const householdId = access.box.householdId;
+    const householdId = access.householdId;
 
     const [existing] = await db.select().from(schema.photos).where(eq(schema.photos.id, m.id));
     if (existing) {

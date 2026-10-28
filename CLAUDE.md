@@ -54,6 +54,11 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
 - En desarrollo sin `SMTP_URL`, el código OTP se imprime en la consola del servidor.
 
+## Mantenimientos
+- La lógica de fechas vive en `src/lib/maintenance/schedule.ts` (puro, con tests). Las fechas "solo día" se guardan como medianoche UTC y se muestran con `formatDate`.
+- `completePlan` registra el mantenimiento y reprograma en una transacción, idempotente por el `id` del registro.
+- Los recordatorios se calcularán desde `next_due - remind_days_before` en el cron, sin duplicar filas por edición de planes.
+
 ## Archivos y fotos
 - Las fotos se comprimen en el cliente (`src/lib/image.ts`: 1600 px + miniatura 400 px, JPEG) y se suben a `/api/photos` (multipart, idempotente por `id`).
 - Se sirven solo por `/api/files/<id>` (autoriza por membresía); nunca exponer URLs directas del bucket.
