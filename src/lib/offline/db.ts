@@ -16,7 +16,22 @@ export type OutboxMeta = {
     | "plan-add"
     | "plan-update"
     | "plan-delete"
-    | "plan-complete";
+    | "plan-complete"
+    | "list-create"
+    | "list-update"
+    | "list-delete"
+    | "list-clear"
+    | "list-item-add"
+    | "list-item-update"
+    | "list-item-delete"
+    | "task-add"
+    | "task-complete"
+    | "task-update"
+    | "task-delete";
+  listId?: string;
+  taskId?: string;
+  /** Contenido del cambio, para mostrarlo de forma optimista. */
+  data?: Record<string, unknown>;
   /** Entidad dueña de la foto (caja, equipo…). */
   entityId?: string;
   applianceId?: string;

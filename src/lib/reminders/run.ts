@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/format";
 import { reminderFireAt } from "@/lib/maintenance/schedule";
 import type { PushSender } from "@/lib/push/send";
 
-const { maintenancePlans, appliances, householdMembers, pushSubscriptions, reminders } = schema;
+const { maintenancePlans, appliances, householdMembers, pushSubscriptions, reminders, tasks } = schema;
 
 const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // no avisar de recordatorios de hace más de 30 días
 
@@ -103,6 +103,40 @@ export async function runReminders(send: PushSender, now = new Date()): Promise<
         });
         if (inserted) result.created++;
       }
+    }
+  }
+
+  // 1b) Pendientes con fecha que ya vencieron o vencen hoy (un aviso por tarea y fecha).
+  const dueTasks = await db
+    .select()
+    .from(tasks)
+    .where(
+      and(
+        isNull(tasks.deletedAt),
+        isNull(tasks.doneAt),
+        lte(tasks.dueAt, now),
+        gte(tasks.dueAt, new Date(now.getTime() - MAX_AGE_MS)),
+      ),
+    );
+  for (const task of dueTasks) {
+    const members = await db
+      .select({ userId: householdMembers.userId })
+      .from(householdMembers)
+      .where(eq(householdMembers.householdId, task.householdId));
+    const recipients = task.assignedTo ? members.filter((m) => m.userId === task.assignedTo) : members;
+    for (const r of recipients) {
+      const inserted = await insertIfNew({
+        id: randomUUID(),
+        householdId: task.householdId,
+        userId: r.userId,
+        entityType: "task_due",
+        entityId: task.id,
+        title: `Pendiente: ${task.title}`,
+        body: `Vence el ${formatDate(task.dueAt!)}`,
+        url: "/tasks",
+        fireAt: task.dueAt!,
+      });
+      if (inserted) result.created++;
     }
   }
 
