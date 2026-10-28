@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fase 0 casi completa (pendiente CI, Playwright en repo, guía de instalación iPhone). **Fase 1 (cajas con QR) completa**: CRUD, ítems, fotos, búsqueda, etiquetas QR, escáner en la app y offline-light (cola en IndexedDB que se vacía al abrir, al reconectar y cada 30 s; páginas y fotos visitadas quedan en caché del service worker y se borran al cerrar sesión). Pendiente: probar el driver S3 con un bucket real y probar en iPhone real. Siguiente: Fase 2 (equipos, mantenimientos y push).
+Fase 0 casi completa (pendiente CI, Playwright en repo, guía de instalación iPhone). Fase 1 (cajas con QR) completa, con offline-light. **Fase 2 en curso**: equipos con fotos y garantía, planes de mantenimiento recurrentes (próximo vencimiento se cuenta desde la fecha en que se hizo), historial con costo, próximos mantenimientos en Inicio, todo con cola offline. Pendiente de Fase 2: notificaciones push (suscripción VAPID, cron de recordatorios, guía de instalación en iPhone), QR por equipo, manual en PDF, proveedor en el registro.
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.

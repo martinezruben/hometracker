@@ -9,7 +9,18 @@ export type OutboxMeta = {
     | "item-add"
     | "item-delete"
     | "photo-add"
-    | "photo-delete";
+    | "photo-delete"
+    | "appliance-create"
+    | "appliance-update"
+    | "appliance-delete"
+    | "plan-add"
+    | "plan-update"
+    | "plan-delete"
+    | "plan-complete";
+  /** Entidad dueña de la foto (caja, equipo…). */
+  entityId?: string;
+  applianceId?: string;
+  planId?: string;
   boxId?: string;
   itemId?: string;
   photoId?: string;

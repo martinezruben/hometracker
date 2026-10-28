@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { es } from "@/lib/i18n/es";
-import { compressPhoto, makeThumbnail } from "@/lib/image";
 import { newId } from "@/lib/uuid";
 import { mutate } from "@/lib/offline/outbox";
 import { useOutbox } from "@/lib/offline/useOutbox";
 import type { OutboxMeta } from "@/lib/offline/db";
+import { EntityPhotos } from "@/components/EntityPhotos";
 import { buttonCls, inputCls, linkBtnCls } from "@/components/ui";
 
 type Item = { id: string; title: string; notes: string | null };
@@ -27,22 +27,16 @@ export function BoxContent({
 }) {
   const router = useRouter();
   const [title, setTitle] = useState("");
-  const [uploading, setUploading] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState({ name: box.name, location: box.location ?? "", notes: box.notes ?? "" });
-  const cameraRef = useRef<HTMLInputElement>(null);
-  const galleryRef = useRef<HTMLInputElement>(null);
 
   const outbox = useOutbox();
   const pending = outbox.filter((i) => !i.error && i.meta.boxId === box.id);
   const hiddenItems = new Set(pending.filter((i) => i.meta.op === "item-delete").map((i) => i.meta.itemId));
-  const hiddenPhotos = new Set(pending.filter((i) => i.meta.op === "photo-delete").map((i) => i.meta.photoId));
   const knownItems = new Set(items.map((i) => i.id));
   const pendingItems = pending.filter((i) => i.meta.op === "item-add" && !knownItems.has(i.meta.itemId!));
-  const pendingPhotos = pending.filter((i) => i.meta.op === "photo-add");
   const shownItems = items.filter((i) => !hiddenItems.has(i.id));
-  const shownPhotos = photos.filter((p) => !hiddenPhotos.has(p.id));
 
   async function call(url: string, method: string, meta: OutboxMeta, body?: unknown) {
     return mutate({ url, method, body, meta: { boxId: box.id, ...meta } });
@@ -57,42 +51,6 @@ export function BoxContent({
     } catch {
       setError(es.auth.genericError);
     }
-  }
-
-  async function uploadFiles(files: FileList | null) {
-    if (!files?.length) return;
-    setError(null);
-    for (const file of Array.from(files)) {
-      setUploading((n) => n + 1);
-      try {
-        const [full, thumb] = await Promise.all([compressPhoto(file), makeThumbnail(file)]);
-        const photoId = newId();
-        await mutate({
-          kind: "photo",
-          url: "/api/photos",
-          method: "POST",
-          photo: {
-            fields: {
-              id: photoId,
-              entityType: "box",
-              entityId: box.id,
-              width: String(full.width),
-              height: String(full.height),
-            },
-            file: full.blob,
-            thumb: thumb.blob,
-          },
-          meta: { op: "photo-add", boxId: box.id, photoId },
-        });
-        if (navigator.onLine) router.refresh();
-      } catch {
-        setError(es.boxes.uploadError);
-      } finally {
-        setUploading((n) => n - 1);
-      }
-    }
-    if (cameraRef.current) cameraRef.current.value = "";
-    if (galleryRef.current) galleryRef.current.value = "";
   }
 
   return (
@@ -140,44 +98,7 @@ export function BoxContent({
         )
       )}
 
-      <section className="space-y-3">
-        <h2 className="font-semibold">{es.boxes.photos}</h2>
-        {(shownPhotos.length > 0 || pendingPhotos.length > 0) && (
-          <ul className="grid grid-cols-3 gap-2">
-            {shownPhotos.map((p) => (
-              <li key={p.id} className="relative aspect-square overflow-hidden rounded-lg border border-border">
-                <a href={`/api/files/${p.id}`} target="_blank" rel="noreferrer">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/api/files/${p.id}?thumb=1`} alt="" loading="lazy" className="h-full w-full object-cover" />
-                </a>
-                {canEdit && (
-                  <button
-                    aria-label={es.boxes.delete}
-                    className="absolute right-1 top-1 size-8 rounded-full bg-black/60 text-white"
-                    onClick={() => {
-                      if (confirm(es.boxes.confirmDeletePhoto)) void run(() => call(`/api/photos/${p.id}`, "DELETE", { op: "photo-delete", photoId: p.id }).then(() => undefined));
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-              </li>
-            ))}
-            {pendingPhotos.map((p) => (
-              <PendingPhoto key={p.seq} blob={p.photo!.thumb} />
-            ))}
-          </ul>
-        )}
-        {canEdit && (
-          <div className="grid grid-cols-2 gap-3">
-            <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => uploadFiles(e.target.files)} />
-            <input ref={galleryRef} type="file" accept="image/*" multiple hidden onChange={(e) => uploadFiles(e.target.files)} />
-            <button className={buttonCls} onClick={() => cameraRef.current?.click()}>{es.boxes.takePhoto}</button>
-            <button className={buttonCls} onClick={() => galleryRef.current?.click()}>{es.boxes.pickPhoto}</button>
-          </div>
-        )}
-        {uploading > 0 && <p className="text-sm text-muted">{es.boxes.uploading}</p>}
-      </section>
+      <EntityPhotos entityType="box" entityId={box.id} photos={photos} canEdit={canEdit} title={es.boxes.photos} />
 
       <section className="space-y-3">
         <h2 className="font-semibold">{es.boxes.contents}</h2>
@@ -228,14 +149,3 @@ export function BoxContent({
   );
 }
 
-function PendingPhoto({ blob }: { blob: Blob }) {
-  const src = useMemo(() => URL.createObjectURL(blob), [blob]);
-  useEffect(() => () => URL.revokeObjectURL(src), [src]);
-  return (
-    <li className="relative aspect-square overflow-hidden rounded-lg border border-dashed border-border opacity-70">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      {src && <img src={src} alt="" className="h-full w-full object-cover" />}
-      <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 text-xs text-white">{es.sync.pendingTag}</span>
-    </li>
-  );
-}
