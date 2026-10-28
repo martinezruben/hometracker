@@ -301,6 +301,18 @@ export const es = {
     nextMonth: "Mes siguiente",
     uncategorized: "Sin categoría",
   },
+  search: {
+    title: "Buscar",
+    placeholder: "Cajas, equipos, listas, documentos…",
+    hint: "Escribe al menos 2 letras para buscar en todo tu hogar.",
+    none: "No encontramos nada con esa búsqueda.",
+    open: "Buscar en todo",
+  },
+  data: {
+    title: "Tus datos",
+    description: "Descarga una copia de todo lo que guardaste (sin los archivos adjuntos).",
+    export: "Descargar mis datos",
+  },
   push: {
     title: "Recordatorios",
     description: "Recibe avisos en este dispositivo cuando se acerque un mantenimiento.",
