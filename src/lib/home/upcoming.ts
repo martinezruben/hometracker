@@ -25,8 +25,8 @@ export type HomeOverview = {
   hasOverdue: boolean;
 };
 
-/** Próximos mantenimientos, pendientes con fecha y vencimientos de documentos, más el puntaje de salud. */
-export async function homeOverview(householdId: string, now = new Date(), limit = 6): Promise<HomeOverview> {
+/** Todo lo que tiene fecha (mantenimientos, pendientes, vencimientos de documentos), ordenado por fecha. */
+export async function loadUpcoming(householdId: string, now = new Date()): Promise<UpcomingItem[]> {
   const [plans, openTasks, docs] = await Promise.all([
     db
       .select({ id: maintenancePlans.id, title: maintenancePlans.title, due: maintenancePlans.nextDue, applianceId: appliances.id, appliance: appliances.name })
@@ -57,6 +57,12 @@ export async function homeOverview(householdId: string, now = new Date(), limit 
   ]
     .map((i) => ({ ...i, status: dueStatus(i.date, now), days: daysUntil(i.date, now) }))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
+  return all;
+}
+
+/** Próximos mantenimientos, pendientes con fecha y vencimientos de documentos, más el puntaje de salud. */
+export async function homeOverview(householdId: string, now = new Date(), limit = 6): Promise<HomeOverview> {
+  const all = await loadUpcoming(householdId, now);
 
   const count = (kind: UpcomingItem["kind"], pred: (i: UpcomingItem) => boolean) => all.filter((i) => i.kind === kind && pred(i)).length;
   const score = healthScore({

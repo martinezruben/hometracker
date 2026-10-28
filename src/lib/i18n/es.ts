@@ -107,6 +107,14 @@ export const es = {
   },
   appliances: {
     title: "Equipos",
+    summary: (n: number, attention: number) =>
+      `${n} ${n === 1 ? "equipo" : "equipos"} · ${attention === 0 ? "todo al día" : attention === 1 ? "1 requiere atención" : `${attention} requieren atención`}`,
+    stat: { overdue: "Vencidos", soon: "Pronto", ok: "Al día" },
+    calendar: "Calendario",
+    maintenanceTitle: "Mantenimientos",
+    allAppliances: "Todos los equipos",
+    emptyPlans: "Aún no hay mantenimientos programados. Abre un equipo y programa el primero.",
+    overdueChip: "Vencido",
     empty: "Registra tus equipos y programa sus mantenimientos.",
     emptySearch: "No hay equipos que coincidan con tu búsqueda.",
     new: "Nuevo equipo",
@@ -366,6 +374,16 @@ export const es = {
     prevMonth: "Mes anterior",
     nextMonth: "Mes siguiente",
     uncategorized: "Sin categoría",
+  },
+  calendarPage: {
+    title: "Calendario",
+    weekdays: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    weekdaysShort: ["L", "M", "X", "J", "V", "S", "D"],
+    nothing: "Nada programado este día.",
+    hasEvents: "hay eventos",
+    prev: "Mes anterior",
+    next: "Mes siguiente",
+    back: "Volver",
   },
   search: {
     title: "Buscar",

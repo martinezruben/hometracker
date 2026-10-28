@@ -64,6 +64,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 - `BottomNav` ya es la barra flotante con botón central de escaneo; Ajustes se abre desde el avatar de Inicio.
 - Inicio ya sigue el diseño: saludo (`Greeting`, según la hora del dispositivo) con avatar y campana, buscador con filtros, `HealthCard` (puntaje `healthScore` de `src/lib/home/health.ts`: parte de 100 y resta por mantenimientos/pendientes/documentos vencidos, con tope por categoría), accesos rápidos y `UpcomingRow` (`/upcoming` lista todo). El nombre de la persona se pide al crear el hogar y se edita en Más.
 - Cajas ya sigue el diseño: número correlativo por hogar (`boxes.number`, único y asignado con reintento si hay concurrencia), color pastel (`boxes.color`, editable), objetos con cantidad y categoría (`box_items.quantity/category`), `BoxCard` en rejilla, filtros por ubicación con conteo, banner de escaneo y detalle con portada/carrusel, QR, estadísticas y contenido. La caja se marca como actualizada al cambiar contenido o fotos.
+- Equipos ya sigue el diseño: tarjetas Vencidos/Pronto/Al día (por equipo, según su peor mantenimiento), tira semanal con puntos de color (`WeekStrip`), `PlanCard` con barra de avance del ciclo (`planProgress`) e intervalo, y `/calendar` con cuadrícula mensual y lista por día.
 - Las pantallas se van migrando una a una (ver Fase 6 de `PLAN.md`); mientras tanto heredan tarjetas, colores y tipografía por los tokens.
 
 ## 6. Cómo aplicarlo
