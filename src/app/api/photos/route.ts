@@ -5,6 +5,7 @@ import { requireApiUser } from "@/lib/auth/access";
 import { assertRole, ForbiddenError, NotFoundError } from "@/lib/auth/roles";
 import { getBoxAccess } from "@/lib/boxes/data";
 import { getApplianceAccess } from "@/lib/appliances/data";
+import { getListItemAccess } from "@/lib/lists/data";
 import { uuid } from "@/lib/boxes/schemas";
 import { handleError, json } from "@/lib/http";
 import { getStorage } from "@/lib/storage";
@@ -15,7 +16,7 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 const meta = z.object({
   id: uuid,
-  entityType: z.enum(["box", "appliance"]), // se ampliará a listas, documentos, etc.
+  entityType: z.enum(["box", "appliance", "list_item"]), // se ampliará a listas, documentos, etc.
   entityId: uuid,
   caption: z.string().trim().max(300).optional(),
   width: z.coerce.number().int().positive().max(20000).optional(),
@@ -40,7 +41,9 @@ export async function POST(request: Request) {
     const access =
       m.entityType === "box"
         ? await getBoxAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.box.householdId })
-        : await getApplianceAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.appliance.householdId });
+        : m.entityType === "appliance"
+          ? await getApplianceAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.appliance.householdId })
+          : await getListItemAccess(user.id, m.entityId).then((a) => a && { role: a.role, householdId: a.item.householdId });
     if (!access) throw new NotFoundError();
     assertRole(access.role, "member");
     const householdId = access.householdId;

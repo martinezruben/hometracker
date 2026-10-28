@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { InviteForm } from "@/components/InviteForm";
 import { LogoutButton } from "@/components/LogoutButton";
 import { PushSettings } from "@/components/PushSettings";
@@ -10,8 +11,14 @@ export default async function MorePage() {
     <section className="space-y-6">
       <h1 className="text-2xl font-bold">{es.more.title}</h1>
       <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+        <li>
+          <Link href="/tasks" className="flex min-h-14 items-center justify-between p-4">
+            <span>{es.tasks.title}</span>
+            <span aria-hidden>›</span>
+          </Link>
+        </li>
         {es.more.items.map((item) => (
-          <li key={item} className="flex items-center justify-between p-4">
+          <li key={item} className="flex min-h-14 items-center justify-between p-4">
             <span>{item}</span>
             <span className="text-xs text-muted">{es.more.comingSoon}</span>
           </li>

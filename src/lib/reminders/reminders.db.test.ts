@@ -87,6 +87,27 @@ if (!process.env.DATABASE_URL) {
       expect(r2).toMatchObject({ created: 0, sent: 0 });
     });
 
+    it("avisa de pendientes con fecha vencida (solo a su asignado) y no repite", async () => {
+      const now = new Date(Date.now() + 2000);
+      const h1 = hogares[0];
+      const id = randomUUID();
+      await db.insert(schema.tasks).values({ id, householdId: h1, title: "Pagar luz", dueAt: new Date(now.getTime() - DAY), assignedTo: A });
+      const sentTo: string[] = [];
+      const send = async (s: { endpoint: string }) => {
+        sentTo.push(s.endpoint);
+        return "sent" as const;
+      };
+      const r1 = await runReminders(send, now);
+      expect(r1.created).toBeGreaterThanOrEqual(1);
+      expect(sentTo).toContain(endpoint(A));
+      expect(sentTo).not.toContain(endpoint(B));
+      const before = sentTo.length;
+      await runReminders(send, now);
+      expect(sentTo.length).toBe(before);
+      await db.delete(schema.reminders).where(inArray(schema.reminders.entityId, [id]));
+      await db.delete(schema.tasks).where(inArray(schema.tasks.id, [id]));
+    });
+
     it("reintenta si falla de forma transitoria, borra suscripciones caídas y solo avisa al asignado", async () => {
       const now = new Date(Date.now() + 1000);
       const h1 = hogares[0];

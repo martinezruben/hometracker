@@ -117,9 +117,9 @@ docs/               notas técnicas
 - [ ] QR opcional por equipo
 
 ### Fase 3 — Listas y pendientes (≈1 semana)
-- [ ] Listas (súper, venta, general) con ítems, fotos, precio y estado vendido
-- [ ] Tareas con asignado, fecha, repetición y notificación
-- [ ] Actualización entre miembros (polling/revalidación)
+- [x] Listas (súper, venta, general) con ítems, fotos, precio y estado vendido
+- [x] Tareas con asignado, fecha, repetición y notificación
+- [ ] Actualización entre miembros (polling/revalidación): hoy se ve al abrir la app o recargar
 
 ### Fase 4 — Documentos, contactos y gastos (≈1–2 semanas)
 - [ ] Documentos (facturas, recibos, contratos, garantías) con vencimientos

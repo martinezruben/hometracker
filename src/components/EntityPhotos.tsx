@@ -17,7 +17,7 @@ export function EntityPhotos({
   canEdit,
   title,
 }: {
-  entityType: "box" | "appliance";
+  entityType: "box" | "appliance" | "list_item";
   entityId: string;
   photos: { id: string }[];
   canEdit: boolean;

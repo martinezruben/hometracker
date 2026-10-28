@@ -37,6 +37,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Escrituras del cliente siempre con `mutate()` (`src/lib/offline/outbox.ts`): envía si hay red; si no (o hay cola previa) guarda en IndexedDB y `SyncManager` la vacía en orden. Los 4xx no se encolan (HttpError); los 5xx/red sí.
 - Tras `mutate`, solo `router.refresh()` si `navigator.onLine` y no quedó en cola; la UI muestra lo pendiente con `useOutbox()`.
 - Los endpoints de escritura deben ser idempotentes por `id` generado en el cliente (los reintentos son normales).
+- Para que lo pendiente se vea al instante sin conexión, los datos de la cola se superponen a los del servidor con funciones puras (`src/lib/offline/overlay.ts`, con tests); para controles (checkbox) añade además estado local optimista, que se descarta cuando llegan datos nuevos del servidor.
 - Para probar offline de verdad usa el build de producción (`next build && next start`), no `next dev`.
 - Lecturas con caché en IndexedDB; mostrar estado de sincronización al usuario.
 - Fotos: comprimir en cliente antes de subir; subir en segundo plano.
