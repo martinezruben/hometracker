@@ -18,7 +18,9 @@ test("equipo con plan vencido: aparece en Inicio, se completa con costo y se rep
   await expect(page.getByText("Vencido hace 3 días")).toBeVisible();
 
   await page.goto("/");
-  await expect(page.getByRole("link", { name: /Limpiar filtros/ })).toContainText("Vencido hace 3 días");
+  const row = page.getByRole("link", { name: /Limpiar filtros/ });
+  await expect(row).toContainText("Vencido");
+  await expect(row).toContainText("Hace 3 días");
 
   await page.goBack();
   await page.getByRole("button", { name: "Marcar como hecho" }).click();
