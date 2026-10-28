@@ -29,6 +29,13 @@
       "when": 1793163439469,
       "tag": "0003_preferencias_recordatorios",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1793222585762,
+      "tag": "0004_acceso_usuario_contrasena",
+      "breakpoints": true
     }
   ]
 }

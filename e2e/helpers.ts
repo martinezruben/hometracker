@@ -1,29 +1,16 @@
-import fs from "node:fs";
 import { expect, type Browser, type BrowserContext, type Page } from "@playwright/test";
-import { MAIL_FILE } from "../playwright.config";
-
-/** Último código de acceso enviado a `email` (el SMTP de prueba guarda los correos en un archivo). */
-export async function otpFor(email: string): Promise<string> {
-  for (let i = 0; i < 50; i++) {
-    const mails = fs.readFileSync(MAIL_FILE, "utf8").split("\n=====\n");
-    const mail = [...mails].reverse().find((m) => m.toLowerCase().includes(`to: ${email.toLowerCase()}`));
-    const code = mail?.match(/HomeTracker es (\d{6})/)?.[1];
-    if (code) return code;
-    await new Promise((r) => setTimeout(r, 100));
-  }
-  throw new Error(`No llegó el código para ${email}`);
-}
 
 export const uniqueEmail = (tag: string) => `${tag}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}@test.local`;
 
-/** Inicia sesión con código OTP. Deja la página en `/onboarding` (usuario nuevo) o en `/`. */
+export const TEST_PASSWORD = "clave-segura-123";
+
+/** Crea una cuenta nueva (correo + contraseña). Deja la página en `/onboarding` o en la invitación. */
 export async function login(page: Page, email: string) {
   await page.goto("/login");
+  await page.getByRole("button", { name: "¿No tienes cuenta? Crear una" }).click();
   await page.getByLabel("Correo electrónico").fill(email);
-  await page.getByRole("button", { name: "Enviar código" }).click();
-  const code = await otpFor(email);
-  await page.getByLabel("Código de 6 dígitos").fill(code);
-  await page.getByRole("button", { name: "Entrar" }).click();
+  await page.getByLabel("Contraseña").fill(TEST_PASSWORD);
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
 }
 
 /** Crea un usuario nuevo con su hogar y lo deja en Inicio. */

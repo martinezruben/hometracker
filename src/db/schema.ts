@@ -41,12 +41,16 @@ export const users = mysqlTable(
     id: id(),
     email: varchar("email", { length: 255 }).notNull(),
     name: varchar("name", { length: 120 }),
+    /** scrypt (`salt:hash` en hex). Null en cuentas creadas con el acceso por OTP, hoy desactivado. */
+    passwordHash: varchar("password_hash", { length: 255 }),
+    failedLogins: int("failed_logins").notNull().default(0),
+    lockedUntil: ts("locked_until"),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("users_email_uq").on(t.email)],
 );
 
-/** Códigos OTP de 6 dígitos (se guarda solo el hash). */
+/** Códigos OTP de 6 dígitos (se guarda solo el hash). Acceso por OTP desactivado por ahora. */
 export const otpCodes = mysqlTable(
   "otp_codes",
   {

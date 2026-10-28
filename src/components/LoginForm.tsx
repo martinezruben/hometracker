@@ -7,37 +7,23 @@ import { buttonCls, inputCls, linkBtnCls } from "@/components/ui";
 
 export function LoginForm({ next }: { next: string }) {
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function post(url: string, body: unknown) {
-    const res = await fetch(url, {
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError(null);
+    const res = await fetch(`/api/auth/${mode}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    return { res, data: await res.json().catch(() => ({})) };
-  }
-
-  async function sendCode(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const { res } = await post("/api/auth/request", { email });
-    setBusy(false);
-    if (res.ok) setStep("code");
-    else setError(res.status === 429 ? es.auth.tooMany : es.auth.genericError);
-  }
-
-  async function verify(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setError(null);
-    const { res, data } = await post("/api/auth/verify", { email, code });
-    if (res.ok) {
+      body: JSON.stringify({ email, password }),
+    }).catch(() => null);
+    const data = res ? await res.json().catch(() => ({})) : {};
+    if (res?.ok) {
       // Quien llega con una invitación va directo a unirse; el resto, sin hogar, crea el suyo.
       const joining = next.startsWith("/join/");
       router.replace(data.hasHousehold || joining ? next : `/onboarding?next=${encodeURIComponent(next)}`);
@@ -45,46 +31,51 @@ export function LoginForm({ next }: { next: string }) {
       return;
     }
     setBusy(false);
-    setError(res.status === 401 ? es.auth.invalidCode : es.auth.genericError);
+    setError(
+      res?.status === 401 ? es.auth.invalidCredentials
+        : res?.status === 409 ? es.auth.emailTaken
+        : res?.status === 429 ? es.auth.tooMany
+        : es.auth.genericError,
+    );
   }
 
-  return step === "email" ? (
-    <form onSubmit={sendCode} className="space-y-4">
+  const registering = mode === "register";
+  return (
+    <form onSubmit={submit} className="space-y-4">
       <label className="block space-y-1">
         <span className="text-sm text-muted">{es.auth.emailLabel}</span>
         <input
           className={inputCls}
           type="email"
           inputMode="email"
-          autoComplete="email"
+          autoComplete="username"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
       </label>
-      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-      <button className={buttonCls} disabled={busy}>{es.auth.sendCode}</button>
-    </form>
-  ) : (
-    <form onSubmit={verify} className="space-y-4">
       <label className="block space-y-1">
-        <span className="text-sm text-muted">{es.auth.codeLabel}</span>
+        <span className="text-sm text-muted">{es.auth.passwordLabel}</span>
         <input
-          className={`${inputCls} text-center text-2xl tracking-[0.5em]`}
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          pattern="\d{6}"
-          maxLength={6}
+          className={inputCls}
+          type="password"
+          autoComplete={registering ? "new-password" : "current-password"}
           required
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+          minLength={registering ? 8 : undefined}
+          maxLength={128}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <span className="block text-xs text-muted">{es.auth.codeHint}</span>
+        {registering && <span className="block text-xs text-muted">{es.auth.passwordHint}</span>}
       </label>
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-      <button className={buttonCls} disabled={busy || code.length !== 6}>{es.auth.verify}</button>
-      <button type="button" className={linkBtnCls} onClick={() => { setStep("email"); setCode(""); setError(null); }}>
-        {es.auth.changeEmail}
+      <button className={buttonCls} disabled={busy}>{registering ? es.auth.register : es.auth.login}</button>
+      <button
+        type="button"
+        className={linkBtnCls}
+        onClick={() => { setMode(registering ? "login" : "register"); setError(null); }}
+      >
+        {registering ? es.auth.toLogin : es.auth.toRegister}
       </button>
     </form>
   );

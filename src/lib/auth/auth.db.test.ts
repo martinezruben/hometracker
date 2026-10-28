@@ -10,6 +10,7 @@ if (!hasDb) {
 } else {
   const { db, schema } = await import("@/db");
   const { createOtp, verifyOtp, OTP_MAX_ATTEMPTS, RateLimitError } = await import("./otp");
+  const { registerUser, authenticate, EmailTakenError, LOGIN_MAX_FAILURES } = await import("./password");
   const { createHousehold, createInvitation, acceptInvitation } = await import("@/lib/households");
   const { getMemberRole, requireRole } = await import("./membership");
   const { ForbiddenError } = await import("./roles");
@@ -25,7 +26,7 @@ if (!hasDb) {
       await db.delete(schema.householdMembers).where(eq(schema.householdMembers.householdId, id));
       await db.delete(schema.households).where(eq(schema.households.id, id));
     }
-    for (const n of ["ana", "beto", "carla", "dani", "eli"]) {
+    for (const n of ["ana", "beto", "carla", "dani", "eli", "fede"]) {
       await db.delete(schema.otpCodes).where(eq(schema.otpCodes.email, email(n)));
       await db.delete(schema.users).where(eq(schema.users.email, email(n)));
     }
@@ -48,6 +49,19 @@ if (!hasDb) {
   it("OTP vencido es inválido", async () => {
     const { code } = await createOtp(email("carla"), new Date(Date.now() - 11 * 60 * 1000));
     expect(await verifyOtp(email("carla"), code)).toBeNull();
+  });
+
+  it("contraseña: registra, autentica, rechaza duplicados y bloquea tras fallos seguidos", async () => {
+    const u = await registerUser(email("Fede"), "una-clave-larga");
+    expect(u.passwordHash).not.toContain("una-clave-larga");
+    await expect(registerUser(email("fede"), "otra-clave-larga")).rejects.toBeInstanceOf(EmailTakenError);
+    expect((await authenticate(email("fede").toUpperCase(), "una-clave-larga"))?.id).toBe(u.id);
+    expect(await authenticate(email("fede"), "mala")).toBeNull();
+    expect(await authenticate(email("nadie"), "una-clave-larga")).toBeNull();
+    for (let i = 1; i < LOGIN_MAX_FAILURES; i++) await authenticate(email("fede"), "mala"); // ya hubo 1 fallo
+    await expect(authenticate(email("fede"), "una-clave-larga")).rejects.toBeInstanceOf(RateLimitError);
+    const later = new Date(Date.now() + 16 * 60 * 1000);
+    expect((await authenticate(email("fede"), "una-clave-larga", later))?.id).toBe(u.id);
   });
 
   it("limita los códigos por hora", async () => {

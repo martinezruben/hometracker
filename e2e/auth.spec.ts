@@ -1,19 +1,19 @@
 import { expect, test } from "@playwright/test";
-import { alertBox, login, newUser, otpFor, signUp, uniqueEmail } from "./helpers";
+import { alertBox, login, newUser, signUp, TEST_PASSWORD, uniqueEmail } from "./helpers";
 
-test("código incorrecto no entra y el correcto sí; cerrar sesión protege las páginas", async ({ page }) => {
+test("contraseña incorrecta no entra y la correcta sí; cerrar sesión protege las páginas", async ({ page }) => {
   const email = uniqueEmail("auth");
+  await login(page, email); // crea la cuenta
+  await page.waitForURL("**/onboarding**");
+  await page.context().clearCookies();
+
   await page.goto("/login");
   await page.getByLabel("Correo electrónico").fill(email);
-  await page.getByRole("button", { name: "Enviar código" }).click();
-  const code = await otpFor(email);
-  const wrong = code === "000000" ? "111111" : "000000";
-
-  await page.getByLabel("Código de 6 dígitos").fill(wrong);
+  await page.getByLabel("Contraseña").fill("otra-contraseña-1");
   await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(alertBox(page)).toHaveText("Código inválido o vencido.");
+  await expect(alertBox(page)).toHaveText("Correo o contraseña incorrectos.");
 
-  await page.getByLabel("Código de 6 dígitos").fill(code);
+  await page.getByLabel("Contraseña").fill(TEST_PASSWORD);
   await page.getByRole("button", { name: "Entrar" }).click();
   await page.waitForURL("**/onboarding**");
   await page.getByLabel("Nombre del hogar").fill("Casa Auth");
@@ -40,10 +40,10 @@ test("una invitación suma a otra persona al hogar, una sola vez y con el rol el
   await gp.goto(link); // sin sesión: pide login y regresa a la invitación
   await expect(gp).toHaveURL(/\/login\?next=%2Fjoin%2F/);
   const guestEmail = uniqueEmail("guest");
+  await gp.getByRole("button", { name: "¿No tienes cuenta? Crear una" }).click();
   await gp.getByLabel("Correo electrónico").fill(guestEmail);
-  await gp.getByRole("button", { name: "Enviar código" }).click();
-  await gp.getByLabel("Código de 6 dígitos").fill(await otpFor(guestEmail));
-  await gp.getByRole("button", { name: "Entrar" }).click();
+  await gp.getByLabel("Contraseña").fill(TEST_PASSWORD);
+  await gp.getByRole("button", { name: "Crear cuenta" }).click();
   await expect(gp.getByRole("heading", { name: "Unirte al hogar" })).toBeVisible(); // sin pasar por "Crea tu hogar"
   await gp.getByRole("button", { name: "Aceptar invitación" }).click();
   await expect(gp.getByText("Casa Compartida")).toBeVisible();
@@ -56,6 +56,7 @@ test("una invitación suma a otra persona al hogar, una sola vez y con el rol el
   const third = await browser.newContext({ viewport: { width: 390, height: 800 } });
   const tp = await third.newPage();
   await login(tp, uniqueEmail("third"));
+  await tp.waitForURL("**/onboarding**");
   await tp.goto(link);
   await tp.getByRole("button", { name: "Aceptar invitación" }).click();
   await expect(alertBox(tp)).toHaveText("La invitación no es válida, venció o ya se usó.");
@@ -101,4 +102,17 @@ test("recordatorios: interruptores por tipo que se guardan y persisten", async (
   await expect(page.getByText("no están configuradas").or(page.getByRole("button", { name: "Activar recordatorios" }))).toBeVisible();
   await page.getByRole("button", { name: "Ahora no" }).click();
   await expect(page).toHaveURL("/");
+});
+
+test("no se puede crear dos veces la misma cuenta ni con contraseña corta", async ({ page }) => {
+  const email = uniqueEmail("dup");
+  await login(page, email);
+  await page.waitForURL("**/onboarding**");
+  await page.context().clearCookies();
+  await login(page, email);
+  await expect(alertBox(page)).toHaveText("Ese correo ya tiene una cuenta.");
+  await page.getByLabel("Correo electrónico").fill(uniqueEmail("corta"));
+  await page.getByLabel("Contraseña").fill("corta");
+  await page.getByRole("button", { name: "Crear cuenta" }).click();
+  await expect(page).toHaveURL(/\/login/); // el navegador exige 8 caracteres
 });
