@@ -14,24 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: hometracker
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=20
-    env:
       DATABASE_URL: mysql://root:root@127.0.0.1:3306/hometracker
     steps:
       - name: MySQL 8 (preinstalado en el runner)
         run: |
           sudo systemctl start mysql.service
           mysql --version
-          mysql -uroot -proot -e "SELECT VERSION()" || sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;"
-          mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS hometracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+          sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root'; FLUSH PRIVILEGES;"
+          mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS hometracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; SELECT VERSION();"
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
