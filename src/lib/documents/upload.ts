@@ -29,3 +29,4 @@ export async function uploadAttachment(url: string, file: File): Promise<UploadR
 
 export const uploadDocumentFile = (docId: string, file: File) => uploadAttachment(`/api/documents/${docId}/file`, file);
 export const uploadReceipt = (expenseId: string, file: File) => uploadAttachment(`/api/expenses/${expenseId}/receipt`, file);
+export const uploadManual = (applianceId: string, file: File) => uploadAttachment(`/api/appliances/${applianceId}/manual`, file);

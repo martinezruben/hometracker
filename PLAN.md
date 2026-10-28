@@ -108,13 +108,13 @@ docs/               notas técnicas
 - [x] Offline-light: cola de cambios en IndexedDB (cajas, ítems, fotos), páginas y fotos visitadas en caché
 
 ### Fase 2 — Equipos y mantenimientos + push (≈1–2 semanas) ★
-- [x] CRUD de equipos con fotos y garantía (*pendiente*: manual en PDF)
+- [x] CRUD de equipos con fotos y garantía (manual en PDF o foto)
 - [x] Planes de mantenimiento recurrentes; cálculo de próximo vencimiento
 - [x] Registrar mantenimiento realizado (costo, proveedor, notas) y recalcular
 - [x] Vista "Próximos mantenimientos" en Inicio y por equipo (*pendiente*: calendario)
 - [x] Suscripción Web Push + pantalla de permisos (botón con gesto del usuario, solo en PWA instalada iOS) y guía de instalación en iPhone
 - [x] Endpoint `/api/cron/reminders` (cron diario, protegido con `CRON_SECRET`): aviso N días antes y otro el día del vencimiento
-- [ ] QR opcional por equipo
+- [x] QR por equipo (`/appliances/<id>/label`; el QR abre `/e/<id>`, con login y retorno; el escáner de la app lo reconoce)
 
 ### Fase 3 — Listas y pendientes (≈1 semana)
 - [x] Listas (súper, venta, general) con ítems, fotos, precio y estado vendido

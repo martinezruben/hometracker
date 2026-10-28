@@ -9,7 +9,9 @@ import { nextDueAfter } from "@/lib/maintenance/schedule";
 import { ApplianceActions } from "@/components/ApplianceActions";
 import { ApplianceMaintenance } from "@/components/ApplianceMaintenance";
 import { DueBadge } from "@/components/DueBadge";
+import { ApplianceManual } from "@/components/ApplianceManual";
 import { EntityPhotos } from "@/components/EntityPhotos";
+import { listContacts } from "@/lib/contacts/data";
 import { linkBtnCls } from "@/components/ui";
 
 const t = es.appliances;
@@ -22,7 +24,8 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
   if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noAccess}</p>;
 
   const { appliance: a, role } = access;
-  const { plans, logs, photos } = await getApplianceContent(a);
+  const [{ plans, logs, photos }, contacts] = await Promise.all([getApplianceContent(a), listContacts(a.householdId)]);
+  const providerName = new Map(contacts.map((c) => [c.id, c.name]));
   const canEdit = role !== "viewer";
   const now = new Date();
   const warranty = a.warrantyUntil
@@ -33,7 +36,10 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
 
   return (
     <section className="space-y-6">
-      <Link href="/appliances" className={linkBtnCls}>← {t.back}</Link>
+      <div className="flex items-center justify-between">
+        <Link href="/appliances" className={linkBtnCls}>← {t.back}</Link>
+        <Link href={`/appliances/${a.id}/label`} className={linkBtnCls}>{t.printLabel}</Link>
+      </div>
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">{a.name}</h1>
         <p className="text-muted">{[a.brand, a.model].filter(Boolean).join(" · ")}</p>
@@ -63,6 +69,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
       <ApplianceMaintenance
         applianceId={a.id}
         canEdit={canEdit}
+        providers={contacts.map((c) => ({ id: c.id, name: c.name }))}
         plans={plans.map((p) => ({
           id: p.id,
           title: p.title,
@@ -73,6 +80,8 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
           badge: <DueBadge nextDue={p.nextDue} now={now} />,
         }))}
       />
+
+      <ApplianceManual id={a.id} hasManual={!!a.manualKey} canEdit={canEdit} />
 
       <EntityPhotos entityType="appliance" entityId={a.id} photos={photos.map((p) => ({ id: p.id }))} canEdit={canEdit} title={t.photos} />
 
@@ -92,6 +101,9 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
                     {l.cost != null && ` · ${formatMoney(l.cost)}`}
                     {plan && ` · ${t.nextAfter(formatDate(nextDueAfter(l.doneAt, plan.intervalValue, plan.intervalUnit)))}`}
                   </p>
+                  {l.providerId && providerName.get(l.providerId) && (
+                    <p className="text-sm text-muted">{t.doneBy(providerName.get(l.providerId)!)}</p>
+                  )}
                   {l.notes && <p className="text-sm">{l.notes}</p>}
                 </li>
               );

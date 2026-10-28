@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-**Fases 0 a 4 completas** y de la **Fase 5** ya están la búsqueda global, la exportación de datos (JSON, solo administradores) y el refresco automático entre miembros (cada minuto con la app visible). CI verde en GitHub Actions contra MySQL 8. Pendiente: dashboard, QR por equipo, manual en PDF, proveedor en el registro de mantenimiento, Playwright dentro del repo, auditoría de accesibilidad y rendimiento (Lighthouse), limpieza programada de archivos de borrados lógicos. **Sin validar en hardware real**: push en iPhone y driver S3; falta elegir hosting, proveedor de MySQL/correo/S3 y dominio.
+**Fases 0 a 4 completas** y gran parte de la **Fase 5**: búsqueda global, exportación, refresco entre miembros, QR por equipo, manual del equipo (PDF/foto) y proveedor al registrar un mantenimiento (validado por hogar). CI verde en GitHub Actions contra MySQL 8. Pendiente: dashboard, Playwright dentro del repo, auditoría de accesibilidad y rendimiento, limpieza programada de archivos de borrados lógicos. **Sin validar en hardware real**: push en iPhone, cámara del escáner y driver S3; falta elegir hosting, proveedor de MySQL/correo/S3 y dominio.
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.
