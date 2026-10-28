@@ -11,7 +11,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     if (!access) throw new NotFoundError();
     assertRole(access.role, "member");
     const { dueAt } = taskComplete.parse(await request.json().catch(() => ({})));
-    return json(await completeTask(access.task, new Date(), dueAt));
+    return json(await completeTask(access.task, new Date(), dueAt, user.id));
   } catch (err) {
     return handleError(err);
   }

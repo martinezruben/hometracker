@@ -65,7 +65,7 @@ export async function globalSearch(householdId: string, rawQuery: string): Promi
     boxes: boxes.slice(0, LIMIT).map((b) => ({ id: b.id, title: b.name, subtitle: b.location ?? undefined, href: `/b/${b.id}` })),
     appliances: appliances.slice(0, LIMIT).map((a) => ({ id: a.id, title: a.name, subtitle: [a.brand, a.model].filter(Boolean).join(" · ") || undefined, href: `/appliances/${a.id}` })),
     lists: [...listHits.values()].slice(0, LIMIT),
-    tasks: taskRows.map((t) => ({ id: t.id, title: t.title, subtitle: t.doneAt ? "Hecho" : undefined, href: "/tasks" })),
+    tasks: taskRows.map((t) => ({ id: t.id, title: t.title, subtitle: t.doneAt ? "Hecho" : undefined, href: "/lists" })),
     documents: documents.slice(0, LIMIT).map((d) => ({ id: d.id, title: d.title, href: `/documents/${d.id}` })),
     contacts: contacts.slice(0, LIMIT).map((c) => ({ id: c.id, title: c.name, subtitle: c.category ?? undefined, href: `/contacts/${c.id}` })),
     expenses: expenseRows.map((e) => ({ id: e.id, title: e.title, subtitle: e.category ?? undefined, href: `/expenses/${e.id}` })),

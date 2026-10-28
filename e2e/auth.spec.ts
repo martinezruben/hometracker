@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { alertBox, login, newUser, otpFor, uniqueEmail } from "./helpers";
+import { alertBox, login, newUser, otpFor, signUp, uniqueEmail } from "./helpers";
 
 test("código incorrecto no entra y el correcto sí; cerrar sesión protege las páginas", async ({ page }) => {
   const email = uniqueEmail("auth");
@@ -75,4 +75,30 @@ test("el nombre se pide al crear el hogar y se usa en el saludo", async ({ page 
   await expect(page.getByRole("heading", { name: "Rubén" })).toBeVisible();
   await expect(page.getByText("SALUD DEL HOGAR")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Casa Martínez" })).toBeVisible();
+});
+
+test("recordatorios: interruptores por tipo que se guardan y persisten", async ({ page }) => {
+  await signUp(page, "recordatorios");
+  await page.goto("/reminders");
+  await expect(page.getByRole("heading", { name: "Nunca olvides un mantenimiento" })).toBeVisible();
+  const sw = (name: string) => page.getByRole("switch", { name });
+  // valores por defecto: todo activo salvo el resumen semanal
+  await expect(sw("Mantenimientos")).toBeChecked();
+  await expect(sw("Garantías y pagos")).toBeChecked();
+  await expect(sw("Mis pendientes")).toBeChecked();
+  await expect(sw("Resumen semanal")).not.toBeChecked();
+
+  await sw("Resumen semanal").click();
+  await sw("Mis pendientes").click();
+  await expect(sw("Resumen semanal")).toBeChecked();
+  await page.waitForTimeout(500);
+  await page.reload();
+  await expect(sw("Resumen semanal")).toBeChecked();
+  await expect(sw("Mis pendientes")).not.toBeChecked();
+  await expect(sw("Mantenimientos")).toBeChecked();
+
+  // sin la app instalada o sin claves VAPID, el botón explica qué falta
+  await expect(page.getByText("no están configuradas").or(page.getByRole("button", { name: "Activar recordatorios" }))).toBeVisible();
+  await page.getByRole("button", { name: "Ahora no" }).click();
+  await expect(page).toHaveURL("/");
 });

@@ -25,8 +25,8 @@ export type HomeOverview = {
   hasOverdue: boolean;
 };
 
-/** Próximos mantenimientos, pendientes con fecha y vencimientos de documentos, más el puntaje de salud. */
-export async function homeOverview(householdId: string, now = new Date(), limit = 6): Promise<HomeOverview> {
+/** Todo lo que tiene fecha (mantenimientos, pendientes, vencimientos de documentos), ordenado por fecha. */
+export async function loadUpcoming(householdId: string, now = new Date()): Promise<UpcomingItem[]> {
   const [plans, openTasks, docs] = await Promise.all([
     db
       .select({ id: maintenancePlans.id, title: maintenancePlans.title, due: maintenancePlans.nextDue, applianceId: appliances.id, appliance: appliances.name })
@@ -52,11 +52,17 @@ export async function homeOverview(householdId: string, now = new Date(), limit 
 
   const all: UpcomingItem[] = [
     ...plans.map((p) => ({ key: `m-${p.id}`, kind: "maintenance" as const, title: p.title, context: p.appliance, date: p.due, href: `/appliances/${p.applianceId}` })),
-    ...openTasks.map((t) => ({ key: `t-${t.id}`, kind: "task" as const, title: t.title, context: t.assignee ?? t.assigneeEmail?.split("@")[0] ?? "", date: t.due!, href: "/tasks" })),
+    ...openTasks.map((t) => ({ key: `t-${t.id}`, kind: "task" as const, title: t.title, context: t.assignee ?? t.assigneeEmail?.split("@")[0] ?? "", date: t.due!, href: "/lists" })),
     ...docs.map((d) => ({ key: `d-${d.id}`, kind: "document" as const, title: d.title, context: "", date: d.due!, href: `/documents/${d.id}` })),
   ]
     .map((i) => ({ ...i, status: dueStatus(i.date, now), days: daysUntil(i.date, now) }))
     .sort((a, b) => a.date.getTime() - b.date.getTime());
+  return all;
+}
+
+/** Próximos mantenimientos, pendientes con fecha y vencimientos de documentos, más el puntaje de salud. */
+export async function homeOverview(householdId: string, now = new Date(), limit = 6): Promise<HomeOverview> {
+  const all = await loadUpcoming(householdId, now);
 
   const count = (kind: UpcomingItem["kind"], pred: (i: UpcomingItem) => boolean) => all.filter((i) => i.kind === kind && pred(i)).length;
   const score = healthScore({

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { goOffline, goOnline, newUser } from "./helpers";
+import { api, goOffline, goOnline, newId, newUser } from "./helpers";
 
 test("equipo con plan vencido: aparece en Inicio, se completa con costo y se reprograma; sin conexión queda pendiente", async ({ browser }) => {
   const { page, context } = await newUser(browser, "maint");
@@ -59,5 +59,43 @@ test("QR del equipo: pide login y vuelve al equipo", async ({ browser }) => {
   await page.goto(`/e/${id}`);
   await expect(page).toHaveURL(new RegExp(`/appliances/${id}`));
   await anon.close();
+  await context.close();
+});
+
+test("Equipos: resumen por estado, tarjetas de mantenimiento con intervalo y calendario", async ({ browser }) => {
+  const { page, context } = await newUser(browser, "equipos");
+  const d = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+  const make = async (name: string, title: string, value: number, unit: string, offset: number) => {
+    const id = newId();
+    await api(page, "POST", "/api/appliances", { id, name, location: "Sala" });
+    await api(page, "POST", `/api/appliances/${id}/plans`, { title, intervalValue: value, intervalUnit: unit, nextDue: d(offset) });
+  };
+  await make("Calentador", "Revisión anual", 1, "year", -12);
+  await make("Aire", "Limpiar filtros", 3, "month", 2);
+  await make("Nevera", "Filtro de agua", 6, "month", 80);
+
+  await page.goto("/appliances");
+  await expect(page.getByText("3 equipos · 2 requieren atención")).toBeVisible();
+  const stats = page.getByRole("list", { name: "Resumen" });
+  await expect(stats.getByRole("listitem").nth(0)).toContainText("Vencidos");
+  await expect(stats.getByRole("listitem").nth(0)).toContainText("1");
+  await expect(stats.getByRole("listitem").nth(1)).toContainText("1"); // pronto: el aire
+  await expect(stats.getByRole("listitem").nth(2)).toContainText("1"); // al día: la nevera
+
+  const cards = page.getByRole("link").filter({ hasText: "cada" });
+  await expect(cards.first()).toContainText("Calentador");
+  await expect(cards.first()).toContainText("Vencido");
+  await expect(cards.first()).toContainText("cada año");
+  await expect(page.getByRole("link", { name: /Aire/ }).first()).toContainText("cada 3 meses");
+
+  // semana con punto de evento y calendario con el día seleccionable
+  await expect(page.getByRole("list", { name: "Semana" }).getByRole("listitem")).toHaveCount(7);
+  await page.getByRole("link", { name: "Calendario" }).click();
+  await expect(page.getByRole("heading", { name: "Calendario" })).toBeVisible();
+  const aireDay = d(2);
+  await page.goto(`/calendar?d=${aireDay}`);
+  await expect(page.getByText("Limpiar filtros")).toBeVisible();
+  await page.goto(`/calendar?d=${d(30)}`);
+  await expect(page.getByText("Nada programado este día.")).toBeVisible();
   await context.close();
 });

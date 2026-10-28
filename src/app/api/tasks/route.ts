@@ -27,6 +27,9 @@ export async function POST(request: Request) {
       dueAt: input.dueAt ?? null,
       repeatRule: input.repeatRule ?? null,
       assignedTo: input.assignedTo ?? null,
+      dueTime: input.dueTime ?? null,
+      urgent: input.urgent ?? false,
+      category: input.category || null,
     });
     if (!task) throw new ForbiddenError();
     return json({ task }, 201);

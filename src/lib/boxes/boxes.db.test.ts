@@ -57,14 +57,14 @@ if (!process.env.DATABASE_URL) {
       const u = users[0];
       const h = await createHousehold(u, "Casa numerada");
       hogares.push(h);
-      const made = await Promise.all(Array.from({ length: 6 }, (_, i) => createBox(h, u, { name: `Caja ${i}` })));
+      const made = await Promise.all(Array.from({ length: 12 }, (_, i) => createBox(h, u, { name: `Caja ${i}` })));
       const numbers = made.map((b) => b!.number).sort((a, b) => a - b);
-      expect(numbers).toEqual([1, 2, 3, 4, 5, 6]);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
       expect(new Set(made.map((b) => b!.color)).size).toBe(4); // colores en ciclo
       // el reintento con el mismo id no consume otro número
       const again = await createBox(h, u, { id: made[0]!.id, name: "otra vez" });
       expect(again?.number).toBe(made[0]!.number);
-      expect((await createBox(h, u, { name: "siguiente" }))!.number).toBe(7);
+      expect((await createBox(h, u, { name: "siguiente" }))!.number).toBe(13);
     });
   });
 }

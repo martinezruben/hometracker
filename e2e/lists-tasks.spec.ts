@@ -3,7 +3,7 @@ import { goOffline, goOnline, newUser, png } from "./helpers";
 
 test("lista del súper: marcar y agregar sin conexión, sincronizar y quitar marcados", async ({ browser }) => {
   const { page, context } = await newUser(browser, "super");
-  await page.goto("/lists");
+  await page.goto("/lists?tab=super");
   await page.getByRole("button", { name: "Nueva lista" }).click();
   await page.getByPlaceholder("Súper de la semana").fill("Súper semana");
   await page.getByRole("button", { name: "Crear lista" }).click();
@@ -36,10 +36,9 @@ test("lista del súper: marcar y agregar sin conexión, sincronizar y quitar mar
 
 test("lista para vender: precio, foto y marcar vendido", async ({ browser }) => {
   const { page, context } = await newUser(browser, "venta");
-  await page.goto("/lists");
+  await page.goto("/lists?tab=venta");
   await page.getByRole("button", { name: "Nueva lista" }).click();
   await page.getByPlaceholder("Súper de la semana").fill("Para vender");
-  await page.getByLabel("Tipo").selectOption("sale");
   await page.getByRole("button", { name: "Crear lista" }).click();
   await page.waitForURL(/\/lists\/[0-9a-f-]{36}/);
 
@@ -54,29 +53,71 @@ test("lista para vender: precio, foto y marcar vendido", async ({ browser }) => 
   await context.close();
 });
 
-test("pendientes: una tarea recurrente vencida se reprograma y una simple pasa a hechos", async ({ browser }) => {
-  const { page, context } = await newUser(browser, "tareas");
-  await page.goto("/tasks");
+test("pendientes: grupos, recurrente vencida que se reprograma, urgente, pasos y hechos", async ({ browser }) => {
+  const { page, context } = await newUser(browser, "tareas", "Casa tareas");
+  await page.goto("/lists");
+  await expect(page.getByText("Nada pendiente", { exact: false }).or(page.getByText("No hay pendientes"))).toBeVisible();
 
-  const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-  await page.getByPlaceholder("¿Qué hay que hacer?").fill("Sacar basura");
-  await page.getByLabel("Repetir").selectOption("1:week");
-  await page.locator("input[type=date]").evaluate((el) => el.removeAttribute("min"));
-  await page.getByLabel("Fecha (opcional)").fill(yesterday);
-  await page.getByRole("button", { name: "Agregar pendiente" }).click();
-  await expect(page.getByText("Vencido hace 1 día")).toBeVisible();
+  async function add(title: string, opts: { date?: string; time?: string; category?: string; urgent?: boolean; repeat?: string } = {}) {
+    await page.getByRole("button", { name: "Pendiente", exact: true }).click();
+    const dialog = page.getByRole("dialog", { name: "Nuevo pendiente" });
+    await dialog.getByPlaceholder("¿Qué hay que hacer?").fill(title);
+    if (opts.date) {
+      await dialog.locator("input[type=date]").evaluate((el) => el.removeAttribute("min"));
+      await dialog.getByLabel("Fecha (opcional)").fill(opts.date);
+    }
+    if (opts.time) await dialog.getByLabel("Hora (opcional)").fill(opts.time);
+    if (opts.category) await dialog.getByLabel("Categoría (opcional)").fill(opts.category);
+    if (opts.repeat) await dialog.getByLabel("Repetir").selectOption(opts.repeat);
+    if (opts.urgent) await dialog.getByRole("switch", { name: "Urgente" }).click();
+    await dialog.getByRole("button", { name: "Agregar pendiente" }).click();
+    await expect(dialog).toHaveCount(0);
+  }
+  const day = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
 
-  await page.getByPlaceholder("¿Qué hay que hacer?").fill("Pagar luz");
-  await page.getByRole("button", { name: "Agregar pendiente" }).click();
-  await expect(page.getByText("Pagar luz")).toBeVisible();
+  await add("Llamar al técnico", { date: day(0), time: "18:00", category: "Equipos", urgent: true });
+  await add("Sacar el reciclaje", { date: day(-1), repeat: "1:week" });
+  await add("Sin fecha");
+  await expect(page.getByRole("region", { name: "HOY" })).toBeVisible();
 
-  await page.getByLabel("Sacar basura").click();
-  await expect(page.getByText("Vencido hace 1 día")).toHaveCount(0);
-  await page.getByLabel("Pagar luz").click();
-  await expect(page.getByLabel("Pagar luz")).toHaveCount(0); // esperar a que el servidor lo complete antes de recargar
+  const hoy = page.getByRole("region", { name: "HOY" });
+  await expect(hoy.getByRole("listitem").first()).toContainText("Llamar al técnico"); // urgente primero
+  await expect(hoy.getByRole("listitem").first()).toContainText("Urgente");
+  await expect(hoy.getByRole("listitem").first()).toContainText("6:00 p. m. · Equipos");
+  await expect(hoy.getByRole("listitem").nth(1)).toContainText("Cada semana");
+  await expect(page.getByRole("region", { name: "SIN FECHA" })).toContainText("Sin fecha");
+  await expect(page.getByText("2 pendientes · 2 son para hoy")).toBeVisible();
+
+  // la recurrente se reprograma a la semana siguiente y sale de HOY
+  await page.getByLabel("Sacar el reciclaje").click();
+  await expect(hoy).not.toContainText("Sacar el reciclaje");
+  // siete días después de hoy siempre cae después del domingo de esta semana
+  await expect(page.getByRole("region", { name: "MÁS ADELANTE" })).toContainText("Sacar el reciclaje");
+
+  // pasos
+  await page.getByRole("button", { name: /Llamar al técnico/ }).click();
+  await page.getByPlaceholder("Agregar un paso").fill("Buscar el número");
+  await page.getByRole("button", { name: "Agregar paso" }).click();
+  await expect(page.getByRole("checkbox", { name: "Buscar el número" })).toBeVisible();
+  await page.getByPlaceholder("Agregar un paso").fill("Pedir presupuesto");
+  await page.getByRole("button", { name: "Agregar paso" }).click();
+  await page.getByRole("checkbox", { name: "Buscar el número" }).check();
   await page.reload();
-  await expect(page.getByLabel("Sacar basura")).toHaveCount(1);
-  await expect(page.getByLabel("Pagar luz")).toHaveCount(0);
-  await expect(page.locator("details", { hasText: "Pagar luz" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: /Llamar al técnico/ })).toContainText("1 de 2 pasos");
+
+  // completar una simple: queda en HOY como hecha, con quién la hizo, y el anillo avanza
+  await page.getByLabel("Llamar al técnico").first().click();
+  await expect(hoy.getByRole("button", { name: /Reabrir Llamar al técnico/ })).toBeVisible();
+  await expect(hoy).toContainText("Hecho por");
+  await expect(page.getByText("1/")).toBeVisible();
+
+  // reabrir
+  await hoy.getByRole("button", { name: /Reabrir Llamar al técnico/ }).click();
+  await expect(hoy.getByLabel("Llamar al técnico")).toBeVisible();
+
+  // eliminar
+  await page.getByRole("button", { name: /Sin fecha/ }).click();
+  await page.getByRole("button", { name: "Eliminar", exact: true }).click();
+  await expect(page.getByText("Sin fecha", { exact: true })).toHaveCount(0);
   await context.close();
 });

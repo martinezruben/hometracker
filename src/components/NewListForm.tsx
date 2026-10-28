@@ -9,11 +9,11 @@ import { buttonCls, inputCls, linkBtnCls } from "@/components/ui";
 
 const t = es.lists;
 
-export function NewListForm() {
+export function NewListForm({ presetType }: { presetType?: "shopping" | "sale" }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
-  const [type, setType] = useState("shopping");
+  const [type, setType] = useState<string>(presetType ?? "shopping");
   const [error, setError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
@@ -42,14 +42,16 @@ export function NewListForm() {
         <span className="text-sm text-muted">{t.nameLabel}</span>
         <input className={inputCls} required maxLength={160} placeholder={t.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} />
       </label>
-      <label className="block space-y-1">
-        <span className="text-sm text-muted">{t.typeLabel}</span>
-        <select className={inputCls} value={type} onChange={(e) => setType(e.target.value)}>
-          {Object.entries(t.types).map(([k, v]) => (
-            <option key={k} value={k}>{v}</option>
-          ))}
-        </select>
-      </label>
+      {!presetType && (
+        <label className="block space-y-1">
+          <span className="text-sm text-muted">{t.typeLabel}</span>
+          <select className={inputCls} value={type} onChange={(e) => setType(e.target.value)}>
+            {Object.entries(t.types).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+        </label>
+      )}
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <div className="flex items-center gap-3">
         <button className={buttonCls} disabled={!name.trim()}>{t.create}</button>

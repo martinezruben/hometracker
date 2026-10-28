@@ -79,6 +79,13 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Importes en `DECIMAL(12,2)` (number en Drizzle); moneda con `NEXT_PUBLIC_CURRENCY` (por defecto USD). El resumen mensual usa rangos `[inicio, fin)` en UTC (`src/lib/expenses/month.ts`).
 - Los recibos usan el mismo patrón que los documentos (`uploadAttachment`, máx. 4 MB, ruta autenticada).
 
+## Recordatorios
+- Preferencias por persona en `notification_prefs` (sin fila = valor por defecto de `src/lib/notifications/prefs.ts`). `runReminders` filtra por preferencia al crear y al enviar. Un tipo nuevo de aviso debe añadirse a `prefForReminder`.
+
+## Pendientes y listas
+- `/lists` agrupa Pendientes, Súper y Para vender; los pendientes se agrupan con funciones puras (`src/lib/tasks/groups.ts`) usando la fecha local del dispositivo (`useToday`).
+- Los pasos de un pendiente (`task_steps`) son solo en línea; el resto de operaciones de pendientes usan `mutate()` y funcionan sin conexión.
+
 ## Mantenimientos
 - La lógica de fechas vive en `src/lib/maintenance/schedule.ts` (puro, con tests). Las fechas "solo día" se guardan como medianoche UTC y se muestran con `formatDate`.
 - `completePlan` registra el mantenimiento y reprograma en una transacción, idempotente por el `id` del registro.

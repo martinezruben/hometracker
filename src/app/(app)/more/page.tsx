@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { InviteForm } from "@/components/InviteForm";
 import { LogoutButton } from "@/components/LogoutButton";
-import { PushSettings } from "@/components/PushSettings";
 import { AccountForm } from "@/components/AccountForm";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { es } from "@/lib/i18n/es";
@@ -13,7 +12,7 @@ export default async function MorePage() {
       <h1 className="text-2xl font-bold">{es.more.title}</h1>
       <ul className="divide-y divide-border card">
         <li>
-          <Link href="/tasks" className="flex min-h-14 items-center justify-between p-4">
+          <Link href="/lists" className="flex min-h-14 items-center justify-between p-4">
             <span>{es.tasks.title}</span>
             <span aria-hidden>›</span>
           </Link>
@@ -32,7 +31,10 @@ export default async function MorePage() {
         ))}
       </ul>
       <AccountForm initialName={user.name ?? ""} email={user.email} />
-      <div id="recordatorios"><PushSettings /></div>
+      <Link href="/reminders" className="card flex min-h-14 items-center justify-between p-4">
+        <span className="font-extrabold">{es.reminders.open}</span>
+        <span aria-hidden>›</span>
+      </Link>
       {household.role === "admin" && <InviteForm householdId={household.id} />}
       {household.role === "admin" && (
         <section className="space-y-2 card p-4">
