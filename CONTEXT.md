@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fase 0 casi completa (pendiente CI, Playwright en repo, guía de instalación iPhone). Fase 1 (cajas con QR) completa, con offline-light. **Fase 2 en curso**: equipos con fotos y garantía, planes de mantenimiento recurrentes (próximo vencimiento se cuenta desde la fecha en que se hizo), historial con costo, próximos mantenimientos en Inicio, todo con cola offline. Pendiente de Fase 2: notificaciones push (suscripción VAPID, cron de recordatorios, guía de instalación en iPhone), QR por equipo, manual en PDF, proveedor en el registro.
+Fase 0 casi completa (pendiente CI y Playwright en el repo). Fase 1 (cajas con QR) completa, con offline-light. **Fase 2 casi completa**: equipos, planes de mantenimiento, historial, notificaciones push (suscripción por dispositivo, prueba desde Más, cron diario de recordatorios, guía de instalación en iPhone). Pendiente de Fase 2: QR por equipo, manual en PDF, proveedor en el registro. **Pendiente de validar en hardware real**: push en un iPhone real con la app instalada (en este entorno solo se probó la lógica, los endpoints y la interfaz) y el driver S3 con un bucket real. Para activar push en producción: generar claves con `npx web-push generate-vapid-keys`, definir `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` y `CRON_SECRET`, y programar la llamada diaria (`vercel.json` ya la define para Vercel).
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.

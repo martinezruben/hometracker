@@ -3,6 +3,7 @@ import Link from "next/link";
 import { upcomingMaintenance } from "@/lib/appliances/data";
 import { es } from "@/lib/i18n/es";
 import { DueBadge } from "@/components/DueBadge";
+import { InstallHint } from "@/components/InstallHint";
 
 export default async function HomePage() {
   const { household } = await requireActiveHousehold();
@@ -14,6 +15,7 @@ export default async function HomePage() {
         <h1 className="text-2xl font-bold">{es.home.title}</h1>
         <p className="text-muted">{household.name}</p>
       </header>
+      <InstallHint />
       <div>
         <h2 className="font-semibold">{es.home.nextMaintenance}</h2>
         {upcoming.length === 0 ? (

@@ -57,7 +57,8 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 ## Mantenimientos
 - La lógica de fechas vive en `src/lib/maintenance/schedule.ts` (puro, con tests). Las fechas "solo día" se guardan como medianoche UTC y se muestran con `formatDate`.
 - `completePlan` registra el mantenimiento y reprograma en una transacción, idempotente por el `id` del registro.
-- Los recordatorios se calcularán desde `next_due - remind_days_before` en el cron, sin duplicar filas por edición de planes.
+- Los recordatorios los genera `runReminders` (`src/lib/reminders/run.ts`) desde `next_due - remind_days_before`: filas únicas por (usuario, tipo, plan, momento), envío como máximo una vez (se reclama la fila antes de enviar) y se libera si todos los envíos fallan por error transitorio. Se corre desde `/api/cron/reminders` (Bearer `CRON_SECRET`).
+- Push: el service worker siempre muestra una notificación (iOS lo exige). El permiso se pide solo con un gesto del usuario y, en iPhone, solo con la app instalada.
 
 ## Archivos y fotos
 - Las fotos se comprimen en el cliente (`src/lib/image.ts`: 1600 px + miniatura 400 px, JPEG) y se suben a `/api/photos` (multipart, idempotente por `id`).
