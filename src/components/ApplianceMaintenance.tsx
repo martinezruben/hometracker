@@ -24,17 +24,19 @@ export function ApplianceMaintenance({
   applianceId,
   plans,
   canEdit,
+  providers,
 }: {
   applianceId: string;
   plans: PlanView[];
   canEdit: boolean;
+  providers: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [completing, setCompleting] = useState<string | null>(null);
   const [plan, setPlan] = useState({ title: "", value: "6", unit: "month", firstDue: todayInput(), remind: "7" });
-  const [done, setDone] = useState({ date: todayInput(), cost: "" });
+  const [done, setDone] = useState({ date: todayInput(), cost: "", providerId: "" });
 
   async function run(fn: () => Promise<{ queued: boolean }>) {
     setError(null);
@@ -91,7 +93,7 @@ export function ApplianceMaintenance({
                       mutate({
                         url: `/api/plans/${p.id}/complete`,
                         method: "POST",
-                        body: { id: newId(), doneAt: done.date, cost: done.cost ? Number(done.cost) : null },
+                        body: { id: newId(), doneAt: done.date, cost: done.cost ? Number(done.cost) : null, providerId: done.providerId || null },
                         meta: { op: "plan-complete", planId: p.id, applianceId },
                       }),
                     ).then((ok) => ok && setCompleting(null));
@@ -105,6 +107,17 @@ export function ApplianceMaintenance({
                     <span className="text-sm text-muted">{t.cost}</span>
                     <input className={inputCls} type="number" inputMode="decimal" min="0" step="0.01" value={done.cost} onChange={(e) => setDone({ ...done, cost: e.target.value })} />
                   </label>
+                  {providers.length > 0 && (
+                    <label className="block space-y-1">
+                      <span className="text-sm text-muted">{t.providerLabel}</span>
+                      <select className={inputCls} value={done.providerId} onChange={(e) => setDone({ ...done, providerId: e.target.value })}>
+                        <option value="">{t.providerNone}</option>
+                        {providers.map((p) => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
                   <div className="flex items-center gap-3">
                     <button className={buttonCls}>{t.confirmDone}</button>
                     <button type="button" className={linkBtnCls} onClick={() => setCompleting(null)}>{t.cancel}</button>

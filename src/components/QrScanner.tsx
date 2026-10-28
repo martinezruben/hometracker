@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { es } from "@/lib/i18n/es";
-import { extractBoxId } from "@/lib/qr-scan";
+import { extractTarget, targetPath } from "@/lib/qr-scan";
 
 export function QrScanner() {
   const router = useRouter();
@@ -26,10 +26,10 @@ export function QrScanner() {
           video.current!,
           (result) => {
             if (!result) return;
-            const id = extractBoxId(result.getText());
-            if (id) {
+            const target = extractTarget(result.getText());
+            if (target) {
               controls.stop();
-              router.push(`/b/${id}`);
+              router.push(targetPath(target));
             } else {
               setError(es.scan.notBox);
             }

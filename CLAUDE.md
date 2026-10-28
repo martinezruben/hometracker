@@ -48,7 +48,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - MySQL no tiene RLS: toda tabla de hogar lleva `household_id` y toda consulta debe filtrar por él tras `requireMember`. Incluir pruebas de aislamiento.
 - Nunca exponer `DATABASE_URL`, claves S3/SMTP, `SESSION_SECRET` ni la clave privada VAPID al cliente.
 - OTP, tokens de sesión e invitaciones se guardan solo como hash.
-- El QR solo contiene `https://<dominio>/b/<uuid>`; la autorización la hace el servidor.
+- El QR solo contiene `https://<dominio>/b/<uuid>` (caja) o `/e/<uuid>` (equipo); la autorización la hace el servidor.
 - No commitear secretos; usar `.env.local` (ignorado) y `.env.example`.
 
 ## Auth y acceso
@@ -65,6 +65,10 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - `globalSearch` (`src/lib/search/data.ts`) reutiliza las listas de cada módulo, que ya filtran por hogar; mínimo 2 letras y comodines `%`/`_` escapados. Un módulo nuevo debe añadirse ahí.
 - `exportHousehold` (`src/lib/export/data.ts`) debe incluir toda tabla nueva con `household_id`.
 - `SyncManager` refresca los datos cada minuto si la app está visible y no hay cambios pendientes.
+
+## Equipos
+- Un proveedor recibido en cualquier endpoint se valida con `validateLinks(householdId, providerId)` antes de guardarlo.
+- El manual del equipo usa `uploadManual` y `/api/appliances/<id>/manual` (mismo patrón que documentos).
 
 ## Gastos
 - Importes en `DECIMAL(12,2)` (number en Drizzle); moneda con `NEXT_PUBLIC_CURRENCY` (por defecto USD). El resumen mensual usa rangos `[inicio, fin)` en UTC (`src/lib/expenses/month.ts`).
