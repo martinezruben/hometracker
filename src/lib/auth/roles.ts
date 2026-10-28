@@ -16,6 +16,13 @@ export class UnauthorizedError extends Error {
   }
 }
 
+export class NotFoundError extends Error {
+  constructor() {
+    super("No encontrado");
+    this.name = "NotFoundError";
+  }
+}
+
 export const hasRole = (role: Role, min: Role) => rank[role] >= rank[min];
 
 export function assertRole(role: Role | null | undefined, min: Role): Role {

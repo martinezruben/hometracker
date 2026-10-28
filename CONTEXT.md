@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fase 0 casi completa. Hecho: shell PWA, esquema MySQL (20 tablas, Drizzle), login por OTP con sesiones en cookie, roles, hogares e invitaciones por enlace (de un solo uso, 7 días), pruebas unitarias y de integración. Pendiente: almacenamiento de archivos (S3), CI, Playwright, guía de instalación en iPhone. Siguiente: Fase 1 (cajas con QR).
+Fase 0 casi completa (pendiente CI, Playwright, guía de instalación iPhone). Fase 1 en curso: cajas con QR online funcionando (CRUD, ítems de texto, fotos comprimidas en cliente con miniaturas, búsqueda, etiquetas QR, `/b/<id>` con login y retorno). Archivos: disco local en dev, S3 compatible en producción (el driver S3 aún no se ha probado contra un bucket real). Pendiente de Fase 1: escáner QR dentro de la app y offline-light (cola de cambios).
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.
