@@ -3,8 +3,8 @@ import { DOC_TYPES, MAX_DOC_BYTES } from "./schemas";
 
 export type UploadResult = "ok" | "too_large" | "bad_file" | "error";
 
-/** Sube el archivo de un documento. Las imágenes se comprimen; los PDF van tal cual (máx. 4 MB). */
-export async function uploadDocumentFile(docId: string, file: File): Promise<UploadResult> {
+/** Sube un adjunto (documento o recibo). Las imágenes se comprimen; los PDF van tal cual (máx. 4 MB). */
+export async function uploadAttachment(url: string, file: File): Promise<UploadResult> {
   if (!(file.type in DOC_TYPES)) return "bad_file";
   let body: Blob = file;
   if (file.type.startsWith("image/")) {
@@ -18,7 +18,7 @@ export async function uploadDocumentFile(docId: string, file: File): Promise<Upl
   const form = new FormData();
   form.set("file", new File([body], file.type === "application/pdf" ? "documento.pdf" : "documento.jpg", { type: body.type }));
   try {
-    const res = await fetch(`/api/documents/${docId}/file`, { method: "POST", body: form });
+    const res = await fetch(url, { method: "POST", body: form });
     if (res.ok) return "ok";
     if (res.status === 413) return "too_large";
     return res.status === 400 ? "bad_file" : "error";
@@ -26,3 +26,6 @@ export async function uploadDocumentFile(docId: string, file: File): Promise<Upl
     return "error";
   }
 }
+
+export const uploadDocumentFile = (docId: string, file: File) => uploadAttachment(`/api/documents/${docId}/file`, file);
+export const uploadReceipt = (expenseId: string, file: File) => uploadAttachment(`/api/expenses/${expenseId}/receipt`, file);
