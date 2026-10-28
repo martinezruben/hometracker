@@ -51,6 +51,12 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
 - En desarrollo sin `SMTP_URL`, el código OTP se imprime en la consola del servidor.
 
+## Archivos y fotos
+- Las fotos se comprimen en el cliente (`src/lib/image.ts`: 1600 px + miniatura 400 px, JPEG) y se suben a `/api/photos` (multipart, idempotente por `id`).
+- Se sirven solo por `/api/files/<id>` (autoriza por membresía); nunca exponer URLs directas del bucket.
+- Storage: `src/lib/storage` (disco local sin `S3_BUCKET`; S3 compatible con él). Las llaves siempre `householdId/...`.
+- Para consultar una entidad por id desde un usuario usa funciones tipo `getBoxAccess(userId, id)` (una consulta con join a membresía) y responde 404 si es null.
+
 ## Base de datos
 - Esquema en `src/db/schema.ts` (Drizzle). Cambios solo con migraciones: `npm run db:generate` y `npm run db:migrate` (SQL en `db/migrations/`, se commitea).
 - IDs `CHAR(36)` UUID, fechas `DATETIME(3)` en UTC, importes `DECIMAL(12,2)`, charset utf8mb4.

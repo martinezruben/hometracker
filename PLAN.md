@@ -99,11 +99,11 @@ docs/               notas técnicas
 - [ ] CI (lint, tipos, tests) y deploy preview
 
 ### Fase 1 — Cajas con QR (≈1–2 semanas) ★
-- [ ] CRUD de cajas, ubicación y notas
-- [ ] Captura de fotos con cámara, compresión y miniaturas
-- [ ] Elementos de texto por caja; búsqueda por contenido
-- [ ] Generación de QR por caja + hoja de etiquetas imprimible (PDF)
-- [ ] Ruta `/b/<id>`: vista de contenido (fotos + texto); redirige a login y vuelve
+- [x] CRUD de cajas, ubicación y notas
+- [x] Captura de fotos con cámara, compresión y miniaturas
+- [x] Elementos de texto por caja; búsqueda por contenido
+- [x] Generación de QR por caja + etiquetas imprimibles (SVG; hoja con todas en `/boxes/labels`, una en `/b/<id>/label`)
+- [x] Ruta `/b/<id>`: vista de contenido (fotos + texto); redirige a login y vuelve
 - [ ] Escáner QR dentro de la app (Safari no tiene BarcodeDetector: usar `@zxing/browser`); la cámara nativa del iPhone abre Safari
 - [ ] Offline-light: ver cajas cacheadas y crear/editar en cola
 
