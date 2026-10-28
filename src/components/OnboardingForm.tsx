@@ -8,6 +8,7 @@ import { buttonCls, inputCls } from "@/components/ui";
 export function OnboardingForm({ next }: { next: string }) {
   const router = useRouter();
   const [name, setName] = useState("");
+  const [userName, setUserName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -18,7 +19,7 @@ export function OnboardingForm({ next }: { next: string }) {
     const res = await fetch("/api/households", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, userName: userName.trim() || undefined }),
     });
     if (res.ok) {
       router.replace(next);
@@ -31,6 +32,17 @@ export function OnboardingForm({ next }: { next: string }) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      <label className="block space-y-1">
+        <span className="text-sm text-muted">{es.onboarding.yourName}</span>
+        <input
+          className={inputCls}
+          autoComplete="given-name"
+          maxLength={120}
+          placeholder={es.onboarding.yourNamePlaceholder}
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+        />
+      </label>
       <label className="block space-y-1">
         <span className="text-sm text-muted">{es.onboarding.nameLabel}</span>
         <input

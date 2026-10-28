@@ -18,7 +18,7 @@ test("código incorrecto no entra y el correcto sí; cerrar sesión protege las 
   await page.waitForURL("**/onboarding**");
   await page.getByLabel("Nombre del hogar").fill("Casa Auth");
   await page.getByRole("button", { name: "Crear hogar" }).click();
-  await expect(page.getByRole("heading", { name: "Inicio" })).toBeVisible();
+  await expect(page.getByText("SALUD DEL HOGAR")).toBeVisible();
 
   await page.goto("/more");
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
@@ -63,4 +63,16 @@ test("una invitación suma a otra persona al hogar, una sola vez y con el rol el
   await owner.context.close();
   await guest.close();
   await third.close();
+});
+
+test("el nombre se pide al crear el hogar y se usa en el saludo", async ({ page }) => {
+  const email = uniqueEmail("nombre");
+  await login(page, email);
+  await page.waitForURL("**/onboarding**");
+  await page.getByLabel("Tu nombre").fill("Rubén");
+  await page.getByLabel("Nombre del hogar").fill("Casa Martínez");
+  await page.getByRole("button", { name: "Crear hogar" }).click();
+  await expect(page.getByRole("heading", { name: "Rubén" })).toBeVisible();
+  await expect(page.getByText("SALUD DEL HOGAR")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Casa Martínez" })).toBeVisible();
 });

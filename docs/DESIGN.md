@@ -61,6 +61,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 - Tokens en `src/app/globals.css` (claro y oscuro): `bg-brand`, `card`, `text-link`, `text-muted`, estados `text-late|soon|ok` con `bg-*-bg` y `bg-*-bar`, pasteles `--tint-*`/`--on-tint-*`.
 - Componentes: `src/components/ui/` (`Avatar`, `IconTile`, `PageHeader`, `Chip`, `StatusPill`/`StatusBar`) e iconos lineales en `src/components/icons.tsx`. Emojis no se usan como iconos en pantallas nuevas.
 - `BottomNav` ya es la barra flotante con botón central de escaneo; Ajustes se abre desde el avatar de Inicio.
+- Inicio ya sigue el diseño: saludo (`Greeting`, según la hora del dispositivo) con avatar y campana, buscador con filtros, `HealthCard` (puntaje `healthScore` de `src/lib/home/health.ts`: parte de 100 y resta por mantenimientos/pendientes/documentos vencidos, con tope por categoría), accesos rápidos y `UpcomingRow` (`/upcoming` lista todo). El nombre de la persona se pide al crear el hogar y se edita en Más.
 - Las pantallas se van migrando una a una (ver Fase 6 de `PLAN.md`); mientras tanto heredan tarjetas, colores y tipografía por los tokens.
 
 ## 6. Cómo aplicarlo

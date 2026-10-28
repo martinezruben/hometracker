@@ -2,6 +2,7 @@ import Link from "next/link";
 import { InviteForm } from "@/components/InviteForm";
 import { LogoutButton } from "@/components/LogoutButton";
 import { PushSettings } from "@/components/PushSettings";
+import { AccountForm } from "@/components/AccountForm";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { es } from "@/lib/i18n/es";
 
@@ -30,7 +31,8 @@ export default async function MorePage() {
           </li>
         ))}
       </ul>
-      <PushSettings />
+      <AccountForm initialName={user.name ?? ""} email={user.email} />
+      <div id="recordatorios"><PushSettings /></div>
       {household.role === "admin" && <InviteForm householdId={household.id} />}
       {household.role === "admin" && (
         <section className="space-y-2 card p-4">
