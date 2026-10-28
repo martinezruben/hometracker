@@ -94,7 +94,7 @@ docs/               notas técnicas
 - [x] Esquema MySQL (Drizzle) con 20 tablas y migración inicial aplicada
 - [x] Capa de acceso `requireMember` / `requireApiMember` y pruebas de aislamiento entre hogares
 - [x] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
-- [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); *pendiente*: pantalla guía de instalación
+- [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); guía de instalación en Inicio
 - [x] Layout móvil (barra inferior), tema claro/oscuro
 - [ ] CI (lint, tipos, tests) y deploy preview
 
@@ -112,8 +112,8 @@ docs/               notas técnicas
 - [x] Planes de mantenimiento recurrentes; cálculo de próximo vencimiento
 - [x] Registrar mantenimiento realizado (costo, proveedor, notas) y recalcular
 - [x] Vista "Próximos mantenimientos" en Inicio y por equipo (*pendiente*: calendario)
-- [ ] Suscripción Web Push + pantalla de permisos (botón con gesto del usuario, solo en PWA instalada iOS)
-- [ ] Endpoint `/api/cron/reminders` (cron diario) y recordatorio N días antes
+- [x] Suscripción Web Push + pantalla de permisos (botón con gesto del usuario, solo en PWA instalada iOS) y guía de instalación en iPhone
+- [x] Endpoint `/api/cron/reminders` (cron diario, protegido con `CRON_SECRET`): aviso N días antes y otro el día del vencimiento
 - [ ] QR opcional por equipo
 
 ### Fase 3 — Listas y pendientes (≈1 semana)

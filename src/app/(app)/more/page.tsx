@@ -1,5 +1,6 @@
 import { InviteForm } from "@/components/InviteForm";
 import { LogoutButton } from "@/components/LogoutButton";
+import { PushSettings } from "@/components/PushSettings";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { es } from "@/lib/i18n/es";
 
@@ -16,6 +17,7 @@ export default async function MorePage() {
           </li>
         ))}
       </ul>
+      <PushSettings />
       {household.role === "admin" && <InviteForm householdId={household.id} />}
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{user.email}</span>
