@@ -8,6 +8,13 @@
       "when": 1793157414774,
       "tag": "0000_fancy_avengers",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1793162180322,
+      "tag": "0001_cajas_numero_color_cantidad",
+      "breakpoints": true
     }
   ]
 }

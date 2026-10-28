@@ -13,12 +13,18 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
   await page.waitForURL(/\/b\/[0-9a-f-]{36}/);
   const boxUrl = page.url();
 
-  await page.getByPlaceholder("Ej. 3 cajas de luces").fill("Luces LED");
-  await page.getByRole("button", { name: "+" }).click();
+  await expect(page.getByText("CAJA N.º 01")).toBeVisible();
+  await page.getByPlaceholder("Ej. Taladro inalámbrico").fill("Luces LED");
+  await page.getByLabel("Cantidad").fill("3");
+  await page.getByLabel("Categoría").fill("Decoración");
+  await page.getByRole("button", { name: "Agregar", exact: true }).click();
   await expect(page.getByText("Luces LED")).toBeVisible();
+  await expect(page.getByText("×3")).toBeVisible();
+  await expect(page.getByText("Decoración")).toBeVisible();
 
   await page.setInputFiles("input[type=file][multiple]", { name: "foto.png", mimeType: "image/png", buffer: png() });
-  await expect(page.locator('img[src*="/api/files/"]')).toHaveCount(1, { timeout: 15_000 });
+  await expect(page.locator('#fotos img[src*="/api/files/"]')).toHaveCount(1, { timeout: 15_000 });
+  await expect(page.locator('img[src*="/api/files/"]').first()).toBeVisible(); // también es la portada
 
   // etiqueta con QR
   await page.getByRole("link", { name: "Imprimir etiqueta" }).click();
@@ -28,15 +34,24 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
   // otro hogar no ve la caja ni su foto
   await b.page.goto(boxUrl);
   await expect(b.page.getByText("no tienes acceso")).toBeVisible();
-  const photoSrc = await page.goto(boxUrl).then(() => page.locator('img[src*="/api/files/"]').getAttribute("src"));
+  const photoSrc = await page.goto(boxUrl).then(() => page.locator('img[src*="/api/files/"]').first().getAttribute("src"));
   expect(await b.page.evaluate(async (u) => (await fetch(u!)).status, photoSrc)).toBe(404);
+
+  // la lista muestra número, ubicación y cantidad de objetos
+  await page.goto("/boxes");
+  await expect(page.getByText("N.º 01")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Navidad/ })).toContainText("Bodega");
+  await expect(page.getByText("1 caja · 3 objetos")).toBeVisible();
+  await page.getByRole("link", { name: "Bodega · 1" }).click();
+  await expect(page.getByRole("link", { name: /Navidad/ })).toBeVisible();
+  await page.goto(boxUrl);
 
   // sin conexión: el elemento se ve como pendiente y se sincroniza al volver
   await page.reload();
   await page.waitForTimeout(500);
   await goOffline(context, page);
-  await page.getByPlaceholder("Ej. 3 cajas de luces").fill("Adornos");
-  await page.getByRole("button", { name: "+" }).click();
+  await page.getByPlaceholder("Ej. Taladro inalámbrico").fill("Adornos");
+  await page.getByRole("button", { name: "Agregar", exact: true }).click();
   await expect(page.getByText("Adornos")).toBeVisible();
   await expect(page.getByText("1 cambio pendiente de enviar")).toBeVisible();
   await goOnline(context, page);
@@ -55,8 +70,8 @@ test("la búsqueda encuentra una caja por su contenido", async ({ browser }) => 
   await page.getByLabel("Nombre").fill("Garaje");
   await page.getByRole("button", { name: "Crear caja" }).click();
   await page.waitForURL(/\/b\//);
-  await page.getByPlaceholder("Ej. 3 cajas de luces").fill("Taladro inalámbrico");
-  await page.getByRole("button", { name: "+" }).click();
+  await page.getByPlaceholder("Ej. Taladro inalámbrico").fill("Taladro inalámbrico");
+  await page.getByRole("button", { name: "Agregar", exact: true }).click();
   await expect(page.getByText("Taladro inalámbrico")).toBeVisible();
 
   await page.goto("/boxes?q=taladro");

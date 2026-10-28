@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireApiUser } from "@/lib/auth/access";
 import { assertRole, ForbiddenError, NotFoundError } from "@/lib/auth/roles";
-import { getBoxAccess } from "@/lib/boxes/data";
+import { getBoxAccess, touchBox } from "@/lib/boxes/data";
 import { getApplianceAccess } from "@/lib/appliances/data";
 import { getListItemAccess } from "@/lib/lists/data";
 import { uuid } from "@/lib/boxes/schemas";
@@ -77,6 +77,7 @@ export async function POST(request: Request) {
       height: m.height ?? null,
       caption: m.caption ?? null,
     });
+    if (m.entityType === "box") await touchBox(m.entityId);
     const [photo] = await db.select().from(schema.photos).where(eq(schema.photos.id, m.id));
     return json({ photo }, 201);
   } catch (err) {

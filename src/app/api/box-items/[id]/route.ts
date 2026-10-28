@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { requireApiUser } from "@/lib/auth/access";
 import { assertRole, NotFoundError } from "@/lib/auth/roles";
-import { getItemAccess } from "@/lib/boxes/data";
+import { getItemAccess, touchBox } from "@/lib/boxes/data";
 import { itemUpdate, uuid } from "@/lib/boxes/schemas";
 import { handleError, json } from "@/lib/http";
 
@@ -21,6 +21,7 @@ export async function PATCH(request: Request, ctx: Ctx) {
     const item = await load(ctx);
     const changes = itemUpdate.parse(await request.json());
     await db.update(schema.boxItems).set(changes).where(eq(schema.boxItems.id, item.id));
+    await touchBox(item.boxId);
     return json({ ok: true });
   } catch (err) {
     return handleError(err);
@@ -31,6 +32,7 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   try {
     const item = await load(ctx);
     await db.update(schema.boxItems).set({ deletedAt: new Date() }).where(eq(schema.boxItems.id, item.id));
+    await touchBox(item.boxId);
     return json({ ok: true });
   } catch (err) {
     return handleError(err);
