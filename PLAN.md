@@ -96,7 +96,7 @@ docs/               notas técnicas
 - [x] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
 - [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); guía de instalación en Inicio
 - [x] Layout móvil (barra inferior), tema claro/oscuro
-- [ ] CI (lint, tipos, tests) y deploy preview
+- [x] CI en GitHub Actions (lint, tipos, migraciones, tests con MySQL 8, build); deploy preview pendiente de elegir hosting
 
 ### Fase 1 — Cajas con QR (≈1–2 semanas) ★
 - [x] CRUD de cajas, ubicación y notas
