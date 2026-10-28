@@ -61,6 +61,11 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Los archivos de documentos se suben a `/api/documents/<id>/file` (PDF o imagen, máx. 4 MB) y se sirven solo por esa ruta autenticada; los metadatos usan `mutate()` y funcionan offline, el archivo requiere conexión.
 - Antes de vincular un proveedor o equipo a un documento hay que validar que sea del mismo hogar (`validateLinks`).
 
+## Búsqueda y exportación
+- `globalSearch` (`src/lib/search/data.ts`) reutiliza las listas de cada módulo, que ya filtran por hogar; mínimo 2 letras y comodines `%`/`_` escapados. Un módulo nuevo debe añadirse ahí.
+- `exportHousehold` (`src/lib/export/data.ts`) debe incluir toda tabla nueva con `household_id`.
+- `SyncManager` refresca los datos cada minuto si la app está visible y no hay cambios pendientes.
+
 ## Gastos
 - Importes en `DECIMAL(12,2)` (number en Drizzle); moneda con `NEXT_PUBLIC_CURRENCY` (por defecto USD). El resumen mensual usa rangos `[inicio, fin)` en UTC (`src/lib/expenses/month.ts`).
 - Los recibos usan el mismo patrón que los documentos (`uploadAttachment`, máx. 4 MB, ruta autenticada).

@@ -16,6 +16,9 @@ export default async function HomePage() {
         <h1 className="text-2xl font-bold">{es.home.title}</h1>
         <p className="text-muted">{household.name}</p>
       </header>
+      <Link href="/search" className="flex min-h-12 items-center rounded-xl border border-border bg-card px-4 text-muted">
+        🔍 {es.search.open}
+      </Link>
       <InstallHint />
       <div>
         <h2 className="font-semibold">{es.home.nextMaintenance}</h2>

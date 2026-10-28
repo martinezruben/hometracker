@@ -32,6 +32,15 @@ export default async function MorePage() {
       </ul>
       <PushSettings />
       {household.role === "admin" && <InviteForm householdId={household.id} />}
+      {household.role === "admin" && (
+        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+          <h2 className="font-semibold">{es.data.title}</h2>
+          <p className="text-sm text-muted">{es.data.description}</p>
+          <a href="/api/export" download className="flex min-h-12 items-center justify-center rounded-xl border border-primary font-semibold text-primary">
+            {es.data.export}
+          </a>
+        </section>
+      )}
       <div className="flex items-center justify-between text-sm text-muted">
         <span>{user.email}</span>
         <LogoutButton />

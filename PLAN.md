@@ -119,7 +119,7 @@ docs/               notas técnicas
 ### Fase 3 — Listas y pendientes (≈1 semana)
 - [x] Listas (súper, venta, general) con ítems, fotos, precio y estado vendido
 - [x] Tareas con asignado, fecha, repetición y notificación
-- [ ] Actualización entre miembros (polling/revalidación): hoy se ve al abrir la app o recargar
+- [x] Actualización entre miembros: la app refresca los datos cada minuto mientras está visible (sin cambios pendientes) y al volver a primer plano
 
 ### Fase 4 — Documentos, contactos y gastos (≈1–2 semanas)
 - [x] Documentos (facturas, recibos, contratos, garantías) con archivo (PDF/foto, 4 MB), vencimientos y aviso push 30 días antes
@@ -127,7 +127,7 @@ docs/               notas técnicas
 - [x] Compras/gastos con recibo (PDF/foto) y resumen mensual por categoría
 
 ### Fase 5 — Pulido (≈1 semana)
-- [ ] Búsqueda global, dashboard, exportación de datos
+- [x] Búsqueda global (`/search`), exportación JSON de los datos del hogar (administradores); *pendiente*: dashboard de datos
 - [ ] Mejoras de sync (reintentos, indicador de estado, resolución de conflictos)
 - [ ] Rendimiento (Lighthouse PWA ≥ 90), accesibilidad, respaldos
 
