@@ -2,32 +2,38 @@ import { requireActiveHousehold } from "@/lib/auth/access";
 import Link from "next/link";
 import { upcomingMaintenance } from "@/lib/appliances/data";
 import { es } from "@/lib/i18n/es";
+import { Avatar, initialOf } from "@/components/ui/Avatar";
 import { DueBadge } from "@/components/DueBadge";
 import { upcomingTasks } from "@/lib/tasks/data";
 import { InstallHint } from "@/components/InstallHint";
 
 export default async function HomePage() {
-  const { household } = await requireActiveHousehold();
+  const { user, household } = await requireActiveHousehold();
   const [upcoming, tasks] = await Promise.all([upcomingMaintenance(household.id, 5), upcomingTasks(household.id, 5)]);
   const now = new Date();
   return (
     <section className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">{es.home.title}</h1>
-        <p className="text-muted">{household.name}</p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[32px] font-extrabold leading-tight">{es.home.title}</h1>
+          <p className="text-muted">{household.name}</p>
+        </div>
+        <Link href="/more" aria-label={es.nav.settings} className="flex size-11 items-center justify-center">
+          <Avatar seed={user.id} label={initialOf(user.name, user.email)} />
+        </Link>
       </header>
-      <Link href="/search" className="flex min-h-12 items-center rounded-xl border border-border bg-card px-4 text-muted">
+      <Link href="/search" className="flex min-h-12 items-center card px-4 text-muted">
         🔍 {es.search.open}
       </Link>
       <InstallHint />
       <div>
         <h2 className="font-semibold">{es.home.nextMaintenance}</h2>
         {upcoming.length === 0 ? (
-          <p className="mt-2 rounded-xl border border-border bg-card p-4 text-muted">
+          <p className="mt-2 card p-4 text-muted">
             {es.home.nextMaintenanceEmpty}
           </p>
         ) : (
-          <ul className="mt-2 divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="mt-2 divide-y divide-border card">
             {upcoming.map((u) => (
               <li key={u.planId}>
                 <Link href={`/appliances/${u.applianceId}`} className="flex min-h-14 items-center justify-between gap-3 p-4">
@@ -45,12 +51,12 @@ export default async function HomePage() {
       <div>
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">{es.home.tasks}</h2>
-          <Link href="/tasks" className="min-h-11 py-2.5 text-sm text-primary underline">{es.tasks.seeAll}</Link>
+          <Link href="/tasks" className="min-h-11 py-2.5 text-sm text-link underline">{es.tasks.seeAll}</Link>
         </div>
         {tasks.length === 0 ? (
-          <p className="mt-2 rounded-xl border border-border bg-card p-4 text-muted">{es.tasks.homeEmpty}</p>
+          <p className="mt-2 card p-4 text-muted">{es.tasks.homeEmpty}</p>
         ) : (
-          <ul className="mt-2 divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="mt-2 divide-y divide-border card">
             {tasks.map((t) => (
               <li key={t.id} className="flex min-h-14 items-center justify-between gap-3 p-4">
                 <span className="truncate">{t.title}</span>
@@ -62,7 +68,7 @@ export default async function HomePage() {
       </div>
       <div>
         <h2 className="font-semibold">{es.home.recentBoxes}</h2>
-        <p className="mt-2 rounded-xl border border-border bg-card p-4 text-muted">
+        <p className="mt-2 card p-4 text-muted">
           {es.home.recentBoxesEmpty}
         </p>
       </div>

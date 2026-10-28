@@ -8,14 +8,14 @@ import { ContactActions } from "@/components/ContactActions";
 import { linkBtnCls } from "@/components/ui";
 
 const t = es.contacts;
-const actionCls = "flex min-h-12 flex-1 items-center justify-center rounded-xl border border-primary font-semibold text-primary";
+const actionCls = "flex min-h-12 flex-1 items-center justify-center rounded-xl border border-primary font-semibold text-link";
 
 export default async function ContactPage({ params }: { params: Promise<{ id: string }> }) {
   const parsed = uuid.safeParse((await params).id);
   if (!parsed.success) notFound();
   const user = await requireUser();
   const access = await getContactAccess(user.id, parsed.data);
-  if (!access) return <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noAccess}</p>;
+  if (!access) return <p className="card p-4 text-muted">{t.noAccess}</p>;
   const { contact: c, role } = access;
   const phone = c.phone ? cleanPhone(c.phone) : null;
   return (

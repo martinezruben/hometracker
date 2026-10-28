@@ -5,7 +5,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   await requireActiveHousehold();
   return (
     <>
-      <main className="flex-1 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-24">{children}</main>
+      <main className="flex-1 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-32">{children}</main>
       <BottomNav />
     </>
   );

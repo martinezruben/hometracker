@@ -9,7 +9,7 @@ import { PendingCreates } from "@/components/PendingCreates";
 import { SearchForm } from "@/components/SearchForm";
 
 const chip = (active: boolean) =>
-  `min-h-11 shrink-0 rounded-full border px-4 py-2.5 text-sm ${active ? "border-primary bg-primary text-white dark:text-slate-900" : "border-border bg-card"}`;
+  `min-h-11 shrink-0 rounded-full border px-4 py-2.5 text-sm ${active ? "border-dark bg-dark text-card" : "border-border bg-card"}`;
 
 export default async function DocumentsPage({ searchParams }: { searchParams: Promise<{ q?: string; kind?: string }> }) {
   const { q, kind } = await searchParams;
@@ -23,7 +23,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{es.documents.title}</h1>
         {household.role !== "viewer" && (
-          <Link href="/documents/new" className="min-h-11 rounded-xl bg-primary px-4 py-2.5 font-semibold text-white dark:text-slate-900">
+          <Link href="/documents/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {es.documents.new}
           </Link>
         )}
@@ -37,12 +37,12 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
       </nav>
       <PendingCreates op="document-create" hint={es.documents.new} />
       {docs.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{q || activeKind ? es.documents.emptySearch : es.documents.empty}</p>
+        <p className="card p-4 text-muted">{q || activeKind ? es.documents.emptySearch : es.documents.empty}</p>
       ) : (
         <ul className="space-y-3">
           {docs.map((d) => (
             <li key={d.id}>
-              <Link href={`/documents/${d.id}`} className="flex min-h-16 items-center justify-between gap-3 rounded-xl border border-border bg-card p-4">
+              <Link href={`/documents/${d.id}`} className="flex min-h-16 items-center justify-between gap-3 card p-4">
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{d.title}</p>
                   <p className="truncate text-sm text-muted">

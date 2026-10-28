@@ -103,9 +103,9 @@ export function BoxContent({
       <section className="space-y-3">
         <h2 className="font-semibold">{es.boxes.contents}</h2>
         {shownItems.length === 0 && pendingItems.length === 0 ? (
-          <p className="rounded-xl border border-border bg-card p-4 text-muted">{es.boxes.contentsEmpty}</p>
+          <p className="card p-4 text-muted">{es.boxes.contentsEmpty}</p>
         ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border card">
             {shownItems.map((it) => (
               <li key={it.id} className="flex items-center justify-between gap-3 p-4">
                 <span>{it.title}</span>
@@ -140,7 +140,7 @@ export function BoxContent({
             }}
           >
             <input className={inputCls} placeholder={es.boxes.itemPlaceholder} maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} />
-            <button className="min-h-12 shrink-0 rounded-xl bg-primary px-4 font-semibold text-white dark:text-slate-900">+</button>
+            <button className="min-h-12 shrink-0 rounded-xl bg-brand px-4 font-semibold text-white">+</button>
           </form>
         )}
       </section>

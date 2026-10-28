@@ -50,7 +50,7 @@ export function DocumentActions({
           {t.viewFile}
         </a>
       ) : (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noFile}</p>
+        <p className="card p-4 text-muted">{t.noFile}</p>
       )}
       {canEdit && (
         <>

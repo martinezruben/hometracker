@@ -37,7 +37,7 @@ export function NewListForm() {
 
   if (!open) return <button className={buttonCls} onClick={() => setOpen(true)}>{t.newList}</button>;
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-xl border border-border bg-card p-4">
+    <form onSubmit={submit} className="space-y-3 card p-4">
       <label className="block space-y-1">
         <span className="text-sm text-muted">{t.nameLabel}</span>
         <input className={inputCls} required maxLength={160} placeholder={t.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} />

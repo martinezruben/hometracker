@@ -9,6 +9,8 @@ export const es = {
     appliances: "Equipos",
     more: "Más",
     lists: "Listas",
+    scan: "Escanear QR",
+    settings: "Ajustes y cuenta",
   },
   home: {
     title: "Inicio",

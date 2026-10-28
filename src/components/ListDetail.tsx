@@ -70,9 +70,9 @@ export function ListDetail({
       {isSale && available > 0 && <p className="text-sm text-muted">{t.totalAvailable(formatMoney(available))}</p>}
 
       {view.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.empty2}</p>
+        <p className="card p-4 text-muted">{t.empty2}</p>
       ) : (
-        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+        <ul className="divide-y divide-border card">
           {view.map((i) => {
             const sold = i.status === "sold";
             const struck = isSale ? sold : i.checked;
@@ -168,7 +168,7 @@ export function ListDetail({
         >
           <div className="flex gap-2">
             <input className={inputCls} placeholder={t.itemPlaceholder} maxLength={200} value={title} onChange={(e) => setTitle(e.target.value)} />
-            <button className="min-h-12 shrink-0 rounded-xl bg-primary px-4 font-semibold text-white dark:text-slate-900" aria-label={t.add}>+</button>
+            <button className="min-h-12 shrink-0 rounded-xl bg-brand px-4 font-semibold text-white" aria-label={t.add}>+</button>
           </div>
           <div className="flex gap-2">
             {!isSale && <input className={inputCls} placeholder={t.quantityPlaceholder} maxLength={40} value={qty} onChange={(e) => setQty(e.target.value)} />}

@@ -34,7 +34,7 @@ export function ApplianceManual({ id, hasManual, canEdit }: { id: string; hasMan
           {t.viewManual}
         </a>
       ) : (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noManual}</p>
+        <p className="card p-4 text-muted">{t.noManual}</p>
       )}
       {canEdit && (
         <>

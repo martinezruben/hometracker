@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope } from "next/font/google";
 import "./globals.css";
+
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
 import { es } from "@/lib/i18n/es";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#dbe6fb",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -27,7 +30,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className="h-full antialiased">
+    <html lang="es" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <OfflineBanner />
         <SyncStatus />

@@ -48,7 +48,7 @@ export function ExpenseActions({
           {t.viewReceipt}
         </a>
       ) : (
-        <p className="rounded-xl border border-border bg-card p-4 text-muted">{t.noReceipt}</p>
+        <p className="card p-4 text-muted">{t.noReceipt}</p>
       )}
       {canEdit && (
         <>
