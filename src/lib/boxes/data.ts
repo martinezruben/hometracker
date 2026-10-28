@@ -145,43 +145,41 @@ export async function getBoxContent(box: typeof boxes.$inferSelect) {
   return { items, photos: pics };
 }
 
-/** Crea la caja de forma idempotente (el id lo genera el cliente; sirve para reintentos offline). */
+/**
+ * Crea la caja de forma idempotente (el id lo genera el cliente; sirve para reintentos offline).
+ * El número correlativo se asigna dentro de una transacción que bloquea la fila del hogar,
+ * así dos cajas creadas a la vez nunca comparten número ni se agotan reintentos.
+ */
 export async function createBox(
   householdId: string,
   userId: string,
   input: { id?: string; name: string; location?: string | null; notes?: string | null; color?: (typeof boxes.$inferSelect)["color"] },
 ) {
   const id = input.id ?? randomUUID();
-  const [existing] = await db.select().from(boxes).where(eq(boxes.id, id));
-  if (existing) return existing.householdId === householdId ? existing : null; // reintento, o id de otro hogar
+  const colors = ["blue", "orange", "green", "purple"] as const;
 
-  // Número correlativo por hogar; si dos cajas se crean a la vez, el índice único obliga a reintentar.
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const [{ next }] = await db
+  return db.transaction(async (tx) => {
+    await tx.select({ id: schema.households.id }).from(schema.households).where(eq(schema.households.id, householdId)).for("update");
+
+    const [existing] = await tx.select().from(boxes).where(eq(boxes.id, id));
+    if (existing) return existing.householdId === householdId ? existing : null; // reintento, o id de otro hogar
+
+    const [{ next }] = await tx
       .select({ next: sql<number>`coalesce(max(${boxes.number}), 0) + 1` })
       .from(boxes)
       .where(eq(boxes.householdId, householdId));
     const number = Number(next);
-    const colors = ["blue", "orange", "green", "purple"] as const;
-    try {
-      await db.insert(boxes).values({
-        id,
-        householdId,
-        createdBy: userId,
-        number,
-        color: input.color ?? colors[(number - 1) % colors.length],
-        name: input.name,
-        location: input.location ?? null,
-        notes: input.notes ?? null,
-      });
-      break;
-    } catch (err) {
-      const code = (err as { code?: string; cause?: { code?: string } }).code ?? (err as { cause?: { code?: string } }).cause?.code;
-      if (code !== "ER_DUP_ENTRY") throw err;
-      const [now] = await db.select().from(boxes).where(eq(boxes.id, id));
-      if (now) return now.householdId === householdId ? now : null; // otro envío del mismo id ganó
-    }
-  }
-  const [row] = await db.select().from(boxes).where(eq(boxes.id, id));
-  return row && row.householdId === householdId ? row : null;
+    await tx.insert(boxes).values({
+      id,
+      householdId,
+      createdBy: userId,
+      number,
+      color: input.color ?? colors[(number - 1) % colors.length],
+      name: input.name,
+      location: input.location ?? null,
+      notes: input.notes ?? null,
+    });
+    const [row] = await tx.select().from(boxes).where(eq(boxes.id, id));
+    return row;
+  });
 }
