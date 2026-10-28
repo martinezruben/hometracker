@@ -17,9 +17,14 @@ PWA en español para que varias personas gestionen el hogar: cajas con QR, equip
 | Idioma | Solo español (`es`). Textos centralizados para poder i18n más adelante. |
 | Prioridad | 1) Cajas con QR, 2) Equipos y mantenimientos con recordatorios push |
 | Frontend | Next.js (App Router) + TypeScript + Tailwind |
-| Backend | Supabase: Postgres, Auth, Storage, Realtime, Edge Functions, `pg_cron` |
+| Base de datos | **MySQL 8** (utf8mb4) con **Drizzle ORM** + `mysql2`; migraciones en `db/migrations/` |
+| Backend | Next.js (Route Handlers / Server Actions) sobre MySQL; sin Supabase |
+| Auth | Propia: OTP de 6 dígitos por correo (SMTP) + sesión en cookie httpOnly (hash en tabla `sessions`) |
+| Archivos | Almacenamiento S3 compatible (URLs firmadas); la BD solo guarda las llaves |
+| Tiempo real | Sondeo (polling) / revalidación al enfocar la app; SSE si hace falta |
+| Recordatorios | Cron externo (Vercel Cron / Cloud Scheduler) → endpoint protegido con `CRON_SECRET` → `web-push` |
 | Push | Web Push (VAPID) con `web-push`; **en iPhone solo funciona con la PWA instalada en pantalla de inicio** |
-| Hosting | Vercel (o Cloudflare Pages), HTTPS |
+| Hosting | Vercel (o Cloud Run) para la app; MySQL gestionado aparte (Cloud SQL, Railway, Aiven…), HTTPS |
 | Offline técnico | Service worker propio (`public/sw.js`; Serwist se evalúa si crece) + IndexedDB (Dexie) para cola y caché de lectura |
 
 ## 3. Arquitectura
@@ -29,25 +34,26 @@ Android Chrome / PWA instalada
   ├─ UI Next.js (React, Tailwind)
   ├─ Service Worker: caché app shell, push, background sync (cuando exista)
   ├─ IndexedDB (Dexie): caché de lectura + cola de mutaciones
-  └─ Supabase JS client ──► Supabase
-                             ├─ Auth (OTP por correo)
-                             ├─ Postgres + RLS por household
-                             ├─ Storage (fotos, PDFs) con URLs firmadas
-                             ├─ Realtime (cambios entre miembros)
-                             └─ pg_cron → Edge Function "send-reminders" → Web Push
+  └─ fetch ──► Next.js (Route Handlers / Server Actions)
+                ├─ Auth OTP + sesiones (cookie httpOnly)
+                ├─ Autorización por hogar en cada consulta (capa `requireMember`)
+                ├─ Drizzle ──► MySQL 8
+                ├─ S3 compatible (fotos, PDFs) con URLs firmadas
+                └─ /api/cron/reminders (cron externo) → Web Push
 ```
 
 ### Sincronización offline
-- Toda escritura pasa por una capa `mutations` que: (1) aplica optimista en IndexedDB, (2) encola, (3) envía a Supabase cuando hay red, (4) reintenta con backoff.
+- Toda escritura pasa por una capa `mutations` que: (1) aplica optimista en IndexedDB, (2) encola, (3) envía al servidor cuando hay red, (4) reintenta con backoff.
 - IDs generados en el cliente (UUID v4) para crear offline sin conflictos.
 - Resolución de conflictos: *last-write-wins* por campo con `updated_at`; borrado lógico (`deleted_at`).
 - Fotos: se comprimen en cliente, se guardan como Blob en IndexedDB y se suben en segundo plano.
 
 ### Seguridad
-- RLS en todas las tablas: acceso solo si el usuario es miembro del `household_id`.
-- Storage con rutas `household_id/...` y políticas equivalentes.
+- MySQL no tiene RLS: toda consulta pasa por helpers que exigen `household_id` y membresía del usuario (`requireMember`); nunca se consulta una tabla de hogar sin ese filtro. Pruebas automáticas de aislamiento entre hogares.
+- Archivos en rutas `household_id/...` con URLs firmadas de corta duración.
 - QR contiene solo URL con el id de la caja (`/b/<uuid>`); la vista exige login y pertenencia al hogar. No hay datos en el QR.
-- Claves privadas (VAPID, service role) solo en variables de entorno del servidor.
+- La BD nunca se expone al navegador. Claves (VAPID, S3, SMTP, `SESSION_SECRET`) solo en el servidor.
+- OTP y tokens se guardan como hash; límite de intentos por código y de envíos por correo.
 
 ## 4. Modelo de datos (inicial)
 
@@ -70,12 +76,13 @@ Todas las tablas: `id uuid pk`, `household_id`, `created_at`, `updated_at`, `cre
 ```
 src/app/            rutas (App Router) — (auth), boxes, appliances, lists, tasks, docs, contacts
 src/components/     UI reutilizable
-src/lib/supabase/   clientes, tipos generados
+src/lib/auth/       OTP, sesiones, requireMember
 src/lib/offline/    Dexie, cola de mutaciones, sync
 src/lib/push/       registro de suscripción
 src/sw/             service worker
-supabase/migrations/ SQL versionado + políticas RLS
-supabase/functions/send-reminders/
+db/migrations/      SQL generado por Drizzle
+src/db/             schema.ts y cliente MySQL
+src/app/api/cron/   recordatorios
 public/             manifest, iconos
 docs/               notas técnicas
 ```
@@ -84,8 +91,9 @@ docs/               notas técnicas
 
 ### Fase 0 — Base (≈1 semana)
 - [x] Next.js + TS + Tailwind + ESLint + Vitest (Playwright y Prettier pendientes)
-- [ ] Proyecto Supabase, migraciones iniciales, RLS de households
-- [ ] Auth (OTP por correo) + creación de hogar + invitar miembros por enlace
+- [x] Esquema MySQL (Drizzle) con 20 tablas y migración inicial aplicada
+- [ ] Capa de acceso `requireMember` y pruebas de aislamiento entre hogares
+- [ ] Auth propia (OTP por correo + sesiones) + creación de hogar + invitar miembros por enlace
 - [x] PWA: manifest, iconos (apple-touch-icon), service worker, instalable en iPhone (Añadir a pantalla de inicio); *pendiente*: pantalla guía de instalación
 - [x] Layout móvil (barra inferior), tema claro/oscuro
 - [ ] CI (lint, tipos, tests) y deploy preview
@@ -105,13 +113,13 @@ docs/               notas técnicas
 - [ ] Registrar mantenimiento realizado (costo, proveedor, notas) y recalcular
 - [ ] Vista "Próximos mantenimientos" y calendario
 - [ ] Suscripción Web Push + pantalla de permisos (botón con gesto del usuario, solo en PWA instalada iOS)
-- [ ] Edge Function `send-reminders` con `pg_cron` (diario) y recordatorio N días antes
+- [ ] Endpoint `/api/cron/reminders` (cron diario) y recordatorio N días antes
 - [ ] QR opcional por equipo
 
 ### Fase 3 — Listas y pendientes (≈1 semana)
 - [ ] Listas (súper, venta, general) con ítems, fotos, precio y estado vendido
 - [ ] Tareas con asignado, fecha, repetición y notificación
-- [ ] Realtime entre miembros
+- [ ] Actualización entre miembros (polling/revalidación)
 
 ### Fase 4 — Documentos, contactos y gastos (≈1–2 semanas)
 - [ ] Documentos (facturas, recibos, contratos, garantías) con vencimientos
@@ -140,13 +148,14 @@ docs/               notas técnicas
 | Push en iOS (solo PWA instalada, sin sync en segundo plano) | Probar en iPhone real desde la Fase 2; respaldo por correo para vencimientos críticos |
 | Sesión Safari vs PWA instalada separadas | Login por OTP dentro de la PWA |
 | Crecimiento de fotos | Compresión en cliente, miniaturas, límites por hogar |
-| Fuga entre hogares | RLS + pruebas automatizadas de políticas |
+| Fuga entre hogares (sin RLS en MySQL) | Capa única de acceso con filtro de hogar + pruebas automatizadas |
 | QR cambia de dominio | Dominio propio estable desde el inicio |
 
 ## 9. Costos estimados
-Supabase y Vercel gratis para empezar; Supabase Pro ≈ 25 USD/mes si crecen las fotos; dominio ≈ 12 USD/año.
+Vercel gratis para empezar; MySQL gestionado ≈ 5–15 USD/mes (Railway/Aiven) o Cloud SQL ≈ 10+ USD/mes; almacenamiento S3/R2 de centavos; SMTP (Resend/SES) gratis a bajo volumen; dominio ≈ 12 USD/año.
 
 ## 10. Pendientes por definir
+- Proveedor de MySQL (Cloud SQL, Railway, Aiven, VPS propio) y de correo/almacenamiento.
 - Dominio definitivo (afecta los QR impresos); lo dará el usuario más adelante.
 - Moneda y formato de fecha por defecto.
 - Tamaño de etiqueta QR (hoja A4 de etiquetas o impresora térmica).

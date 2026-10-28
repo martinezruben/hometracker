@@ -21,7 +21,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 ## Requisitos no funcionales
 - **Abrir rápido**: app shell en caché, lecturas desde caché local.
 - **Guardar cambios al reconectar**: cola de mutaciones con reintentos (offline-light, no offline total).
-- Multiusuario con datos aislados por hogar (RLS).
+- Multiusuario con datos aislados por hogar (filtro obligatorio por `household_id` en servidor; MySQL no tiene RLS).
 - Instalable como PWA; notificaciones vía Web Push.
 - Costo bajo (planes gratuitos al inicio).
 
@@ -32,7 +32,8 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 | Login | OTP de 6 dígitos por correo (evita el salto Safari → PWA) |
 | Dominio | Pendiente; `NEXT_PUBLIC_APP_URL` |
 | Frontend | Next.js + TypeScript + Tailwind |
-| Backend | Supabase (Auth, Postgres, Storage, Realtime, Edge Functions, pg_cron) |
+| Base de datos | MySQL 8 + Drizzle ORM (decisión del usuario: no Supabase) |
+| Backend | Next.js Route Handlers/Server Actions; auth propia OTP; archivos en S3 compatible |
 | Offline | Service worker + IndexedDB; cola de cambios; LWW por `updated_at` |
 | Push | Web Push (VAPID) |
 | Hosting | Vercel / Cloudflare Pages |
@@ -52,9 +53,10 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fase 0 en curso. Hecho: app Next.js 16 con shell PWA (manifest, iconos, service worker, navegación inferior, banner sin conexión, textos en `es.ts`), Vitest. Pendiente: proyecto Supabase, auth OTP, hogares/invitaciones, CI, guía de instalación en iPhone.
+Fase 0 en curso. Hecho: app Next.js 16 con shell PWA (manifest, iconos, service worker, navegación inferior, banner sin conexión, textos en `es.ts`), Vitest. Base de datos: esquema MySQL (20 tablas, Drizzle) con migración inicial. Pendiente: auth OTP + sesiones, `requireMember`, hogares/invitaciones, almacenamiento de archivos, CI, guía de instalación en iPhone.
 
 ## Preguntas abiertas
+- Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.
 - Dominio definitivo (lo dará el usuario; los QR impresos dependen de él).
 - Formato de etiquetas QR (A4 o térmica).
 - Moneda y formato de fecha.

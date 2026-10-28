@@ -8,7 +8,7 @@ Antes de escribir código de Next.js lee la guía correspondiente en `node_modul
 HomeTracker: PWA en español para gestionar el hogar (cajas con QR, equipos y mantenimientos, listas, tareas, documentos, contactos, gastos). Multiusuario por "hogar". iPhone primero (PWA instalada); Android compatible.
 
 ## Stack
-Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storage, Realtime, Edge Functions) · service worker propio en `public/sw.js` · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
+Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`) · auth propia (OTP + sesiones) · almacenamiento S3 compatible · service worker propio en `public/sw.js` · Dexie (IndexedDB) · Web Push (VAPID) · Vitest + Playwright.
 
 ## Reglas de trabajo
 - Trabajar en la rama indicada por la sesión; no abrir PR salvo que se pida.
@@ -39,14 +39,16 @@ Next.js (App Router) + TypeScript + Tailwind · Supabase (Postgres, Auth, Storag
 - Fotos: comprimir en cliente antes de subir; subir en segundo plano.
 
 ## Seguridad
-- RLS obligatoria en toda tabla nueva, con `household_id`. Incluir pruebas de políticas.
-- Nunca exponer `SUPABASE_SERVICE_ROLE_KEY` ni la clave privada VAPID al cliente.
+- MySQL no tiene RLS: toda tabla de hogar lleva `household_id` y toda consulta debe filtrar por él tras `requireMember`. Incluir pruebas de aislamiento.
+- Nunca exponer `DATABASE_URL`, claves S3/SMTP, `SESSION_SECRET` ni la clave privada VAPID al cliente.
+- OTP, tokens de sesión e invitaciones se guardan solo como hash.
 - El QR solo contiene `https://<dominio>/b/<uuid>`; la autorización la hace el servidor.
 - No commitear secretos; usar `.env.local` (ignorado) y `.env.example`.
 
 ## Base de datos
-- Cambios solo mediante migraciones en `supabase/migrations/` (SQL versionado).
-- Regenerar tipos de Supabase tras cada migración.
+- Esquema en `src/db/schema.ts` (Drizzle). Cambios solo con migraciones: `npm run db:generate` y `npm run db:migrate` (SQL en `db/migrations/`, se commitea).
+- IDs `CHAR(36)` UUID, fechas `DATETIME(3)` en UTC, importes `DECIMAL(12,2)`, charset utf8mb4.
+- Local: MySQL/MariaDB con `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker`.
 
 ## Comandos
 ```
@@ -55,8 +57,10 @@ npm run build      # build de producción
 npm run lint       # ESLint
 npm run typecheck  # tsc --noEmit
 npm run test       # Vitest
+npm run db:generate # genera migración desde el esquema
+npm run db:migrate  # aplica migraciones
 npm run e2e        # Playwright (pendiente de configurar)
 ```
 
 ## Definition of done
-Tipos, lint y tests en verde · RLS verificada · funciona en iPhone real · funciona offline-light · `PLAN.md` actualizado.
+Tipos, lint y tests en verde · aislamiento por hogar verificado · funciona en iPhone real · funciona offline-light · `PLAN.md` actualizado.
