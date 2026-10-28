@@ -19,6 +19,7 @@ if (!process.env.DATABASE_URL) {
     const endpoint = (u: string) => `https://push.example/${tag}/${u}`;
 
     afterAll(async () => {
+      await db.delete(schema.notificationPrefs).where(inArray(schema.notificationPrefs.userId, [A, B, C]));
       await db.delete(schema.reminders).where(inArray(schema.reminders.householdId, hogares));
       await db.delete(schema.pushSubscriptions).where(inArray(schema.pushSubscriptions.userId, [A, B, C]));
       await db.delete(schema.maintenancePlans).where(inArray(schema.maintenancePlans.householdId, hogares));
@@ -151,6 +152,43 @@ if (!process.env.DATABASE_URL) {
       expect(r2.removed).toBe(1); // la suscripción caída se borra una sola vez
       const left = await db.select().from(schema.pushSubscriptions).where(inArray(schema.pushSubscriptions.userId, [B]));
       expect(left).toHaveLength(0);
+    });
+
+    it("respeta las preferencias: quien apaga un tipo no recibe esos avisos; el resumen semanal es opt-in", async () => {
+      const now = new Date(Date.now() + 4000);
+      const h1 = hogares[0];
+      const planAppliance = randomUUID();
+      await db.insert(schema.appliances).values({ id: planAppliance, householdId: h1, name: "Lavadora" });
+      const planId = randomUUID();
+      await db.insert(schema.maintenancePlans).values({
+        id: planId, householdId: h1, applianceId: planAppliance, title: "Limpiar tambor", intervalValue: 2, intervalUnit: "month",
+        nextDue: new Date(now.getTime() + 2 * DAY), remindDaysBefore: 7,
+      });
+      // B apaga los avisos de mantenimiento; A activa el resumen semanal
+      await db.insert(schema.notificationPrefs).values([
+        { userId: B, type: "maintenance", enabled: false },
+        { userId: A, type: "weekly", enabled: true },
+      ]);
+      const sent: { to: string; title: string }[] = [];
+      const send = async (s: { endpoint: string }, p: { title: string }) => {
+        sent.push({ to: s.endpoint, title: p.title });
+        return "sent" as const;
+      };
+      await runReminders(send, now);
+      const maint = sent.filter((x) => x.title.includes("Limpiar tambor"));
+      expect(maint.map((x) => x.to)).toEqual([endpoint(A)]); // B lo apagó
+      expect(sent.some((x) => x.title === "Resumen de la semana")).toBe(false); // solo en la ejecución semanal
+
+      sent.length = 0;
+      await runReminders(send, now, { weekly: true });
+      const weekly = sent.filter((x) => x.title === "Resumen de la semana");
+      expect(weekly.map((x) => x.to)).toEqual([endpoint(A)]); // B y C no lo activaron
+      sent.length = 0;
+      await runReminders(send, now, { weekly: true }); // el mismo día no se repite
+      expect(sent.filter((x) => x.title === "Resumen de la semana")).toEqual([]);
+
+      await db.delete(schema.reminders).where(inArray(schema.reminders.entityId, [planId, h1]));
+      await db.delete(schema.maintenancePlans).where(inArray(schema.maintenancePlans.id, [planId]));
     });
   });
 }

@@ -35,7 +35,7 @@ export function ApplianceMaintenance({
   const [error, setError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [completing, setCompleting] = useState<string | null>(null);
-  const [plan, setPlan] = useState({ title: "", value: "6", unit: "month", firstDue: todayInput(), remind: "7" });
+  const [plan, setPlan] = useState({ title: "", value: "6", unit: "month", firstDue: todayInput(), remind: "3" });
   const [done, setDone] = useState({ date: todayInput(), cost: "", providerId: "" });
 
   async function run(fn: () => Promise<{ queued: boolean }>) {

@@ -381,3 +381,17 @@ export const reminders = mysqlTable(
     uniqueIndex("rem_dedupe_uq").on(t.userId, t.entityType, t.entityId, t.fireAt),
   ],
 );
+
+/** Preferencias de recordatorios por persona. Si no hay fila, rigen los valores por defecto (ver `lib/notifications`). */
+export const notificationPrefs = mysqlTable(
+  "notification_prefs",
+  {
+    userId: char("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: mysqlEnum("type", ["maintenance", "warranty", "tasks", "weekly"]).notNull(),
+    enabled: boolean("enabled").notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.type] })],
+);

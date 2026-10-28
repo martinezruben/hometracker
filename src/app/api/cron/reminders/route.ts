@@ -15,7 +15,8 @@ async function handle(request: Request) {
   try {
     if (!authorized(request)) return json({ error: "unauthorized" }, 401);
     if (!pushConfigured()) return json({ error: "push_not_configured" }, 503);
-    return json(await runReminders(sendPush));
+    const weekly = new URL(request.url).searchParams.get("job") === "weekly";
+    return json(await runReminders(sendPush, new Date(), { weekly }));
   } catch (err) {
     return handleError(err);
   }

@@ -428,6 +428,21 @@ export const es = {
     description: "Descarga una copia de todo lo que guardaste (sin los archivos adjuntos).",
     export: "Descargar mis datos",
   },
+  reminders: {
+    title: "Nunca olvides un mantenimiento",
+    text: "Te avisamos antes de que venza una garantía, un pago o una revisión. Elige qué quieres recibir.",
+    preview: { app: "HOMETRACKER", when: "ahora", title: "Mantenimiento en 3 días", body: "Limpiar filtros del aire acondicionado · Sala" },
+    items: {
+      maintenance: { title: "Mantenimientos", sub: "Antes de cada vencimiento (3 días por defecto)" },
+      warranty: { title: "Garantías y pagos", sub: "30 y 7 días antes" },
+      tasks: { title: "Mis pendientes", sub: "El mismo día" },
+      weekly: { title: "Resumen semanal", sub: "Domingos por la noche" },
+    },
+    activate: "Activar recordatorios",
+    notNow: "Ahora no",
+    open: "Recordatorios",
+    prefsError: "No se pudo guardar la preferencia.",
+  },
   push: {
     title: "Recordatorios",
     description: "Recibe avisos en este dispositivo cuando se acerque un mantenimiento.",

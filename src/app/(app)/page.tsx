@@ -33,7 +33,7 @@ export default async function HomePage() {
           <p className="text-sm text-muted"><Greeting /></p>
           <h1 className="truncate text-2xl font-extrabold">{displayName}</h1>
         </div>
-        <Link href="/more#recordatorios" aria-label={es.push.title} className="card relative flex size-11 shrink-0 items-center justify-center rounded-full">
+        <Link href="/reminders" aria-label={es.push.title} className="card relative flex size-11 shrink-0 items-center justify-center rounded-full">
           <BellIcon width={22} height={22} />
           {hasOverdue && <span className="absolute right-2.5 top-2.5 size-2.5 rounded-full bg-late-bar ring-2 ring-card" />}
         </Link>

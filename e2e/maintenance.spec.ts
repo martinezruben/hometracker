@@ -82,7 +82,7 @@ test("Equipos: resumen por estado, tarjetas de mantenimiento con intervalo y cal
   await expect(stats.getByRole("listitem").nth(1)).toContainText("1"); // pronto: el aire
   await expect(stats.getByRole("listitem").nth(2)).toContainText("1"); // al día: la nevera
 
-  const cards = page.getByRole("link", { name: /, / }).filter({ hasText: "cada" });
+  const cards = page.getByRole("link").filter({ hasText: "cada" });
   await expect(cards.first()).toContainText("Calentador");
   await expect(cards.first()).toContainText("Vencido");
   await expect(cards.first()).toContainText("cada año");
