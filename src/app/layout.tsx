@@ -3,6 +3,8 @@ import "./globals.css";
 import { es } from "@/lib/i18n/es";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
+import { SyncManager } from "@/components/SyncManager";
+import { SyncStatus } from "@/components/SyncStatus";
 
 export const metadata: Metadata = {
   title: es.app.name,
@@ -28,8 +30,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <OfflineBanner />
+        <SyncStatus />
         {children}
         <PwaRegister />
+        <SyncManager />
       </body>
     </html>
   );

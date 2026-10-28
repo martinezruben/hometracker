@@ -104,8 +104,8 @@ docs/               notas técnicas
 - [x] Elementos de texto por caja; búsqueda por contenido
 - [x] Generación de QR por caja + etiquetas imprimibles (SVG; hoja con todas en `/boxes/labels`, una en `/b/<id>/label`)
 - [x] Ruta `/b/<id>`: vista de contenido (fotos + texto); redirige a login y vuelve
-- [ ] Escáner QR dentro de la app (Safari no tiene BarcodeDetector: usar `@zxing/browser`); la cámara nativa del iPhone abre Safari
-- [ ] Offline-light: ver cajas cacheadas y crear/editar en cola
+- [x] Escáner QR dentro de la app (`@zxing/browser`, `/scan`); la cámara nativa del iPhone abre Safari
+- [x] Offline-light: cola de cambios en IndexedDB (cajas, ítems, fotos), páginas y fotos visitadas en caché
 
 ### Fase 2 — Equipos y mantenimientos + push (≈1–2 semanas) ★
 - [ ] CRUD de equipos con fotos, garantía y manual (PDF)

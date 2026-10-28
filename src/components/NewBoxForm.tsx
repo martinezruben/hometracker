@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { es } from "@/lib/i18n/es";
 import { newId } from "@/lib/uuid";
+import { mutate } from "@/lib/offline/outbox";
 import { buttonCls, inputCls } from "@/components/ui";
 
 export function NewBoxForm() {
@@ -19,18 +20,20 @@ export function NewBoxForm() {
     setBusy(true);
     setError(null);
     const id = newId();
-    const res = await fetch("/api/boxes", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ id, name, location: location || null, notes: notes || null }),
-    });
-    if (res.ok) {
-      router.replace(`/b/${id}`);
-      router.refresh();
-      return;
+    try {
+      const { queued } = await mutate({
+        url: "/api/boxes",
+        method: "POST",
+        body: { id, name, location: location || null, notes: notes || null },
+        meta: { op: "box-create", boxId: id, name, location: location || null },
+      });
+      // Sin conexión la caja aún no existe en el servidor: se muestra en la lista como pendiente.
+      router.replace(queued ? "/boxes" : `/b/${id}`);
+      if (!queued) router.refresh();
+    } catch {
+      setBusy(false);
+      setError(es.auth.genericError);
     }
-    setBusy(false);
-    setError(es.auth.genericError);
   }
 
   return (
