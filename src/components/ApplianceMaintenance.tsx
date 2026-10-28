@@ -72,7 +72,7 @@ export function ApplianceMaintenance({
                 <div className="flex items-center gap-4">
                   <button className={linkBtnCls} onClick={() => setCompleting(p.id)}>{t.markDone}</button>
                   <button
-                    className={`${linkBtnCls} !text-red-600`}
+                    className={`${linkBtnCls} !text-danger`}
                     onClick={() => {
                       if (confirm(t.confirmDeletePlan))
                         void run(() =>
@@ -191,7 +191,7 @@ export function ApplianceMaintenance({
         ) : (
           <button className={buttonCls} onClick={() => setAdding(true)}>{t.addPlan}</button>
         ))}
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </section>
   );
 }

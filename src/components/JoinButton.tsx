@@ -30,7 +30,7 @@ export function JoinButton({ token }: { token: string }) {
   return (
     <div className="space-y-3">
       <button className={buttonCls} disabled={busy} onClick={join}>{es.invite.joinAction}</button>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

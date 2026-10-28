@@ -19,7 +19,7 @@ export default async function LabelPage({ params }: { params: Promise<{ id: stri
     <section className="mx-auto max-w-sm space-y-4 text-center">
       <div className="rounded-xl border border-border p-6 bg-white text-black print:border-2 print:border-black">
         <div className="mx-auto aspect-square w-full max-w-64 bg-white" dangerouslySetInnerHTML={{ __html: svg }} />
-        <p className="mt-3 text-xl font-bold">{box.name}</p>
+        <h1 className="mt-3 text-xl font-bold">{box.name}</h1>
         {box.location && <p className="text-sm">{box.location}</p>}
         <p className="mt-2 text-xs">{es.boxes.scanHint}</p>
       </div>

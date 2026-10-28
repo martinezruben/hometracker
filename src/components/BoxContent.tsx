@@ -83,7 +83,7 @@ export function BoxContent({
           <div className="flex gap-4">
             <button className={linkBtnCls} onClick={() => setEditing(true)}>{es.boxes.edit}</button>
             <button
-              className={`${linkBtnCls} !text-red-600`}
+              className={`${linkBtnCls} !text-danger`}
               onClick={() => {
                 if (confirm(es.boxes.confirmDelete))
                   void run(async () => {
@@ -144,7 +144,7 @@ export function BoxContent({
           </form>
         )}
       </section>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </div>
   );
 }

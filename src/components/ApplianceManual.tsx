@@ -44,7 +44,7 @@ export function ApplianceManual({ id, hasManual, canEdit }: { id: string; hasMan
           </button>
         </>
       )}
-      {message && <p role="alert" className="text-sm text-red-600">{message}</p>}
+      {message && <p role="alert" className="text-sm text-danger">{message}</p>}
     </section>
   );
 }

@@ -53,7 +53,7 @@ export function NewBoxForm() {
         <textarea className={`${inputCls} py-3`} rows={3} maxLength={5000}
           value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <button className={buttonCls} disabled={busy || !name.trim()}>{es.boxes.create}</button>
     </form>
   );

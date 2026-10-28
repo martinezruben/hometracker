@@ -62,7 +62,7 @@ export function ExpenseActions({
             <div className="flex gap-4">
               <button className={linkBtnCls} onClick={() => setEditing(true)}>{t.edit}</button>
               <button
-                className={`${linkBtnCls} !text-red-600`}
+                className={`${linkBtnCls} !text-danger`}
                 onClick={async () => {
                   if (!confirm(t.confirmDelete)) return;
                   try {
@@ -80,7 +80,7 @@ export function ExpenseActions({
           )}
         </>
       )}
-      {message && <p role="alert" className="text-sm text-red-600">{message}</p>}
+      {message && <p role="alert" className="text-sm text-danger">{message}</p>}
     </div>
   );
 }

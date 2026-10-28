@@ -19,6 +19,11 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Cambios pequeños y commits descriptivos en español o inglés, consistentes con el historial.
 - No inventar dependencias ni servicios sin justificarlo; preguntar si cambia una decisión de `CONTEXT.md`.
 
+## Diseño (obligatorio)
+- Toda pantalla nueva o modificada sigue `docs/DESIGN.md` (referencia visual: `docs/design/HomeTracker_iOS.pdf`): fondo degradado azul claro, tarjetas blancas redondeadas, azul real como acción, estados Vencido/Pronto/Al día con color y texto, barra inferior flotante con botón central de escaneo.
+- Sin colores sueltos: usar los tokens de `globals.css`. Cambios de diseño se registran en `docs/DESIGN.md`.
+- El rediseño completo está en cola como Fase 6 de `PLAN.md`.
+
 ## Convenciones de código
 - TypeScript estricto; sin `any` salvo justificación.
 - Componentes en `src/components`, lógica de datos en `src/lib`. Rutas en `src/app`.
@@ -100,7 +105,7 @@ npm run typecheck  # tsc --noEmit
 npm run test       # Vitest
 npm run db:generate # genera migración desde el esquema
 npm run db:migrate  # aplica migraciones
-npm run e2e        # Playwright (pendiente de configurar)
+npm run e2e        # Playwright (requiere `npm run build` y DATABASE_URL; incluye axe en claro y oscuro)
 ```
 
 ## Definition of done

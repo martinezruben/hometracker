@@ -7,6 +7,7 @@
   --muted: #64748b;
   --card: #ffffff;
   --border: #e2e8f0;
+  --danger: #b91c1c;
 }
 
 @theme inline {
@@ -16,6 +17,7 @@
   --color-muted: var(--muted);
   --color-card: var(--card);
   --color-border: var(--border);
+  --color-danger: var(--danger);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +28,7 @@
     --muted: #94a3b8;
     --card: #111a2e;
     --border: #1e293b;
+    --danger: #f87171;
   }
 }
 

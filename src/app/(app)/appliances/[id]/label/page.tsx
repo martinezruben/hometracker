@@ -19,7 +19,7 @@ export default async function ApplianceLabelPage({ params }: { params: Promise<{
     <section className="mx-auto max-w-sm space-y-4 text-center">
       <div className="rounded-xl border border-border bg-white p-6 text-black print:border-2 print:border-black">
         <div className="mx-auto aspect-square w-full max-w-64 bg-white" dangerouslySetInnerHTML={{ __html: svg }} />
-        <p className="mt-3 text-xl font-bold">{a.name}</p>
+        <h1 className="mt-3 text-xl font-bold">{a.name}</h1>
         {(a.brand || a.model) && <p className="text-sm">{[a.brand, a.model].filter(Boolean).join(" · ")}</p>}
         <p className="mt-2 text-xs">{es.appliances.scanHint}</p>
       </div>

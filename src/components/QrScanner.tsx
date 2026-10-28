@@ -53,7 +53,7 @@ export function QrScanner() {
         <video ref={video} playsInline muted className="aspect-square w-full object-cover" />
       </div>
       <p className="text-sm text-muted">{es.scan.hint}</p>
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
       <p className="text-xs text-muted">{es.scan.tip}</p>
     </div>
   );

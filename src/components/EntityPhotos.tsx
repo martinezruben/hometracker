@@ -116,7 +116,7 @@ export function EntityPhotos({
         </div>
       )}
       {uploading > 0 && <p className="text-sm text-muted">{es.boxes.uploading}</p>}
-      {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
+      {error && <p role="alert" className="text-sm text-danger">{error}</p>}
     </section>
   );
 }
