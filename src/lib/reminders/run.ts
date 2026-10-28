@@ -6,7 +6,9 @@ import { formatDate } from "@/lib/format";
 import { reminderFireAt } from "@/lib/maintenance/schedule";
 import type { PushSender } from "@/lib/push/send";
 
-const { maintenancePlans, appliances, householdMembers, pushSubscriptions, reminders, tasks } = schema;
+const { maintenancePlans, appliances, householdMembers, pushSubscriptions, reminders, tasks, documents } = schema;
+
+const DOC_REMIND_DAYS = 30;
 
 const MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // no avisar de recordatorios de hace más de 30 días
 
@@ -135,6 +137,38 @@ export async function runReminders(send: PushSender, now = new Date()): Promise<
         body: `Vence el ${formatDate(task.dueAt!)}`,
         url: "/tasks",
         fireAt: task.dueAt!,
+      });
+      if (inserted) result.created++;
+    }
+  }
+
+  // 1c) Documentos (contratos, garantías…) que vencen en los próximos 30 días.
+  const expiring = await db
+    .select()
+    .from(documents)
+    .where(
+      and(
+        isNull(documents.deletedAt),
+        lte(sql`DATE_SUB(${documents.expiresAt}, INTERVAL ${DOC_REMIND_DAYS} DAY)`, now),
+        gte(documents.expiresAt, new Date(now.getTime() - MAX_AGE_MS)),
+      ),
+    );
+  for (const doc of expiring) {
+    const members = await db
+      .select({ userId: householdMembers.userId })
+      .from(householdMembers)
+      .where(eq(householdMembers.householdId, doc.householdId));
+    for (const r of members) {
+      const inserted = await insertIfNew({
+        id: randomUUID(),
+        householdId: doc.householdId,
+        userId: r.userId,
+        entityType: "document_expiring",
+        entityId: doc.id,
+        title: `Vence pronto: ${doc.title}`,
+        body: `Vence el ${formatDate(doc.expiresAt!)}`,
+        url: `/documents/${doc.id}`,
+        fireAt: reminderFireAt(doc.expiresAt!, DOC_REMIND_DAYS),
       });
       if (inserted) result.created++;
     }

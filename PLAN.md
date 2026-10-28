@@ -122,8 +122,8 @@ docs/               notas técnicas
 - [ ] Actualización entre miembros (polling/revalidación): hoy se ve al abrir la app o recargar
 
 ### Fase 4 — Documentos, contactos y gastos (≈1–2 semanas)
-- [ ] Documentos (facturas, recibos, contratos, garantías) con vencimientos
-- [ ] Contactos/proveedores vinculados a equipos, documentos y gastos
+- [x] Documentos (facturas, recibos, contratos, garantías) con archivo (PDF/foto, 4 MB), vencimientos y aviso push 30 días antes
+- [x] Contactos/proveedores (llamar, WhatsApp, correo, calificación) vinculables a documentos; *pendiente*: vincular a gastos y al registro de mantenimiento
 - [ ] Compras/gastos con recibo y resumen mensual
 
 ### Fase 5 — Pulido (≈1 semana)

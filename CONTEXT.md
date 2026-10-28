@@ -53,7 +53,7 @@ Un solo lugar para que una familia lleve todo lo del hogar: qué hay en cada caj
 - **Plan de mantenimiento**: regla de recurrencia asociada a un equipo.
 
 ## Estado actual
-Fases 0 a 3 completas salvo detalles: CI en GitHub Actions (lo ejecuta GitHub; el primer resultado en `main` aún no se ha revisado), Playwright dentro del repo pendiente. Fase 1: cajas con QR y offline-light. Fase 2: equipos, mantenimientos, push y recordatorios. **Fase 3**: listas (súper, compras, para vender con fotos, precio y estado vendido) y pendientes (fecha, repetición, asignado, recordatorio push el día del vencimiento), con cambios sin conexión visibles de inmediato. Pendiente: actualización automática entre miembros, QR por equipo, manual en PDF, proveedor en el registro de mantenimiento. Siguiente: Fase 4 (documentos, contactos, gastos). **Sin validar en hardware real**: push en iPhone y driver S3.
+Fases 0 a 3 completas y **Fase 4 a medias**: contactos/proveedores y documentos (archivo adjunto PDF/foto de hasta 4 MB por límite de cuerpo de las plataformas serverless, vencimiento con aviso push 30 días antes). CI verde en GitHub Actions contra MySQL 8. Pendiente de Fase 4: gastos con recibo y resumen mensual. Pendiente general: actualización automática entre miembros, QR por equipo, manual en PDF, proveedor en el registro de mantenimiento, Playwright dentro del repo, Fase 5 (búsqueda global, dashboard, exportación). **Sin validar en hardware real**: push en iPhone y driver S3. Los archivos de documentos solo se adjuntan con conexión (los metadatos sí funcionan offline).
 
 ## Preguntas abiertas
 - Proveedor de MySQL, de correo (SMTP) y de almacenamiento S3.

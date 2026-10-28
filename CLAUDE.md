@@ -3,6 +3,8 @@
 Guía para Claude Code en este repositorio. Lee también `CONTEXT.md` (producto y decisiones) y `PLAN.md` (fases).
 
 ## Proyecto
+No uses tipos globales generados por `next build` (p. ej. `LayoutProps`): la CI hace typecheck antes del build.
+
 Antes de escribir código de Next.js lee la guía correspondiente en `node_modules/next/dist/docs/` (esta versión difiere de lo habitual; ver `AGENTS.md`).
 
 HomeTracker: PWA en español para gestionar el hogar (cajas con QR, equipos y mantenimientos, listas, tareas, documentos, contactos, gastos). Multiusuario por "hogar". iPhone primero (PWA instalada); Android compatible.
@@ -54,6 +56,10 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - El `householdId` de una consulta sale de `requireMember`, nunca directamente del cuerpo de la petición.
 - Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
 - En desarrollo sin `SMTP_URL`, el código OTP se imprime en la consola del servidor.
+
+## Documentos y contactos
+- Los archivos de documentos se suben a `/api/documents/<id>/file` (PDF o imagen, máx. 4 MB) y se sirven solo por esa ruta autenticada; los metadatos usan `mutate()` y funcionan offline, el archivo requiere conexión.
+- Antes de vincular un proveedor o equipo a un documento hay que validar que sea del mismo hogar (`validateLinks`).
 
 ## Mantenimientos
 - La lógica de fechas vive en `src/lib/maintenance/schedule.ts` (puro, con tests). Las fechas "solo día" se guardan como medianoche UTC y se muestran con `formatDate`.

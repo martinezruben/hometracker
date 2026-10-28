@@ -108,6 +108,25 @@ if (!process.env.DATABASE_URL) {
       await db.delete(schema.tasks).where(inArray(schema.tasks.id, [id]));
     });
 
+    it("avisa de documentos que vencen en 30 días a todos los miembros, una sola vez", async () => {
+      const now = new Date(Date.now() + 3000);
+      const h1 = hogares[0];
+      const id = randomUUID();
+      await db.insert(schema.documents).values({ id, householdId: h1, kind: "contract", title: "Seguro", expiresAt: new Date(now.getTime() + 20 * DAY) });
+      const sentTo: string[] = [];
+      const send = async (s: { endpoint: string }) => {
+        sentTo.push(s.endpoint);
+        return "sent" as const;
+      };
+      await runReminders(send, now);
+      expect(sentTo).toEqual(expect.arrayContaining([endpoint(A), endpoint(B)]));
+      const before = sentTo.length;
+      await runReminders(send, now);
+      expect(sentTo.length).toBe(before);
+      await db.delete(schema.reminders).where(inArray(schema.reminders.entityId, [id]));
+      await db.delete(schema.documents).where(inArray(schema.documents.id, [id]));
+    });
+
     it("reintenta si falla de forma transitoria, borra suscripciones caídas y solo avisa al asignado", async () => {
       const now = new Date(Date.now() + 1000);
       const h1 = hogares[0];
