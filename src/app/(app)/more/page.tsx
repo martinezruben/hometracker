@@ -20,18 +20,13 @@ export default async function MorePage() {
         {[
           { href: "/documents", label: es.documents.title },
           { href: "/contacts", label: es.contacts.title },
+          { href: "/expenses", label: es.expenses.title },
         ].map((l) => (
           <li key={l.href}>
             <Link href={l.href} className="flex min-h-14 items-center justify-between p-4">
               <span>{l.label}</span>
               <span aria-hidden>›</span>
             </Link>
-          </li>
-        ))}
-        {es.more.items.map((item) => (
-          <li key={item} className="flex min-h-14 items-center justify-between p-4">
-            <span>{item}</span>
-            <span className="text-xs text-muted">{es.more.comingSoon}</span>
           </li>
         ))}
       </ul>

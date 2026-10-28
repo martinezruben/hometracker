@@ -124,7 +124,7 @@ docs/               notas técnicas
 ### Fase 4 — Documentos, contactos y gastos (≈1–2 semanas)
 - [x] Documentos (facturas, recibos, contratos, garantías) con archivo (PDF/foto, 4 MB), vencimientos y aviso push 30 días antes
 - [x] Contactos/proveedores (llamar, WhatsApp, correo, calificación) vinculables a documentos; *pendiente*: vincular a gastos y al registro de mantenimiento
-- [ ] Compras/gastos con recibo y resumen mensual
+- [x] Compras/gastos con recibo (PDF/foto) y resumen mensual por categoría
 
 ### Fase 5 — Pulido (≈1 semana)
 - [ ] Búsqueda global, dashboard, exportación de datos

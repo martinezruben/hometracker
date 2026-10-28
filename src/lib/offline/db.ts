@@ -33,7 +33,11 @@ export type OutboxMeta = {
     | "contact-delete"
     | "document-create"
     | "document-update"
-    | "document-delete";
+    | "document-delete"
+    | "expense-create"
+    | "expense-update"
+    | "expense-delete";
+  expenseId?: string;
   contactId?: string;
   documentId?: string;
   listId?: string;
