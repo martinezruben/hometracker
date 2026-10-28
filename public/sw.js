@@ -1,7 +1,15 @@
 // Service worker de HomeTracker (Fase 0): caché del app shell + base para push.
-const VERSION = "v1";
+const VERSION = "v3";
+const FILES_CACHE = `files-${VERSION}`;
 const STATIC_CACHE = `static-${VERSION}`;
 const PAGES_CACHE = `pages-${VERSION}`;
+
+function offlinePage() {
+  return new Response(
+    '<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sin conexión</title><body style="font-family:system-ui;padding:2rem"><h1>Sin conexión</h1><p>Abre la app con internet al menos una vez. Tus cambios pendientes se enviarán al reconectar.</p></body></html>',
+    { status: 503, headers: { "content-type": "text/html; charset=utf-8" } },
+  );
+}
 
 self.addEventListener("install", () => self.skipWaiting());
 
@@ -10,7 +18,7 @@ self.addEventListener("activate", (event) => {
     (async () => {
       const keys = await caches.keys();
       await Promise.all(
-        keys.filter((k) => ![STATIC_CACHE, PAGES_CACHE].includes(k)).map((k) => caches.delete(k)),
+        keys.filter((k) => ![STATIC_CACHE, PAGES_CACHE, FILES_CACHE].includes(k)).map((k) => caches.delete(k)),
       );
       await self.clients.claim();
     })(),
@@ -22,6 +30,20 @@ self.addEventListener("fetch", (event) => {
   if (request.method !== "GET") return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Fotos: su id es inmutable, se guardan en el dispositivo para verlas sin conexión.
+  if (url.pathname.startsWith("/api/files/")) {
+    event.respondWith(
+      caches.open(FILES_CACHE).then(async (cache) => {
+        const hit = await cache.match(request);
+        if (hit) return hit;
+        const res = await fetch(request);
+        if (res.ok) cache.put(request, res.clone());
+        return res;
+      }),
+    );
+    return;
+  }
 
   // Assets inmutables: cache-first (abre rápido).
   if (url.pathname.startsWith("/_next/static/") || /\.(png|svg|ico|woff2?)$/.test(url.pathname)) {
@@ -47,7 +69,7 @@ self.addEventListener("fetch", (event) => {
           if (res.ok) cache.put(request, res.clone());
           return res;
         } catch {
-          return (await cache.match(request)) ?? (await cache.match("/")) ?? Response.error();
+          return (await cache.match(request)) ?? (await cache.match("/")) ?? offlinePage();
         }
       })(),
     );

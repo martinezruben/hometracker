@@ -87,12 +87,13 @@ export function s3Driver(): Storage {
 
 let instance: Storage | undefined;
 
-/** S3 si hay `S3_BUCKET`; si no, disco local (`STORAGE_DIR`, por defecto `.storage`). */
+/** S3 si hay `S3_BUCKET`; si no, disco local (`STORAGE_DIR`; en desarrollo por defecto `.storage`). */
 export function getStorage(): Storage {
   if (!instance) {
     if (process.env.S3_BUCKET) instance = s3Driver();
-    else if (process.env.NODE_ENV === "production") throw new Error("Falta S3_BUCKET");
-    else instance = localStorageDriver(path.resolve(process.env.STORAGE_DIR ?? ".storage"));
+    else if (process.env.NODE_ENV === "production" && !process.env.STORAGE_DIR) {
+      throw new Error("Falta S3_BUCKET (o STORAGE_DIR para disco local)");
+    } else instance = localStorageDriver(path.resolve(process.env.STORAGE_DIR ?? ".storage"));
   }
   return instance;
 }

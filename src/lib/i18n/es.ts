@@ -96,5 +96,19 @@ export const es = {
   },
   sync: {
     offline: "Sin conexión. Los cambios se guardarán al reconectar.",
+    pending: (n: number) => (n === 1 ? "1 cambio pendiente de enviar" : `${n} cambios pendientes de enviar`),
+    failed: (n: number) => (n === 1 ? "1 cambio fue rechazado" : `${n} cambios fueron rechazados`),
+    discard: "Descartar",
+    pendingTag: "Pendiente",
+    pendingBox: "Se creará al reconectar",
+  },
+  scan: {
+    title: "Escanear QR",
+    hint: "Apunta la cámara al QR de la caja.",
+    open: "Escanear QR",
+    denied: "No pudimos usar la cámara. Revisa el permiso en Ajustes de tu iPhone.",
+    unsupported: "Este navegador no permite usar la cámara aquí.",
+    notBox: "Ese QR no es de una caja de HomeTracker.",
+    tip: "También puedes escanear con la app Cámara del iPhone.",
   },
 } as const;

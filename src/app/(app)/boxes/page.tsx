@@ -3,6 +3,7 @@ import { requireActiveHousehold } from "@/lib/auth/access";
 import { listBoxes } from "@/lib/boxes/data";
 import { es } from "@/lib/i18n/es";
 import { SearchForm } from "@/components/SearchForm";
+import { PendingBoxes } from "@/components/PendingBoxes";
 import { linkBtnCls } from "@/components/ui";
 
 export default async function BoxesPage({
@@ -26,6 +27,10 @@ export default async function BoxesPage({
         )}
       </header>
       <SearchForm q={q} placeholder={es.boxes.searchPlaceholder} />
+      <Link href="/scan" className="flex min-h-12 items-center justify-center rounded-xl border border-primary font-semibold text-primary">
+        📷 {es.scan.open}
+      </Link>
+      <PendingBoxes />
       {boxes.length === 0 ? (
         <p className="rounded-xl border border-border bg-card p-4 text-muted">
           {q ? es.boxes.emptySearch : es.boxes.empty}
