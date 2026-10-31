@@ -141,3 +141,13 @@ test("cambiar la contraseña desde Más: pide la nueva y su confirmación y sirv
   await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page).toHaveURL("/");
 });
+
+test("el administrador cambia el nombre de la casa y se ve en Inicio; es distinto del nombre de la persona", async ({ page }) => {
+  await signUp(page, "casa", "Casa Vieja");
+  await page.goto("/more");
+  await page.getByLabel("Nombre de la casa").fill("Apartamento Playa");
+  await page.getByRole("button", { name: "Guardar" }).first().click();
+  await expect(page.getByText("Guardado").first()).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Apartamento Playa" })).toBeVisible();
+});

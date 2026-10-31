@@ -45,6 +45,10 @@ export const es = {
     changePassword: "Cambiar contraseña",
     passwordChanged: "Contraseña actualizada",
   },
+  household: {
+    title: "Tu hogar",
+    nameLabel: "Nombre de la casa",
+  },
   home: {
     title: "Inicio",
     welcome: "Bienvenido a tu hogar",
