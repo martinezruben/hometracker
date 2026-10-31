@@ -79,18 +79,15 @@ export async function authenticate(rawEmail: string, password: string, now = new
 }
 
 /**
- * Cambia la contraseña tras verificar la actual (con el mismo bloqueo por fallos que el login).
- * Cierra las demás sesiones del usuario y conserva `keepSessionId`. Devuelve false si la actual no coincide.
+ * Cambia la contraseña de una persona con sesión iniciada (no pide la actual).
+ * Cierra las demás sesiones del usuario y conserva `keepSessionId`; también quita cualquier bloqueo por fallos.
  */
-export async function changePassword(userId: string, email: string, current: string, next: string, keepSessionId: string | null) {
-  const user = await authenticate(email, current);
-  if (!user || user.id !== userId) return false;
+export async function changePassword(userId: string, next: string, keepSessionId: string | null) {
   await db
     .update(schema.users)
-    .set({ passwordHash: await hashPassword(next) })
+    .set({ passwordHash: await hashPassword(next), failedLogins: 0, lockedUntil: null })
     .where(eq(schema.users.id, userId));
   await db
     .delete(schema.sessions)
     .where(keepSessionId ? and(eq(schema.sessions.userId, userId), ne(schema.sessions.id, keepSessionId)) : eq(schema.sessions.userId, userId));
-  return true;
 }
