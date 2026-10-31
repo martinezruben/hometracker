@@ -2,6 +2,7 @@ import Link from "next/link";
 import { InviteForm } from "@/components/InviteForm";
 import { LogoutButton } from "@/components/LogoutButton";
 import { AccountForm } from "@/components/AccountForm";
+import { HouseholdNameForm } from "@/components/HouseholdNameForm";
 import { PasswordForm } from "@/components/PasswordForm";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { es } from "@/lib/i18n/es";
@@ -31,6 +32,7 @@ export default async function MorePage() {
           </li>
         ))}
       </ul>
+      {household.role === "admin" && <HouseholdNameForm householdId={household.id} initialName={household.name} />}
       <AccountForm initialName={user.name ?? ""} email={user.email} />
       <PasswordForm />
       <Link href="/reminders" className="card flex min-h-14 items-center justify-between p-4">
