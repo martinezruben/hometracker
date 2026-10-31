@@ -188,6 +188,8 @@ export const es = {
     loginTitle: "Entrar a HomeTracker",
     registerTitle: "Crear cuenta",
     emailLabel: "Correo electrónico",
+    nameLabel: "Tu nombre",
+    namePlaceholder: "Rubén",
     passwordLabel: "Contraseña",
     passwordHint: "Mínimo 8 caracteres.",
     login: "Entrar",

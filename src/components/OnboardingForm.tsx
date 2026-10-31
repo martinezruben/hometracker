@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { es } from "@/lib/i18n/es";
 import { buttonCls, inputCls } from "@/components/ui";
 
-export function OnboardingForm({ next }: { next: string }) {
+export function OnboardingForm({ next, askName }: { next: string; askName: boolean }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [userName, setUserName] = useState("");
@@ -32,7 +32,7 @@ export function OnboardingForm({ next }: { next: string }) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
-      <label className="block space-y-1">
+      {askName && <label className="block space-y-1">
         <span className="text-sm text-muted">{es.onboarding.yourName}</span>
         <input
           className={inputCls}
@@ -42,7 +42,7 @@ export function OnboardingForm({ next }: { next: string }) {
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
         />
-      </label>
+      </label>}
       <label className="block space-y-1">
         <span className="text-sm text-muted">{es.onboarding.nameLabel}</span>
         <input

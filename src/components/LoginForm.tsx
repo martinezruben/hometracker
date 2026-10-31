@@ -8,10 +8,13 @@ import { buttonCls, inputCls, linkBtnCls } from "@/components/ui";
 export function LoginForm({ next }: { next: string }) {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register">("login");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const registering = mode === "register";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,7 +23,7 @@ export function LoginForm({ next }: { next: string }) {
     const res = await fetch(`/api/auth/${mode}`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(registering ? { email, password, name: name.trim() || undefined } : { email, password }),
     }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
@@ -39,9 +42,21 @@ export function LoginForm({ next }: { next: string }) {
     );
   }
 
-  const registering = mode === "register";
   return (
     <form onSubmit={submit} className="space-y-4">
+      {registering && (
+        <label className="block space-y-1">
+          <span className="text-sm text-muted">{es.auth.nameLabel}</span>
+          <input
+            className={inputCls}
+            autoComplete="given-name"
+            maxLength={120}
+            placeholder={es.auth.namePlaceholder}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </label>
+      )}
       <label className="block space-y-1">
         <span className="text-sm text-muted">{es.auth.emailLabel}</span>
         <input

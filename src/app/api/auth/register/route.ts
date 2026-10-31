@@ -5,8 +5,8 @@ import { handleError, json } from "@/lib/http";
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = registerBody.parse(await request.json());
-    const user = await registerUser(email, password);
+    const { email, password, name } = registerBody.parse(await request.json());
+    const user = await registerUser(email, password, name);
     await createSession(user.id);
     return json({ ok: true, hasHousehold: false });
   } catch (err) {
