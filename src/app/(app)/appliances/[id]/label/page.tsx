@@ -4,8 +4,7 @@ import { getApplianceAccess } from "@/lib/appliances/data";
 import { uuid } from "@/lib/appliances/schemas";
 import { applianceUrl } from "@/lib/config";
 import { es } from "@/lib/i18n/es";
-import { qrSvg } from "@/lib/qr";
-import { PrintButton } from "@/components/PrintButton";
+import { LabelStudio } from "@/components/labels/LabelStudio";
 
 export default async function ApplianceLabelPage({ params }: { params: Promise<{ id: string }> }) {
   const parsed = uuid.safeParse((await params).id);
@@ -14,16 +13,11 @@ export default async function ApplianceLabelPage({ params }: { params: Promise<{
   const access = await getApplianceAccess(user.id, parsed.data);
   if (!access) notFound();
   const { appliance: a } = access;
-  const svg = await qrSvg(applianceUrl(a.id));
+  const subtitle = [a.brand, a.model].filter(Boolean).join(" · ") || undefined;
   return (
-    <section className="mx-auto max-w-sm space-y-4 text-center">
-      <div className="rounded-xl border border-border bg-white p-6 text-black print:border-2 print:border-black">
-        <div className="mx-auto aspect-square w-full max-w-64 bg-white" dangerouslySetInnerHTML={{ __html: svg }} />
-        <h1 className="mt-3 text-xl font-bold">{a.name}</h1>
-        {(a.brand || a.model) && <p className="text-sm">{[a.brand, a.model].filter(Boolean).join(" · ")}</p>}
-        <p className="mt-2 text-xs">{es.appliances.scanHint}</p>
-      </div>
-      <PrintButton />
+    <section className="mx-auto max-w-lg space-y-4">
+      <h1 className="text-2xl font-bold">{es.labels.title}</h1>
+      <LabelStudio groups={[{ items: [{ id: a.id, title: a.name, subtitle, url: applianceUrl(a.id) }] }]} />
     </section>
   );
 }

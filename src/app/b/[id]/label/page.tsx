@@ -4,8 +4,7 @@ import { getBoxAccess } from "@/lib/boxes/data";
 import { uuid } from "@/lib/boxes/schemas";
 import { boxUrl } from "@/lib/config";
 import { es } from "@/lib/i18n/es";
-import { qrSvg } from "@/lib/qr";
-import { PrintButton } from "@/components/PrintButton";
+import { LabelStudio } from "@/components/labels/LabelStudio";
 
 export default async function LabelPage({ params }: { params: Promise<{ id: string }> }) {
   const parsed = uuid.safeParse((await params).id);
@@ -14,16 +13,10 @@ export default async function LabelPage({ params }: { params: Promise<{ id: stri
   const access = await getBoxAccess(user.id, parsed.data);
   if (!access) notFound();
   const { box } = access;
-  const svg = await qrSvg(boxUrl(box.id));
   return (
-    <section className="mx-auto max-w-sm space-y-4 text-center">
-      <div className="rounded-xl border border-border p-6 bg-white text-black print:border-2 print:border-black">
-        <div className="mx-auto aspect-square w-full max-w-64 bg-white" dangerouslySetInnerHTML={{ __html: svg }} />
-        <h1 className="mt-3 text-xl font-bold">{box.name}</h1>
-        {box.location && <p className="text-sm">{box.location}</p>}
-        <p className="mt-2 text-xs">{es.boxes.scanHint}</p>
-      </div>
-      <PrintButton />
+    <section className="mx-auto max-w-lg space-y-4">
+      <h1 className="text-2xl font-bold">{es.labels.title}</h1>
+      <LabelStudio groups={[{ items: [{ id: box.id, title: box.name, subtitle: box.location ?? undefined, url: boxUrl(box.id) }] }]} />
     </section>
   );
 }
