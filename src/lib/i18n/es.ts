@@ -37,6 +37,13 @@ export const es = {
     namePlaceholder: "Rubén",
     save: "Guardar",
     saved: "Guardado",
+    passwordTitle: "Cambiar contraseña",
+    currentPassword: "Contraseña actual",
+    newPassword: "Nueva contraseña",
+    passwordHint: "Mínimo 8 caracteres. Se cerrará la sesión en tus otros dispositivos.",
+    changePassword: "Cambiar contraseña",
+    passwordChanged: "Contraseña actualizada",
+    wrongPassword: "La contraseña actual no es correcta.",
   },
   home: {
     title: "Inicio",

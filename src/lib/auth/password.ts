@@ -1,6 +1,6 @@
 import { randomBytes, randomUUID, scrypt as scryptCb, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, ne, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { normalizeEmail } from "./crypto";
 import { RateLimitError } from "./otp";
@@ -76,4 +76,21 @@ export async function authenticate(rawEmail: string, password: string, now = new
     .set({ lockedUntil: new Date(now.getTime() + LOGIN_LOCK_MS) })
     .where(and(eq(schema.users.id, user.id), gte(schema.users.failedLogins, LOGIN_MAX_FAILURES)));
   return null;
+}
+
+/**
+ * Cambia la contraseña tras verificar la actual (con el mismo bloqueo por fallos que el login).
+ * Cierra las demás sesiones del usuario y conserva `keepSessionId`. Devuelve false si la actual no coincide.
+ */
+export async function changePassword(userId: string, email: string, current: string, next: string, keepSessionId: string | null) {
+  const user = await authenticate(email, current);
+  if (!user || user.id !== userId) return false;
+  await db
+    .update(schema.users)
+    .set({ passwordHash: await hashPassword(next) })
+    .where(eq(schema.users.id, userId));
+  await db
+    .delete(schema.sessions)
+    .where(keepSessionId ? and(eq(schema.sessions.userId, userId), ne(schema.sessions.id, keepSessionId)) : eq(schema.sessions.userId, userId));
+  return true;
 }

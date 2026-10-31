@@ -10,7 +10,7 @@ if (!hasDb) {
 } else {
   const { db, schema } = await import("@/db");
   const { createOtp, verifyOtp, OTP_MAX_ATTEMPTS, RateLimitError } = await import("./otp");
-  const { registerUser, authenticate, EmailTakenError, LOGIN_MAX_FAILURES } = await import("./password");
+  const { registerUser, authenticate, changePassword, EmailTakenError, LOGIN_MAX_FAILURES } = await import("./password");
   const { createHousehold, createInvitation, acceptInvitation } = await import("@/lib/households");
   const { getMemberRole, requireRole } = await import("./membership");
   const { ForbiddenError } = await import("./roles");
@@ -26,7 +26,7 @@ if (!hasDb) {
       await db.delete(schema.householdMembers).where(eq(schema.householdMembers.householdId, id));
       await db.delete(schema.households).where(eq(schema.households.id, id));
     }
-    for (const n of ["ana", "beto", "carla", "dani", "eli", "fede"]) {
+    for (const n of ["ana", "beto", "carla", "dani", "eli", "fede", "gus"]) {
       await db.delete(schema.otpCodes).where(eq(schema.otpCodes.email, email(n)));
       await db.delete(schema.users).where(eq(schema.users.email, email(n)));
     }
@@ -62,6 +62,20 @@ if (!hasDb) {
     await expect(authenticate(email("fede"), "una-clave-larga")).rejects.toBeInstanceOf(RateLimitError);
     const later = new Date(Date.now() + 16 * 60 * 1000);
     expect((await authenticate(email("fede"), "una-clave-larga", later))?.id).toBe(u.id);
+  });
+
+  it("cambiar contraseña exige la actual, deja la nueva y cierra las otras sesiones", async () => {
+    const u = await registerUser(email("gus"), "clave-vieja-1");
+    const mk = (id: string) => db.insert(schema.sessions).values({ id, userId: u.id, expiresAt: new Date(Date.now() + 3600_000) });
+    await mk(`keep-${tag}`.padEnd(64, "0"));
+    await mk(`drop-${tag}`.padEnd(64, "0"));
+    expect(await changePassword(u.id, u.email, "equivocada", "clave-nueva-2", `keep-${tag}`.padEnd(64, "0"))).toBe(false);
+    expect(await changePassword(u.id, u.email, "clave-vieja-1", "clave-nueva-2", `keep-${tag}`.padEnd(64, "0"))).toBe(true);
+    expect(await authenticate(email("gus"), "clave-vieja-1")).toBeNull();
+    expect((await authenticate(email("gus"), "clave-nueva-2"))?.id).toBe(u.id);
+    const left = await db.select().from(schema.sessions).where(eq(schema.sessions.userId, u.id));
+    expect(left.map((s) => s.id)).toEqual([`keep-${tag}`.padEnd(64, "0")]);
+    await db.delete(schema.sessions).where(eq(schema.sessions.userId, u.id));
   });
 
   it("limita los códigos por hora", async () => {
