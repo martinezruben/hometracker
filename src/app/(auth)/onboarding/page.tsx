@@ -16,7 +16,7 @@ export default async function OnboardingPage({
   return (
     <>
       <h1 className="text-2xl font-bold">{es.onboarding.title}</h1>
-      <OnboardingForm next={next} />
+      <OnboardingForm next={next} askName={!user.name} />
     </>
   );
 }

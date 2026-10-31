@@ -41,12 +41,15 @@ test("una invitación suma a otra persona al hogar, una sola vez y con el rol el
   await expect(gp).toHaveURL(/\/login\?next=%2Fjoin%2F/);
   const guestEmail = uniqueEmail("guest");
   await gp.getByRole("button", { name: "¿No tienes cuenta? Crear una" }).click();
+  await gp.getByLabel("Tu nombre").fill("Lucía");
   await gp.getByLabel("Correo electrónico").fill(guestEmail);
   await gp.getByLabel("Contraseña").fill(TEST_PASSWORD);
   await gp.getByRole("button", { name: "Crear cuenta" }).click();
   await expect(gp.getByRole("heading", { name: "Unirte al hogar" })).toBeVisible(); // sin pasar por "Crea tu hogar"
   await gp.getByRole("button", { name: "Aceptar invitación" }).click();
   await expect(gp.getByText("Casa Compartida")).toBeVisible();
+  await gp.goto("/");
+  await expect(gp.getByRole("heading", { name: "Lucía" })).toBeVisible(); // el nombre se definió al crear la cuenta por la invitación
 
   // rol "solo lectura": no puede crear cajas
   await gp.goto("/boxes");
