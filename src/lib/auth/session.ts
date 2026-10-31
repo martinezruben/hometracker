@@ -34,6 +34,12 @@ export async function getSessionUser() {
   return row ?? null;
 }
 
+/** Id (hash) de la sesión actual, para conservarla al cerrar las demás. */
+export async function currentSessionId() {
+  const token = (await cookies()).get(COOKIE)?.value;
+  return token ? sha256(token) : null;
+}
+
 export async function destroySession() {
   const jar = await cookies();
   const token = jar.get(COOKIE)?.value;

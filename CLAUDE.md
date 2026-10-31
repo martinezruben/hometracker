@@ -60,7 +60,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Páginas: `requireUser()` / `requireActiveHousehold()` / `requireMember()` (redirigen). Route Handlers: `requireApiUser()` / `requireApiMember()` (lanzan 401/403; capturar con `handleError`).
 - El `householdId` de una consulta sale de `requireMember`, nunca directamente del cuerpo de la petición.
 - Pruebas de integración con MySQL: `DATABASE_URL=mysql://ht:ht@localhost:3306/hometracker npm test` (sin esa variable se omiten).
-- Rutas de auth: `/api/auth/register` y `/api/auth/login` (el correo es el usuario). No se reclaman cuentas existentes al registrar (409).
+- Rutas de auth: `/api/auth/register` y `/api/auth/login` (el correo es el usuario); `PATCH /api/me/password` cambia la clave (pide la actual y cierra las otras sesiones). No se reclaman cuentas existentes al registrar (409).
 
 ## Documentos y contactos
 - Los archivos de documentos se suben a `/api/documents/<id>/file` (PDF o imagen, máx. 4 MB) y se sirven solo por esa ruta autenticada; los metadatos usan `mutate()` y funcionan offline, el archivo requiere conexión.
