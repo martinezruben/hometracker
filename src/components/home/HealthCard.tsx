@@ -10,32 +10,50 @@ const levelTone: Record<HealthLevel, string> = {
 };
 const dot: Record<HealthLevel, string> = { great: "bg-ok-bar", good: "bg-ok-bar", attention: "bg-soon-bar", critical: "bg-late-bar" };
 
-/** Arco de 0 a 100 (semicírculo). */
+/** Dial de 0 a 100: arco de 270° con marcas; el número va centrado dentro, sin tocar el trazo. */
 function Gauge({ score }: { score: number }) {
-  const r = 52;
-  const len = Math.PI * r;
+  const r = 62;
+  const cx = 80;
+  const cy = 80;
+  const sweep = 270;
+  const polar = (deg: number, rad: number) => {
+    const t = ((deg - 225) * Math.PI) / 180; // 0° = abajo a la izquierda
+    return [cx + rad * Math.cos(t), cy + rad * Math.sin(t)];
+  };
+  const arc = (from: number, to: number) => {
+    const [x1, y1] = polar(from, r);
+    const [x2, y2] = polar(to, r);
+    return `M${x1.toFixed(2)} ${y1.toFixed(2)}A${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+  };
+  const end = (sweep * Math.min(Math.max(score, 0), 100)) / 100;
+  const [hx, hy] = polar(end, r);
+  const ticks = Array.from({ length: 28 }, (_, i) => {
+    const deg = (sweep * i) / 27;
+    const [x1, y1] = polar(deg, r - 12);
+    const [x2, y2] = polar(deg, r - (i % 9 === 0 ? 17 : 15));
+    return { x1, y1, x2, y2, on: deg <= end };
+  });
   return (
-    <div className="relative h-[92px] w-[128px]">
-      <svg viewBox="0 0 128 78" className="absolute inset-0 h-full w-full" aria-hidden>
+    <div className="relative size-[148px]" role="img" aria-label={`${score} ${es.health.outOf}`}>
+      <svg viewBox="0 0 160 160" className="absolute inset-0 h-full w-full" aria-hidden fill="none" strokeLinecap="round">
         <defs>
-          <linearGradient id="gauge" x1="0" x2="1">
-            <stop offset="0" stopColor="#60a5fa" />
-            <stop offset="1" stopColor="#1d4ed8" />
+          <linearGradient id="gauge" x1="0" x2="1" y1="1" y2="0">
+            <stop offset="0" style={{ stopColor: "var(--link)" }} />
+            <stop offset="1" style={{ stopColor: "var(--primary)" }} />
           </linearGradient>
         </defs>
-        <path d="M12 68a52 52 0 0 1 104 0" fill="none" stroke="var(--border)" strokeWidth="12" strokeLinecap="round" />
-        <path
-          d="M12 68a52 52 0 0 1 104 0"
-          fill="none"
-          stroke="url(#gauge)"
-          strokeWidth="12"
-          strokeLinecap="round"
-          strokeDasharray={`${(len * score) / 100} ${len}`}
-        />
+        <path d={arc(0, sweep)} strokeWidth="10" style={{ stroke: "var(--border)" }} />
+        {score > 0 && (
+          <path d={arc(0, end)} strokeWidth="10" stroke="url(#gauge)" style={{ filter: "drop-shadow(0 0 4px var(--link))" }} />
+        )}
+        {ticks.map((t, i) => (
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} strokeWidth="1.5" style={{ stroke: t.on ? "var(--link)" : "var(--border)", strokeOpacity: t.on ? 0.8 : 1 }} />
+        ))}
+        <circle cx={hx} cy={hy} r="4" style={{ fill: "var(--card)", stroke: "var(--link)" }} strokeWidth="2.5" />
       </svg>
-      <div className="absolute inset-x-0 bottom-0 text-center leading-none">
-        <span className="block text-[38px] font-extrabold">{score}</span>
-        <span className="text-xs text-muted">{es.health.outOf}</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pt-1 leading-none">
+        <span className="text-[36px] font-extrabold tracking-tight">{score}</span>
+        <span className="mt-1 text-xs font-semibold text-muted">{es.health.outOf}</span>
       </div>
     </div>
   );
@@ -54,12 +72,12 @@ export function HealthCard({ householdName, score, level, weekCount }: { househo
           {es.health.levels[level]}
         </span>
       </div>
-      <div className="mt-3 flex items-end justify-between gap-2">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <div className="space-y-2">
           <Gauge score={score} />
           <p className="text-sm text-muted">{weekCount > 0 ? es.health.tasksWeek(weekCount) : es.health.noTasks}</p>
         </div>
-        <HouseIllustration className="-mb-2 w-[52%] max-w-[190px]" />
+        <HouseIllustration className="-mr-2 w-[56%] max-w-[210px]" />
       </div>
     </section>
   );
