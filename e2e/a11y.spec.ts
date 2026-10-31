@@ -31,7 +31,7 @@ for (const scheme of ["light", "dark"] as const) {
       "/", "/boxes", "/boxes/new", `/b/${box}`, `/b/${box}/label`, "/appliances", "/appliances/new", `/appliances/${app}`,
       `/appliances/${app}/label`, "/lists", "/lists?tab=super", "/lists?tab=venta", `/lists/${list}`, `/lists/${sale}`, "/documents", "/documents/new",
       `/documents/${doc}`, "/contacts", "/contacts/new", `/contacts/${contact}`, "/expenses", "/expenses/new", `/expenses/${exp}`,
-      "/more", "/search?q=lu", "/scan", "/upcoming", "/calendar", "/reminders",
+      "/more", "/labels", "/search?q=lu", "/scan", "/upcoming", "/calendar", "/reminders",
     ];
     for (const path of paths) {
       await page.goto(path);

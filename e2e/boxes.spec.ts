@@ -28,8 +28,11 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
 
   // etiqueta con QR
   await page.getByRole("link", { name: "Imprimir etiqueta" }).click();
-  await expect(page.locator("svg").first()).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Navidad" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Etiquetas QR" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Etiquetas QR: Navidad" })).toBeVisible();
+  await page.getByLabel("Tamaño de la etiqueta").selectOption("62x29");
+  const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Descargar imagen" }).click()]);
+  expect(dl.suggestedFilename()).toBe("etiqueta-navidad-62x29mm.png");
 
   // otro hogar no ve la caja ni su foto
   await b.page.goto(boxUrl);

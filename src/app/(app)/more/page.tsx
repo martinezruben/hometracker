@@ -33,6 +33,13 @@ export default async function MorePage() {
         ))}
       </ul>
       {household.role === "admin" && <HouseholdNameForm householdId={household.id} initialName={household.name} />}
+      <Link href="/labels" className="card flex min-h-14 items-center justify-between gap-3 p-4">
+        <span>
+          <span className="block font-extrabold">{es.labels.open}</span>
+          <span className="block text-sm text-muted">{es.labels.openHint}</span>
+        </span>
+        <span aria-hidden>›</span>
+      </Link>
       <AccountForm initialName={user.name ?? ""} email={user.email} />
       <PasswordForm />
       <Link href="/reminders" className="card flex min-h-14 items-center justify-between p-4">

@@ -50,7 +50,12 @@ test("QR del equipo: pide login y vuelve al equipo", async ({ browser }) => {
   const id = page.url().split("/appliances/")[1];
 
   await page.getByRole("link", { name: "Imprimir etiqueta QR" }).click();
-  await expect(page.locator("svg").first()).toBeVisible();
+  await expect(page.getByRole("img", { name: /^Etiquetas QR: / })).toBeVisible();
+  await page.goto("/more");
+  await page.getByRole("link", { name: /Etiquetas QR/ }).click();
+  await expect(page.getByRole("heading", { name: "Equipos" })).toBeVisible();
+  await page.getByLabel("Tamaño de la etiqueta").selectOption("a4");
+  await expect(page.getByRole("button", { name: "Descargar hoja" }).first()).toBeVisible();
 
   const anon = await browser.newContext();
   const ap = await anon.newPage();
