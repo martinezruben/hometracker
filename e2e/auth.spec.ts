@@ -120,15 +120,15 @@ test("no se puede crear dos veces la misma cuenta ni con contraseña corta", asy
   await expect(page).toHaveURL(/\/login/); // el navegador exige 8 caracteres
 });
 
-test("cambiar la contraseña desde Más: pide la actual y la nueva sirve para volver a entrar", async ({ page }) => {
+test("cambiar la contraseña desde Más: pide la nueva y su confirmación y sirve para volver a entrar", async ({ page }) => {
   const email = await signUp(page, "clave");
   await page.goto("/more");
-  await page.getByLabel("Contraseña actual").fill("incorrecta-123");
   await page.getByLabel("Nueva contraseña").fill("nueva-clave-456");
+  await page.getByLabel("Confirmar contraseña").fill("otra-distinta-789");
   await page.getByRole("button", { name: "Cambiar contraseña" }).click();
-  await expect(alertBox(page)).toHaveText("La contraseña actual no es correcta.");
+  await expect(alertBox(page)).toHaveText("Las contraseñas no coinciden.");
 
-  await page.getByLabel("Contraseña actual").fill(TEST_PASSWORD);
+  await page.getByLabel("Confirmar contraseña").fill("nueva-clave-456");
   await page.getByRole("button", { name: "Cambiar contraseña" }).click();
   await expect(page.getByText("Contraseña actualizada")).toBeVisible();
 

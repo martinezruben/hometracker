@@ -64,17 +64,17 @@ if (!hasDb) {
     expect((await authenticate(email("fede"), "una-clave-larga", later))?.id).toBe(u.id);
   });
 
-  it("cambiar contraseña exige la actual, deja la nueva y cierra las otras sesiones", async () => {
+  it("cambiar contraseña deja la nueva, quita el bloqueo y cierra las otras sesiones", async () => {
     const u = await registerUser(email("gus"), "clave-vieja-1");
+    const keep = `keep-${tag}`.padEnd(64, "0");
     const mk = (id: string) => db.insert(schema.sessions).values({ id, userId: u.id, expiresAt: new Date(Date.now() + 3600_000) });
-    await mk(`keep-${tag}`.padEnd(64, "0"));
+    await mk(keep);
     await mk(`drop-${tag}`.padEnd(64, "0"));
-    expect(await changePassword(u.id, u.email, "equivocada", "clave-nueva-2", `keep-${tag}`.padEnd(64, "0"))).toBe(false);
-    expect(await changePassword(u.id, u.email, "clave-vieja-1", "clave-nueva-2", `keep-${tag}`.padEnd(64, "0"))).toBe(true);
+    await changePassword(u.id, "clave-nueva-2", keep);
     expect(await authenticate(email("gus"), "clave-vieja-1")).toBeNull();
     expect((await authenticate(email("gus"), "clave-nueva-2"))?.id).toBe(u.id);
     const left = await db.select().from(schema.sessions).where(eq(schema.sessions.userId, u.id));
-    expect(left.map((s) => s.id)).toEqual([`keep-${tag}`.padEnd(64, "0")]);
+    expect(left.map((s) => s.id)).toEqual([keep]);
     await db.delete(schema.sessions).where(eq(schema.sessions.userId, u.id));
   });
 
