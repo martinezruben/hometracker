@@ -45,6 +45,7 @@ export const es = {
     changePassword: "Cambiar contraseña",
     passwordChanged: "Contraseña actualizada",
   },
+  loading: "Cargando",
   labels: {
     title: "Etiquetas QR",
     sizeLabel: "Tamaño de la etiqueta",

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { and, asc, eq } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { assertRole, type Role } from "./roles";
@@ -20,8 +21,8 @@ export async function requireRole(userId: string, householdId: string, min: Role
   return assertRole(await getMemberRole(userId, householdId), min);
 }
 
-/** Hogar activo: por ahora el primero al que se unió el usuario. */
-export async function getActiveHousehold(userId: string) {
+/** Hogar activo: por ahora el primero al que se unió el usuario (una consulta por petición gracias a `cache`). */
+export const getActiveHousehold = cache(async (userId: string) => {
   const [row] = await db
     .select({
       id: schema.households.id,
@@ -34,4 +35,4 @@ export async function getActiveHousehold(userId: string) {
     .orderBy(asc(schema.householdMembers.createdAt))
     .limit(1);
   return row ?? null;
-}
+});

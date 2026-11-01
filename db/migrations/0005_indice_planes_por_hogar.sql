@@ -1,0 +1,1 @@
+CREATE INDEX `mp_hh_idx` ON `maintenance_plans` (`household_id`,`active`,`next_due`);
