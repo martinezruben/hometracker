@@ -13,6 +13,8 @@ function createPool() {
     uri: url,
     timezone: "Z", // fechas en UTC
     connectionLimit: 10,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10_000,
     ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: true } : undefined,
   });
 }

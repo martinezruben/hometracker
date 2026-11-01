@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { and, eq, gt } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { db, schema } from "@/db";
@@ -23,7 +24,8 @@ export async function createSession(userId: string) {
   });
 }
 
-export async function getSessionUser() {
+/** Usuario de la sesión; `cache` evita repetir la consulta dentro de la misma petición (layout + página). */
+export const getSessionUser = cache(async () => {
   const token = (await cookies()).get(COOKIE)?.value;
   if (!token) return null;
   const [row] = await db
@@ -32,7 +34,7 @@ export async function getSessionUser() {
     .innerJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
     .where(and(eq(schema.sessions.id, sha256(token)), gt(schema.sessions.expiresAt, new Date())));
   return row ?? null;
-}
+});
 
 /** Id (hash) de la sesión actual, para conservarla al cerrar las demás. */
 export async function currentSessionId() {

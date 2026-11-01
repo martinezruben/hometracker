@@ -227,6 +227,7 @@ export const maintenancePlans = mysqlTable(
   },
   (t) => [
     index("mp_appliance_idx").on(t.applianceId),
+    index("mp_hh_idx").on(t.householdId, t.active, t.nextDue), // Inicio y calendario por hogar
     index("mp_due_idx").on(t.active, t.nextDue), // consulta del cron de recordatorios
   ],
 );

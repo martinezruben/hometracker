@@ -1,5 +1,5 @@
 // Service worker de HomeTracker (Fase 0): caché del app shell + base para push.
-const VERSION = "v3";
+const VERSION = "v4";
 const FILES_CACHE = `files-${VERSION}`;
 const STATIC_CACHE = `static-${VERSION}`;
 const PAGES_CACHE = `pages-${VERSION}`;
@@ -59,17 +59,23 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Navegaciones: red primero, con respaldo en caché si no hay conexión.
+  // Navegaciones: red primero; sin conexión, o si la red tarda más de 3 s y hay copia, se muestra la copia
+  // (la red sigue y deja la página nueva en caché; la app se actualiza sola al abrirse).
   if (request.mode === "navigate") {
     event.respondWith(
       (async () => {
         const cache = await caches.open(PAGES_CACHE);
-        try {
-          const res = await fetch(request);
+        const cached = await cache.match(request);
+        const network = fetch(request).then((res) => {
           if (res.ok) cache.put(request, res.clone());
           return res;
+        });
+        try {
+          if (!cached) return await network;
+          const slow = new Promise((resolve) => setTimeout(() => resolve(null), 3000));
+          return (await Promise.race([network, slow])) ?? cached;
         } catch {
-          return (await cache.match(request)) ?? (await cache.match("/")) ?? offlinePage();
+          return cached ?? (await cache.match("/")) ?? offlinePage();
         }
       })(),
     );

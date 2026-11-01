@@ -36,6 +36,13 @@
       "when": 1793222585762,
       "tag": "0004_acceso_usuario_contrasena",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1793547519598,
+      "tag": "0005_indice_planes_por_hogar",
+      "breakpoints": true
     }
   ]
 }
