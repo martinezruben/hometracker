@@ -16,7 +16,7 @@ export default async function LabelPage({ params }: { params: Promise<{ id: stri
   return (
     <section className="mx-auto max-w-lg space-y-4">
       <h1 className="text-2xl font-bold">{es.labels.title}</h1>
-      <LabelStudio groups={[{ items: [{ id: box.id, title: box.name, subtitle: box.location ?? undefined, url: boxUrl(box.id) }] }]} />
+      <LabelStudio groups={[{ items: [{ id: box.id, title: box.name, subtitle: box.location ?? undefined, badge: es.labels.boxBadge(box.number), url: boxUrl(box.id) }] }]} />
     </section>
   );
 }

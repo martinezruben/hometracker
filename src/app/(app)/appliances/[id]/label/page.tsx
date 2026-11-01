@@ -17,7 +17,7 @@ export default async function ApplianceLabelPage({ params }: { params: Promise<{
   return (
     <section className="mx-auto max-w-lg space-y-4">
       <h1 className="text-2xl font-bold">{es.labels.title}</h1>
-      <LabelStudio groups={[{ items: [{ id: a.id, title: a.name, subtitle, url: applianceUrl(a.id) }] }]} />
+      <LabelStudio groups={[{ items: [{ id: a.id, title: a.name, subtitle, badge: es.labels.applianceBadge, url: applianceUrl(a.id) }] }]} />
     </section>
   );
 }

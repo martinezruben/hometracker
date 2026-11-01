@@ -3,7 +3,7 @@
 import QRCode from "qrcode";
 import { DPI, SHEET, SHEET_PER_PAGE, layoutLabel, mmToPx, paginate, sheetCell, type LabelSize } from "./sizes";
 
-export type LabelItem = { id: string; title: string; subtitle?: string; url: string };
+export type LabelItem = { id: string; title: string; subtitle?: string; badge?: string; url: string };
 export type RenderOptions = { showText: boolean; hint: string };
 
 const FONT = 'Manrope, system-ui, -apple-system, "Segoe UI", sans-serif';
@@ -42,10 +42,39 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number, maxLine
   return lines;
 }
 
-/** Dibuja una etiqueta (QR + texto) en `ctx`, con su esquina superior izquierda en (ox, oy) píxeles. */
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+function roundRectPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.arcTo(x + w, y, x + w, y + h, rr);
+  ctx.arcTo(x + w, y + h, x, y + h, rr);
+  ctx.arcTo(x, y + h, x, y, rr);
+  ctx.arcTo(x, y, x + w, y, rr);
+  ctx.closePath();
+}
+
+function setSpacing(ctx: CanvasRenderingContext2D, px: number) {
+  if ("letterSpacing" in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${px}px`;
+}
+
+/**
+ * Dibuja una etiqueta en `ctx` con su esquina superior izquierda en (ox, oy) píxeles:
+ * marco redondeado, QR nítido, insignia ("CAJA N.º 07"), título, subtítulo y pie con la marca.
+ * Solo usa negro, blanco y grises para que salga bien en impresoras térmicas.
+ */
 function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, hMm: number, ox: number, oy: number, opt: RenderOptions) {
   const px = (mm: number) => (mm / 25.4) * DPI;
   const lay = layoutLabel(wMm, hMm, opt.showText);
+  const u = px(Math.min(wMm, hMm));
+
+  // Marco redondeado fino.
+  const inset = px(0.45);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = Math.max(2, px(0.3));
+  roundRectPath(ctx, ox + inset, oy + inset, px(wMm) - 2 * inset, px(hMm) - 2 * inset, u * 0.09);
+  ctx.stroke();
 
   // QR: módulos enteros en píxeles para que quede nítido; zona de silencio de 1 módulo.
   const qr = QRCode.create(item.url, { errorCorrectionLevel: "M" });
@@ -63,41 +92,97 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
   const tx = ox + px(t.x);
   const tw = px(t.w);
   const th = px(t.h);
+  const center = lay.align === "center";
+  const anchorX = center ? tx + tw / 2 : tx;
   ctx.textBaseline = "top";
-  ctx.textAlign = lay.align === "center" ? "center" : "left";
-  const anchorX = lay.align === "center" ? tx + tw / 2 : tx;
+  ctx.textAlign = center ? "center" : "left";
 
-  // Tamaño del título: lo más grande que quepa en hasta 2 líneas dentro del alto disponible.
-  const hintPx = lay.hint ? Math.min(px(2.6), th * 0.16) : 0;
-  const subMax = item.subtitle ? 0.34 : 0;
-  const titleBox = th - hintPx * 1.6 - th * subMax;
-  let size = Math.min(px(Math.min(wMm, hMm) * 0.2), titleBox / 1.15);
+  // En etiquetas anchas, un filete vertical separa el QR del texto.
+  if (!center) {
+    const lx = tx - px(lay.qr.x) / 2 - 1;
+    ctx.fillStyle = "#000";
+    ctx.globalAlpha = 0.25;
+    ctx.fillRect(lx, oy + px(lay.qr.y) + px(lay.qr.h) * 0.08, Math.max(1, px(0.2)), px(lay.qr.h) * 0.84);
+    ctx.globalAlpha = 1;
+  }
+
+  const bottom = oy + px(t.y) + th;
+  let top = oy + px(t.y);
+
+  // Pie: filete y marca; si hay sitio, la indicación de escaneo.
+  const showFooter = t.h >= 13;
+  const fs = clamp(u * 0.075, px(1.5), px(2.4));
+  const footerH = showFooter ? fs * 2.5 : 0;
+  if (showFooter) {
+    ctx.fillStyle = "#000";
+    ctx.globalAlpha = 0.25;
+    ctx.fillRect(tx, bottom - footerH, tw, Math.max(1, px(0.2)));
+    ctx.globalAlpha = 1;
+    const fy = bottom - footerH + fs * 0.9;
+    ctx.fillStyle = "#000";
+    let bf = fs;
+    ctx.textAlign = "left";
+    for (; bf > px(0.9); bf -= 0.5) {
+      ctx.font = `800 ${bf}px ${FONT}`;
+      setSpacing(ctx, bf * 0.14);
+      if (ctx.measureText("HOMETRACKER").width <= tw) break;
+    }
+    ctx.fillText("HOMETRACKER", tx, fy);
+    const brandW = ctx.measureText("HOMETRACKER").width;
+    setSpacing(ctx, 0);
+    if (lay.hint && tw - brandW > fs * 8) {
+      ctx.font = `500 ${fs}px ${FONT}`;
+      ctx.fillStyle = "#444";
+      ctx.textAlign = "right";
+      ctx.fillText(wrap(ctx, opt.hint, tw - brandW - fs, 1)[0], tx + tw, fy);
+    }
+    ctx.textAlign = center ? "center" : "left";
+  }
+
+  // Insignia (píldora negra): "CAJA N.º 07", "EQUIPO"…
+  const gap = u * 0.06;
+  if (item.badge && t.h >= 11) {
+    const bs = clamp(u * 0.085, px(1.6), px(3.2));
+    ctx.font = `800 ${bs}px ${FONT}`;
+    setSpacing(ctx, bs * 0.1);
+    const label = item.badge.toUpperCase();
+    const pw = Math.min(tw, ctx.measureText(label).width + bs * 1.8);
+    const ph = bs * 1.85;
+    const px0 = center ? tx + (tw - pw) / 2 : tx;
+    ctx.fillStyle = "#000";
+    roundRectPath(ctx, px0, top, pw, ph, ph / 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.fillText(label, px0 + pw / 2 + bs * 0.05, top + (ph - bs) / 2);
+    setSpacing(ctx, 0);
+    ctx.textAlign = center ? "center" : "left";
+    top += ph + gap * 1.4;
+  }
+
+  // Título: lo más grande que quepa en hasta 2 líneas; subtítulo en gris debajo.
+  const subSize = item.subtitle ? clamp(u * 0.11, px(1.8), px(3.6)) : 0;
+  const subH = item.subtitle ? subSize * 1.5 : 0;
+  const titleBox = Math.max(px(3), bottom - footerH - top - subH - gap);
+  let size = Math.min(u * 0.24, titleBox / 1.12);
   let lines: string[] = [];
   for (; size > px(1.6); size -= 1) {
     ctx.font = `800 ${size}px ${FONT}`;
     lines = wrap(ctx, item.title, tw, 2);
-    if (lines.length * size * 1.15 <= titleBox && lines.every((l) => ctx.measureText(l).width <= tw)) break;
+    if (lines.length * size * 1.12 <= titleBox && lines.every((l) => ctx.measureText(l).width <= tw)) break;
   }
   ctx.font = `800 ${size}px ${FONT}`;
   ctx.fillStyle = "#000";
-  let y = oy + px(t.y);
+  let y = top;
   for (const l of lines) {
     ctx.fillText(l, anchorX, y);
-    y += size * 1.15;
+    y += size * 1.12;
   }
   if (item.subtitle) {
-    const sub = Math.min(size * 0.62, th * subMax * 0.8);
-    ctx.font = `600 ${sub}px ${FONT}`;
-    ctx.fillStyle = "#333";
-    const [s] = wrap(ctx, item.subtitle, tw, 1);
-    ctx.fillText(s, anchorX, y + sub * 0.15);
-    y += sub * 1.3;
-  }
-  if (hintPx) {
-    ctx.font = `500 ${hintPx}px ${FONT}`;
-    ctx.fillStyle = "#555";
-    const [h] = wrap(ctx, opt.hint, tw, 1);
-    ctx.fillText(h, anchorX, oy + px(t.y) + th - hintPx * 1.2);
+    const ss = Math.min(subSize, size * 0.62);
+    ctx.font = `600 ${ss}px ${FONT}`;
+    ctx.fillStyle = "#444";
+    ctx.fillText(wrap(ctx, item.subtitle, tw, 1)[0], anchorX, y + ss * 0.25);
   }
 }
 

@@ -13,10 +13,10 @@ export default async function LabelsPage() {
       <h1 className="text-2xl font-bold">{es.labels.title}</h1>
       <LabelStudio
         groups={[
-          { title: es.labels.boxes, items: boxes.map((b) => ({ id: b.id, title: b.name, subtitle: b.location ?? undefined, url: boxUrl(b.id) })) },
+          { title: es.labels.boxes, items: boxes.map((b) => ({ id: b.id, title: b.name, subtitle: b.location ?? undefined, badge: es.labels.boxBadge(b.number), url: boxUrl(b.id) })) },
           {
             title: es.labels.appliances,
-            items: appliances.map((a) => ({ id: a.id, title: a.name, subtitle: [a.brand, a.model].filter(Boolean).join(" · ") || undefined, url: applianceUrl(a.id) })),
+            items: appliances.map((a) => ({ id: a.id, title: a.name, subtitle: [a.brand, a.model].filter(Boolean).join(" · ") || undefined, badge: es.labels.applianceBadge, url: applianceUrl(a.id) })),
           },
         ]}
       />
