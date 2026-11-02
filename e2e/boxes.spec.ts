@@ -18,8 +18,8 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
   await page.getByLabel("Cantidad").fill("3");
   await page.getByLabel("Categoría").fill("Decoración");
   await page.getByRole("button", { name: "Agregar", exact: true }).click();
-  await expect(page.getByText("Luces LED")).toBeVisible();
-  await expect(page.getByText("×3")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("Luces LED")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("×3")).toBeVisible();
   await expect(page.getByText("Decoración")).toBeVisible();
 
   await page.setInputFiles("input[type=file][multiple]", { name: "foto.png", mimeType: "image/png", buffer: png() });
@@ -55,12 +55,12 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
   await goOffline(context, page);
   await page.getByPlaceholder("Ej. Taladro inalámbrico").fill("Adornos");
   await page.getByRole("button", { name: "Agregar", exact: true }).click();
-  await expect(page.getByText("Adornos")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("Adornos")).toBeVisible();
   await expect(page.getByText("1 cambio pendiente de enviar")).toBeVisible();
   await goOnline(context, page);
   await expect(page.getByText("cambio pendiente de enviar")).toHaveCount(0, { timeout: 20_000 });
   await page.reload();
-  await expect(page.getByText("Adornos")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("Adornos")).toBeVisible();
   await expect(page.getByText("Pendiente")).toHaveCount(0);
 
   await a.context.close();
@@ -75,7 +75,7 @@ test("la búsqueda encuentra una caja por su contenido", async ({ browser }) => 
   await page.waitForURL(/\/b\//);
   await page.getByPlaceholder("Ej. Taladro inalámbrico").fill("Taladro inalámbrico");
   await page.getByRole("button", { name: "Agregar", exact: true }).click();
-  await expect(page.getByText("Taladro inalámbrico")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("Taladro inalámbrico")).toBeVisible();
 
   await page.goto("/boxes?q=taladro");
   await expect(page.getByRole("link", { name: /Garaje/ })).toBeVisible();
