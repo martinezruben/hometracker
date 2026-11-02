@@ -20,6 +20,7 @@ export default async function MorePage() {
           </Link>
         </li>
         {[
+          { href: "/activity", label: es.activity.pageTitle },
           { href: "/documents", label: es.documents.title },
           { href: "/contacts", label: es.contacts.title },
           { href: "/expenses", label: es.expenses.title },

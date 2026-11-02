@@ -6,7 +6,8 @@ import { DPI, SHEET, SHEET_PER_PAGE, layoutLabel, mmToPx, paginate, sheetCell, t
 export type LabelItem = { id: string; title: string; subtitle?: string; badge?: string; url: string };
 export type RenderOptions = { showText: boolean; hint: string };
 
-const FONT = 'Manrope, system-ui, -apple-system, "Segoe UI", sans-serif';
+/** Familia de la fuente de la app (next/font le pone un nombre propio): se lee del documento al dibujar. */
+const FONT = () => (typeof document === "undefined" ? "system-ui" : getComputedStyle(document.body).fontFamily) || "system-ui, sans-serif";
 
 function newCanvas(wMm: number, hMm: number) {
   const canvas = document.createElement("canvas");
@@ -123,7 +124,7 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
     let bf = fs;
     ctx.textAlign = "left";
     for (; bf > px(0.9); bf -= 0.5) {
-      ctx.font = `800 ${bf}px ${FONT}`;
+      ctx.font = `800 ${bf}px ${FONT()}`;
       setSpacing(ctx, bf * 0.14);
       if (ctx.measureText("HOMETRACKER").width <= tw) break;
     }
@@ -131,7 +132,7 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
     const brandW = ctx.measureText("HOMETRACKER").width;
     setSpacing(ctx, 0);
     if (lay.hint && tw - brandW > fs * 8) {
-      ctx.font = `500 ${fs}px ${FONT}`;
+      ctx.font = `500 ${fs}px ${FONT()}`;
       ctx.fillStyle = "#444";
       ctx.textAlign = "right";
       ctx.fillText(wrap(ctx, opt.hint, tw - brandW - fs, 1)[0], tx + tw, fy);
@@ -143,7 +144,7 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
   const gap = u * 0.06;
   if (item.badge && t.h >= 11) {
     const bs = clamp(u * 0.085, px(1.6), px(3.2));
-    ctx.font = `800 ${bs}px ${FONT}`;
+    ctx.font = `800 ${bs}px ${FONT()}`;
     setSpacing(ctx, bs * 0.1);
     const label = item.badge.toUpperCase();
     const pw = Math.min(tw, ctx.measureText(label).width + bs * 1.8);
@@ -167,11 +168,11 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
   let size = Math.min(u * 0.24, titleBox / 1.12);
   let lines: string[] = [];
   for (; size > px(1.6); size -= 1) {
-    ctx.font = `800 ${size}px ${FONT}`;
+    ctx.font = `800 ${size}px ${FONT()}`;
     lines = wrap(ctx, item.title, tw, 2);
     if (lines.length * size * 1.12 <= titleBox && lines.every((l) => ctx.measureText(l).width <= tw)) break;
   }
-  ctx.font = `800 ${size}px ${FONT}`;
+  ctx.font = `800 ${size}px ${FONT()}`;
   ctx.fillStyle = "#000";
   let y = top;
   for (const l of lines) {
@@ -180,7 +181,7 @@ function drawLabel(ctx: CanvasRenderingContext2D, item: LabelItem, wMm: number, 
   }
   if (item.subtitle) {
     const ss = Math.min(subSize, size * 0.62);
-    ctx.font = `600 ${ss}px ${FONT}`;
+    ctx.font = `600 ${ss}px ${FONT()}`;
     ctx.fillStyle = "#444";
     ctx.fillText(wrap(ctx, item.subtitle, tw, 1)[0], anchorX, y + ss * 0.25);
   }

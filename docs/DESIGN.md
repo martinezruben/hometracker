@@ -25,7 +25,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 | Al día | texto `#047857`, fondo `#d1fae5`, barra `#10b981` | |
 | Pasteles de ilustración | azul `#dbeafe`, naranja `#ffedd5`, verde `#d1fae5`, lila `#ede9fe` | portadas de caja, iconos de tipo |
 | Radios | chips y pills completos; tarjetas 20–24 px; iconos 12–14 px | |
-| Tipografía | sans redondeada de peso alto (Manrope/Plus Jakarta Sans); título grande 32 px/800; sección 20 px/800; cuerpo 15–16 px/600; metadato 13 px/500 | |
+| Tipografía | sans redondeada de peso alto (Outfit); título grande 32 px/800; sección 20 px/800; cuerpo 15–16 px/600; metadato 13 px/500 | |
 | Modo oscuro | mismo lenguaje con fondo `#0b1220`, tarjetas `#111a2e`, azul claro `#60a5fa` para acciones; conservar contraste AA | |
 
 ## 3. Componentes

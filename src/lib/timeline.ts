@@ -79,3 +79,31 @@ export function buildApplianceTimeline(
   }
   return ev;
 }
+
+export type KindGroup = "task" | "maintenance" | "expense" | "box";
+
+/** Familia de un evento, para los filtros y las cifras del día de la bitácora. */
+export const kindGroup = (k: TimelineKind): KindGroup =>
+  k === "task" ? "task" : k === "done" || k === "due" || k === "warranty" || k === "purchase" ? "maintenance" : k === "expense" ? "expense" : "box";
+
+/** Agrupa eventos (ya ordenados) por día; `dayOf` decide el día (en el dispositivo: la zona horaria local). */
+export function groupByDay(events: TimelineEvent[], dayOf: (d: Date) => string): { day: string; events: TimelineEvent[] }[] {
+  const groups: { day: string; events: TimelineEvent[] }[] = [];
+  for (const e of events) {
+    const day = dayOf(e.at);
+    const last = groups[groups.length - 1];
+    if (last && last.day === day) last.events.push(e);
+    else groups.push({ day, events: [e] });
+  }
+  return groups;
+}
+
+/** "Hoy" / "Ayer" / null, y la fecha larga ("lunes, 2 nov"). `day` y `today` son YYYY-MM-DD. */
+export function dayHeading(day: string, today: string): { label: "Hoy" | "Ayer" | null; date: string } {
+  const ms = (d: string) => new Date(`${d}T00:00:00.000Z`).getTime();
+  const diff = Math.round((ms(today) - ms(day)) / 86_400_000);
+  return {
+    label: diff === 0 ? "Hoy" : diff === 1 ? "Ayer" : null,
+    date: new Date(ms(day)).toLocaleDateString("es", { timeZone: "UTC", weekday: "long", day: "numeric", month: "short" }).replace(".", ""),
+  };
+}

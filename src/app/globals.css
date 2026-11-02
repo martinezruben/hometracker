@@ -42,37 +42,76 @@
   --on-tint-purple: #6d28d9;
   --on-tint-red: #b91c1c;
   --on-tint-yellow: #a16207;
+  --tint-teal: #cffafe;
+  --on-tint-teal: #0e7490;
+
+  /* Tarjeta "cielo" de Inicio (cambia con la hora, ver SkyCard) */
+  --sky-dawn-a: #fde7c8;
+  --sky-dawn-b: #c9d9fb;
+  --sky-day-a: #cfe6ff;
+  --sky-day-b: #e4efff;
+  --sky-dusk-a: #f9d7c4;
+  --sky-dusk-b: #c5c9f2;
+  --sky-night-a: #1b3358;
+  --sky-night-b: #2a3d78;
+  --sky-orb: rgb(255 214 120 / 0.55);
+  --sky-ok: #047857;
+  --sky-soon: #92400e;
+  --sky-late: #b91c1c;
+  --sky-ink: #0f1b3d;
+  --sky-ink-muted: #3b4a72;
+  --sky-panel: rgb(255 255 255 / 0.62);
+  --night-band: #b8c3e6;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-top: #101c38;
-    --bg-bottom: #0b1220;
-    --foreground: #e6ecff;
-    --muted: #9aa7c7;
-    --card: #131d36;
-    --border: #22304f;
-    --tile: #1b2847;
-    --primary: #2563eb;
-    --primary-2: #3b82f6;
-    --link: #93c5fd;
-    --dark: #e6ecff;
+    --bg-top: #0f2142;
+    --bg-bottom: #081120;
+    --foreground: #e8f0ff;
+    --muted: #9fb3d1;
+    --card: #101c33;
+    --border: #1f3050;
+    --tile: #172846;
+    --primary: #2f6df0;
+    --primary-2: #4c8dff;
+    --link: #7cc4ff;
+    --dark: #e8f0ff;
     --danger: #f87171;
     --shadow-card: 0 4px 16px rgb(0 0 0 / 0.3);
 
     --late: #fca5a5;
-    --late-bg: #4c1d1d;
+    --late-bg: #4a1d28;
     --soon: #fcd34d;
-    --soon-bg: #4a3410;
+    --soon-bg: #3f3414;
     --ok: #6ee7b7;
-    --ok-bg: #0f3d2e;
+    --ok-bg: #0f3a33;
 
-    --tint-blue: #1e3a8a;
-    --tint-orange: #5a2d0c;
-    --tint-green: #0f3d2e;
-    --tint-purple: #3b2a73;
-    --tint-red: #4c1d1d;
-    --tint-yellow: #4a3410;
+    --tint-blue: #163463;
+    --tint-orange: #46291a;
+    --tint-green: #12362f;
+    --tint-purple: #2c2556;
+    --tint-red: #4a1d28;
+    --tint-yellow: #3f3414;
+    --tint-teal: #0f3a46;
+    --on-tint-teal: #7dd3fc;
+
+    --sky-dawn-a: #3b3358;
+    --sky-dawn-b: #1d3a63;
+    --sky-day-a: #17487a;
+    --sky-day-b: #1c3866;
+    --sky-dusk-a: #4a3358;
+    --sky-dusk-b: #1b3158;
+    --sky-night-a: #0f2a4d;
+    --sky-night-b: #1a2a63;
+    --sky-orb: rgb(214 226 255 / 0.16);
+    --sky-ok: #6ee7b7;
+    --sky-soon: #fcd34d;
+    --sky-late: #fca5a5;
+    --sky-ink: #e8f0ff;
+    --sky-ink-muted: #b6c7e4;
+    --sky-panel: rgb(7 17 32 / 0.55);
+    --night-band: #1b2a63;
     --on-tint-blue: #bfdbfe;
     --on-tint-orange: #fed7aa;
     --on-tint-green: #a7f3d0;
@@ -82,7 +121,32 @@
   }
 }
 
+/* De noche la tarjeta cielo es oscura también en el tema claro. */
+[data-sky="night"] {
+  --sky-orb: rgb(214 226 255 / 0.16);
+  --sky-ok: #6ee7b7;
+  --sky-soon: #fcd34d;
+  --sky-late: #fca5a5;
+  --sky-ink: #e8f0ff;
+  --sky-ink-muted: #b6c7e4;
+  --sky-panel: rgb(7 17 32 / 0.55);
+  --night-band: #1b2a63;
+}
+[data-sky="day"] { --sky-orb: rgb(255 214 120 / 0.55); }
+@media (prefers-color-scheme: dark) {
+  [data-sky="day"] { --sky-orb: rgb(255 214 120 / 0.22); }
+  [data-sky="dawn"] { --sky-orb: rgb(255 190 140 / 0.2); }
+  [data-sky="dusk"] { --sky-orb: rgb(255 170 130 / 0.2); }
+}
+
 @theme inline {
+  --color-night-band: var(--night-band);
+  --color-mark-task: var(--on-tint-purple);
+  --color-mark-maint: var(--on-tint-orange);
+  --color-sky-orb: var(--sky-orb);
+  --color-sky-ok: var(--sky-ok);
+  --color-sky-soon: var(--sky-soon);
+  --color-sky-late: var(--sky-late);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-card: var(--card);
@@ -102,7 +166,10 @@
   --color-ok: var(--ok);
   --color-ok-bg: var(--ok-bg);
   --color-ok-bar: var(--ok-bar);
-  --font-sans: var(--font-manrope), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --color-sky-ink: var(--sky-ink);
+  --color-sky-ink-muted: var(--sky-ink-muted);
+  --color-sky-panel: var(--sky-panel);
+  --font-sans: var(--font-outfit), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
 }
