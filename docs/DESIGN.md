@@ -71,6 +71,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 - Etiquetas QR (`/labels`, `src/lib/labels`): marco redondeado fino, QR nítido a la izquierda (o arriba si la etiqueta es alta), insignia negra "CAJA N.º 07"/"EQUIPO", título en negrita, subtítulo en gris y pie con la marca; solo negro, blanco y grises para impresoras térmicas.
 - Inicio con análisis: bajo el dial, "Qué influye en tu puntaje" (cada categoría con su resta, `healthFactors`) y una sección "Resumen" con cuatro cifras (cajas/objetos, equipos, pendientes abiertos, gasto del mes) que enlazan a su módulo. Los SVG usan clases de Tailwind y `currentColor` con las opacidades como atributos (Safari ignora `stop-opacity` en `style`).
 - Detalle de equipo: tarjeta principal con icono según el peor estado, chips (estado, ubicación, garantía), tres cifras (planes, vencidos, gastado) y ficha técnica; las secciones usan títulos de 20 px/800.
+- Línea de tiempo (`components/ui/Timeline.tsx`, lógica pura en `src/lib/timeline.ts`): hilo vertical con nodos de color e icono por tipo (compra, garantía, hecho, vence, pendiente, gasto), tiempo relativo ("hace 3 h", "en 40 días"), marcador "Hoy" entre lo futuro y lo ocurrido. Se usa en el detalle de equipo y en "Actividad reciente" de Inicio. Inicio suma "Acciones rápidas" (nueva caja, equipo, gasto, documento) y el detalle de equipo una barra de atajos (Planes, Manual, Fotos, Línea de tiempo).
 - Todas las pantallas principales siguen ya este diseño; cualquier pantalla nueva debe seguirlo desde el inicio.
 
 ## 6. Cómo aplicarlo

@@ -5,14 +5,16 @@ import { getApplianceAccess, getApplianceContent } from "@/lib/appliances/data";
 import { uuid } from "@/lib/appliances/schemas";
 import { formatDate, formatMoney, toDateInput } from "@/lib/format";
 import { es } from "@/lib/i18n/es";
-import { dueStatus, nextDueAfter, type DueStatus } from "@/lib/maintenance/schedule";
+import { dueStatus, type DueStatus } from "@/lib/maintenance/schedule";
+import { buildApplianceTimeline, splitTimeline } from "@/lib/timeline";
+import { Timeline } from "@/components/ui/Timeline";
 import { ApplianceActions } from "@/components/ApplianceActions";
 import { ApplianceMaintenance } from "@/components/ApplianceMaintenance";
 import { DueBadge } from "@/components/DueBadge";
 import { ApplianceManual } from "@/components/ApplianceManual";
 import { EntityPhotos } from "@/components/EntityPhotos";
 import { listContacts } from "@/lib/contacts/data";
-import { PinIcon, PrinterIcon, WrenchIcon } from "@/components/icons";
+import { BookIcon, HistoryIcon, ImageIcon, PinIcon, PrinterIcon, WrenchIcon } from "@/components/icons";
 import { IconTile, type Tint } from "@/components/ui/IconTile";
 import { StatusPill } from "@/components/ui/Status";
 
@@ -36,6 +38,21 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
       : t.warrantyExpired(formatDate(a.warrantyUntil))
     : null;
 
+  const events = buildApplianceTimeline(a, plans, logs, now, {
+    purchased: t.timelinePurchased,
+    warrantyEnds: t.timelineWarranty,
+    planDone: t.timelineDone,
+    doneDetail: (l, next) =>
+      [
+        l.cost != null ? formatMoney(l.cost) : null,
+        next ? t.nextAfter(formatDate(next)) : null,
+        l.providerId && providerName.get(l.providerId) ? t.doneBy(providerName.get(l.providerId)!) : null,
+        l.notes,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    dueLabel: (days) => (days < 0 ? t.due.overdue(-days) : days === 0 ? t.due.today : t.due.inDays(days)),
+  });
   const statuses = plans.map((p) => dueStatus(p.nextDue, now));
   const overdue = statuses.filter((x) => x === "overdue").length;
   const worst: DueStatus | null = plans.length === 0 ? null : overdue > 0 ? "overdue" : statuses.includes("soon") ? "soon" : "ok";
@@ -86,7 +103,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
           {stats.map(([value, label]) => (
             <div key={label} className="rounded-2xl bg-tile p-3">
               <dt className="sr-only">{label}</dt>
-              <dd className="truncate text-lg font-extrabold">{value}</dd>
+              <dd className={`font-extrabold ${value.length > 6 ? "text-[14px]" : "text-lg"}`}>{value}</dd>
               <p className="text-xs text-muted" aria-hidden>{label}</p>
             </div>
           ))}
@@ -105,6 +122,19 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
         {a.notes && <p className="whitespace-pre-line rounded-2xl bg-tile p-3 text-sm">{a.notes}</p>}
       </header>
 
+      <nav aria-label={t.jumpTo} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+        {[
+          { href: "#planes", label: t.jumpPlans, Icon: WrenchIcon },
+          { href: "#manual", label: t.jumpManual, Icon: BookIcon },
+          { href: "#fotos", label: t.jumpPhotos, Icon: ImageIcon },
+          { href: "#linea-de-tiempo", label: t.jumpTimeline, Icon: HistoryIcon },
+        ].map(({ href, label, Icon }) => (
+          <a key={href} href={href} className="card flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-extrabold">
+            <Icon width={18} height={18} /> {label}
+          </a>
+        ))}
+      </nav>
+
       {canEdit && (
         <ApplianceActions
           id={a.id}
@@ -121,6 +151,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
         />
       )}
 
+      <div id="planes" className="scroll-mt-4">
       <ApplianceMaintenance
         applianceId={a.id}
         canEdit={canEdit}
@@ -136,35 +167,19 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
         }))}
       />
 
-      <ApplianceManual id={a.id} hasManual={!!a.manualKey} canEdit={canEdit} />
+      </div>
 
-      <EntityPhotos entityType="appliance" entityId={a.id} photos={photos.map((p) => ({ id: p.id }))} canEdit={canEdit} title={t.photos} />
+      <div id="manual" className="scroll-mt-4">
+        <ApplianceManual id={a.id} hasManual={!!a.manualKey} canEdit={canEdit} />
+      </div>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-extrabold">{t.history}</h2>
-        {logs.length === 0 ? (
-          <p className="card p-4 text-muted">{t.historyEmpty}</p>
-        ) : (
-          <ul className="divide-y divide-border card">
-            {logs.map((l) => {
-              const plan = plans.find((p) => p.id === l.planId);
-              return (
-                <li key={l.id} className="p-4">
-                  <p className="font-medium">{plan?.title ?? t.maintenance}</p>
-                  <p className="text-sm text-muted">
-                    {formatDate(l.doneAt)}
-                    {l.cost != null && ` · ${formatMoney(l.cost)}`}
-                    {plan && ` · ${t.nextAfter(formatDate(nextDueAfter(l.doneAt, plan.intervalValue, plan.intervalUnit)))}`}
-                  </p>
-                  {l.providerId && providerName.get(l.providerId) && (
-                    <p className="text-sm text-muted">{t.doneBy(providerName.get(l.providerId)!)}</p>
-                  )}
-                  {l.notes && <p className="text-sm">{l.notes}</p>}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+      <div id="fotos" className="scroll-mt-4">
+        <EntityPhotos entityType="appliance" entityId={a.id} photos={photos.map((p) => ({ id: p.id }))} canEdit={canEdit} title={t.photos} />
+      </div>
+
+      <section id="linea-de-tiempo" className="scroll-mt-4 space-y-3">
+        <h2 className="text-xl font-extrabold">{es.timeline.title}</h2>
+        <Timeline {...splitTimeline(events, now)} now={now} empty={t.historyEmpty} />
       </section>
     </section>
   );

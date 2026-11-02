@@ -15,7 +15,7 @@ test("equipo con plan vencido: aparece en Inicio, se completa con costo y se rep
   const threeDaysAgo = new Date(Date.now() - 3 * 86_400_000).toISOString().slice(0, 10);
   await page.getByLabel("Primera fecha").fill(threeDaysAgo);
   await page.getByRole("button", { name: "Guardar plan" }).click();
-  await expect(page.getByText("Vencido hace 3 días")).toBeVisible();
+  await expect(page.locator("#planes").getByText("Vencido hace 3 días")).toBeVisible();
 
   await page.goto("/");
   const row = page.getByRole("link", { name: /Limpiar filtros/ });
@@ -26,8 +26,8 @@ test("equipo con plan vencido: aparece en Inicio, se completa con costo y se rep
   await page.getByRole("button", { name: "Marcar como hecho" }).click();
   await page.getByLabel("Costo (opcional)").fill("45.50");
   await page.getByRole("button", { name: "Confirmar" }).click();
-  await expect(page.getByText("Vence en 182 días").or(page.getByText("Vence en 181 días"))).toBeVisible();
-  await expect(page.getByText(/· 45,50.* · Próximo:/)).toBeVisible(); // historial con el costo
+  await expect(page.locator("#planes").getByText("Vence en 182 días").or(page.locator("#planes").getByText("Vence en 181 días"))).toBeVisible();
+  await expect(page.getByText(/45,50.* · Próximo:/)).toBeVisible(); // historial con el costo
   await expect(page.getByRole("definition").filter({ hasText: "45,50" })).toBeVisible(); // y en la cifra de gastado
 
   // sin conexión
