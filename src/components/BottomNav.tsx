@@ -38,7 +38,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Principal"
-      className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] z-20 rounded-full bg-card px-2 py-1.5 shadow-[0_8px_30px_rgb(15_27_61/0.14)]"
+      className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+0.5rem)] z-20 rounded-full border border-border bg-card px-2 py-1.5 shadow-[0_12px_32px_rgb(0_0_0/0.28)]"
     >
       <ul className="grid grid-cols-5 items-center">
         <Tab item={items[0]} pathname={pathname} />
@@ -48,9 +48,9 @@ export function BottomNav() {
             href="/scan"
             aria-label={es.nav.scan}
             aria-current={pathname.startsWith("/scan") ? "page" : undefined}
-            className="-my-3 flex size-14 items-center justify-center rounded-full bg-brand text-white shadow-[0_8px_20px_rgb(29_78_216/0.4)]"
+            className="-my-5 flex size-[68px] items-center justify-center rounded-full bg-brand text-white ring-[6px] ring-[color:var(--bg-bottom)] shadow-[0_10px_26px_rgb(47_109_240/0.45)]"
           >
-            <ScanIcon width={26} height={26} />
+            <ScanIcon width={30} height={30} />
           </Link>
         </li>
         <Tab item={items[2]} pathname={pathname} />

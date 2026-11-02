@@ -17,8 +17,8 @@ import { Segmented } from "@/components/ui/Segmented";
 const t = es.listsPage;
 type Tab = "pendientes" | "super" | "venta";
 
-export default async function ListsPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
-  const { tab: raw } = await searchParams;
+export default async function ListsPage({ searchParams }: { searchParams: Promise<{ tab?: string; nuevo?: string }> }) {
+  const { tab: raw, nuevo } = await searchParams;
   const tab: Tab = raw === "super" || raw === "venta" ? raw : "pendientes";
   const { user, household } = await requireActiveHousehold();
   const canEdit = household.role !== "viewer";
@@ -48,6 +48,7 @@ export default async function ListsPage({ searchParams }: { searchParams: Promis
         open={openViews}
         done={doneViews}
         canEdit={canEdit}
+        startOpen={nuevo === "1" && canEdit}
         currentUserId={user.id}
         serverToday={new Date().toISOString().slice(0, 10)}
         people={members.map((m) => ({ id: m.id, label: m.name?.trim() || m.email.split("@")[0], email: m.email, name: m.name }))}

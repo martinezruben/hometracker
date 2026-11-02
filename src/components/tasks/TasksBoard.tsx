@@ -29,6 +29,7 @@ export function TasksBoard({
   currentUserId,
   canEdit,
   serverToday,
+  startOpen = false,
 }: {
   open: TaskView[];
   done: DoneTaskView[];
@@ -36,12 +37,13 @@ export function TasksBoard({
   currentUserId: string;
   canEdit: boolean;
   serverToday: string;
+  startOpen?: boolean;
 }) {
   const router = useRouter();
   const outbox = useOutbox();
   const today = useToday(serverToday);
   const [mineOnly, setMineOnly] = useState(false);
-  const [sheet, setSheet] = useState(false);
+  const [sheet, setSheet] = useState(startOpen);
   const [error, setError] = useState<string | null>(null);
 
   const visible = overlayTasks(open, outbox).filter((x) => !mineOnly || x.assignedTo === currentUserId || x.assignedTo === null);

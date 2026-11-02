@@ -25,7 +25,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 | Al día | texto `#047857`, fondo `#d1fae5`, barra `#10b981` | |
 | Pasteles de ilustración | azul `#dbeafe`, naranja `#ffedd5`, verde `#d1fae5`, lila `#ede9fe` | portadas de caja, iconos de tipo |
 | Radios | chips y pills completos; tarjetas 20–24 px; iconos 12–14 px | |
-| Tipografía | sans redondeada de peso alto (Manrope/Plus Jakarta Sans); título grande 32 px/800; sección 20 px/800; cuerpo 15–16 px/600; metadato 13 px/500 | |
+| Tipografía | sans redondeada de peso alto (Outfit); título grande 32 px/800; sección 20 px/800; cuerpo 15–16 px/600; metadato 13 px/500 | |
 | Modo oscuro | mismo lenguaje con fondo `#0b1220`, tarjetas `#111a2e`, azul claro `#60a5fa` para acciones; conservar contraste AA | |
 
 ## 3. Componentes
@@ -73,6 +73,7 @@ Fuente: `docs/design/HomeTracker_iOS.pdf` (6 pantallas: Inicio, Cajas, Detalle d
 - Detalle de equipo: tarjeta principal con icono según el peor estado, chips (estado, ubicación, garantía), tres cifras (planes, vencidos, gastado) y ficha técnica; las secciones usan títulos de 20 px/800.
 - Línea de tiempo (`components/ui/Timeline.tsx`, lógica pura en `src/lib/timeline.ts`): hilo vertical con nodos de color e icono por tipo (compra, garantía, hecho, vence, pendiente, gasto), tiempo relativo ("hace 3 h", "en 40 días"), marcador "Hoy" entre lo futuro y lo ocurrido. Se usa en el detalle de equipo y en "Actividad reciente" de Inicio. Inicio suma "Acciones rápidas" (nueva caja, equipo, gasto, documento) y el detalle de equipo una barra de atajos (Planes, Manual, Fotos, Línea de tiempo).
 - Caja con análisis: atajos (Contenido, Fotos, Actividad), "Por categoría" (barras proporcionales con unidades y %, `categoryBreakdown`) y "Actividad de la caja" en línea de tiempo (creación, objetos y fotos). Listas: gráfico "Tu semana" (barras por día de lo que vence y de lo hecho, `weekProgress`; el vencido cuenta en hoy).
+- **Fase 7 (propuesta ejecutada):** paleta oscura más azul (fondo `#081120`, tarjetas `#101c33`, acento `#7cc4ff`/`#2f6df0`), fuente Outfit y barra inferior con botón central elevado y anillo. Inicio: tarjeta "cielo" que cambia con la hora (`SkyCard`; `data-sky` fija los colores de texto, también en tema claro) con dial de 24 h (`src/lib/home/dial.ts`: noche, pendientes con hora, hechos, ahora), siguiente pendiente con botón Hecho (`NextUp`), registro rápido en mosaicos de color, anillo de equipos (`StatusRing`) y actividad reciente. Bitácora (`/activity`, filtros por tipo, agrupada por día local). Detalle de equipo con anillo de planes y gasto por mes (`CostBars`, `costByMonth`). Colores por tipo: pendientes verde, mantenimiento naranja, gastos dorado, equipos azul, documentos lila, cajas teal.
 - Todas las pantallas principales siguen ya este diseño; cualquier pantalla nueva debe seguirlo desde el inicio.
 
 ## 6. Cómo aplicarlo

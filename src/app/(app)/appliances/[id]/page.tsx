@@ -8,6 +8,9 @@ import { es } from "@/lib/i18n/es";
 import { dueStatus, type DueStatus } from "@/lib/maintenance/schedule";
 import { buildApplianceTimeline, splitTimeline } from "@/lib/timeline";
 import { Timeline } from "@/components/ui/Timeline";
+import { StatusRing } from "@/components/ui/StatusRing";
+import { CostBars } from "@/components/ui/CostBars";
+import { costByMonth } from "@/lib/appliances/cost";
 import { ApplianceActions } from "@/components/ApplianceActions";
 import { ApplianceMaintenance } from "@/components/ApplianceMaintenance";
 import { DueBadge } from "@/components/DueBadge";
@@ -56,6 +59,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
   const statuses = plans.map((p) => dueStatus(p.nextDue, now));
   const overdue = statuses.filter((x) => x === "overdue").length;
   const worst: DueStatus | null = plans.length === 0 ? null : overdue > 0 ? "overdue" : statuses.includes("soon") ? "soon" : "ok";
+  const counts = { ok: statuses.filter((x) => x === "ok").length, soon: statuses.filter((x) => x === "soon").length, overdue };
   const nextPlan = [...plans].sort((x, y) => x.nextDue.getTime() - y.nextDue.getTime())[0];
   const totalCost = logs.reduce((n, l) => n + (l.cost ?? 0), 0);
   const tint: Tint = worst === "overdue" ? "red" : worst === "soon" ? "yellow" : worst === "ok" ? "green" : "blue";
@@ -151,6 +155,24 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
         />
       )}
 
+      {plans.length > 0 && (
+        <section aria-label={t.maintenance} className="card flex items-center gap-5 border border-border p-5">
+          <StatusRing
+            ok={counts.ok}
+            soon={counts.soon}
+            late={counts.overdue}
+            center={String(counts.ok)}
+            caption={es.home.ofTotal(plans.length)}
+            label={es.home.ringPlans(counts.ok, plans.length)}
+          />
+          <ul className="min-w-0 flex-1 space-y-3 text-[16px]">
+            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-ok-bar" /><span className="flex-1">{es.appliances.stat.ok}</span><b>{counts.ok}</b></li>
+            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-late-bar" /><span className="flex-1">{es.appliances.stat.overdue}</span><b>{counts.overdue}</b></li>
+            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-soon-bar" /><span className="flex-1">{es.appliances.stat.soon}</span><b>{counts.soon}</b></li>
+          </ul>
+        </section>
+      )}
+
       <div id="planes" className="scroll-mt-4">
       <ApplianceMaintenance
         applianceId={a.id}
@@ -176,6 +198,16 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
       <div id="fotos" className="scroll-mt-4">
         <EntityPhotos entityType="appliance" entityId={a.id} photos={photos.map((p) => ({ id: p.id }))} canEdit={canEdit} title={t.photos} />
       </div>
+
+      {totalCost > 0 && (
+        <section id="gasto" className="scroll-mt-4 space-y-3">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-xl font-extrabold">{es.costBars.section}</h2>
+            <span className="text-sm text-muted">{es.costBars.last6}</span>
+          </div>
+          <CostBars months={costByMonth(logs, now)} />
+        </section>
+      )}
 
       <section id="linea-de-tiempo" className="scroll-mt-4 space-y-3">
         <h2 className="text-xl font-extrabold">{es.timeline.title}</h2>

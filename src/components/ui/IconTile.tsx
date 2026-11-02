@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type Tint = "blue" | "orange" | "green" | "purple" | "red" | "yellow";
+export type Tint = "blue" | "orange" | "green" | "purple" | "red" | "yellow" | "teal";
 
 /** Cuadro de color pastel con un icono (44 px por defecto). */
 export function IconTile({ tint = "blue", children, size = 44 }: { tint?: Tint; children: ReactNode; size?: number }) {

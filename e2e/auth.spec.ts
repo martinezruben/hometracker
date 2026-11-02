@@ -18,7 +18,7 @@ test("contraseña incorrecta no entra y la correcta sí; cerrar sesión protege 
   await page.waitForURL("**/onboarding**");
   await page.getByLabel("Nombre del hogar").fill("Casa Auth");
   await page.getByRole("button", { name: "Crear hogar" }).click();
-  await expect(page.getByText("SALUD DEL HOGAR")).toBeVisible();
+  await expect(page.getByRole("img", { name: /SALUD DEL HOGAR/ })).toBeVisible();
 
   await page.goto("/more");
   await page.getByRole("button", { name: "Cerrar sesión" }).click();
@@ -77,8 +77,8 @@ test("el nombre se pide al crear el hogar y se usa en el saludo", async ({ page 
   await page.getByLabel("Nombre del hogar").fill("Casa Martínez");
   await page.getByRole("button", { name: "Crear hogar" }).click();
   await expect(page.getByRole("heading", { name: "Rubén" })).toBeVisible();
-  await expect(page.getByText("SALUD DEL HOGAR")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Casa Martínez" })).toBeVisible();
+  await expect(page.getByRole("img", { name: /SALUD DEL HOGAR/ })).toBeVisible();
+  await expect(page.getByText("Casa Martínez")).toBeVisible();
 });
 
 test("recordatorios: interruptores por tipo que se guardan y persisten", async ({ page }) => {
@@ -149,5 +149,5 @@ test("el administrador cambia el nombre de la casa y se ve en Inicio; es distint
   await page.getByRole("button", { name: "Guardar" }).first().click();
   await expect(page.getByText("Guardado").first()).toBeVisible();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Apartamento Playa" })).toBeVisible();
+  await expect(page.getByText("Apartamento Playa")).toBeVisible();
 });

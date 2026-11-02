@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildApplianceTimeline, relativeTime, splitTimeline, type TimelineEvent } from "./timeline";
+import { buildApplianceTimeline, dayHeading, groupByDay, kindGroup, relativeTime, splitTimeline, type TimelineEvent } from "./timeline";
 
 const now = new Date("2026-11-02T15:00:00Z");
 const at = (iso: string) => new Date(iso);
@@ -57,5 +57,21 @@ describe("línea de tiempo", () => {
     expect(by["due-p3"].tone).toBe("ok");
     const { upcoming } = splitTimeline(ev, now);
     expect(upcoming.map((e) => e.id)).toEqual(["due-p2", "warranty", "due-p3"]);
+  });
+});
+
+describe("bitácora por días", () => {
+  const ev = (id: string, iso: string): TimelineEvent => ({ id, at: new Date(iso), kind: "task", tone: "ok", title: id });
+  it("agrupa seguidos por día según la función de día", () => {
+    const g = groupByDay([ev("a", "2026-11-02T20:00:00Z"), ev("b", "2026-11-02T08:00:00Z"), ev("c", "2026-11-01T08:00:00Z")], (d) => d.toISOString().slice(0, 10));
+    expect(g.map((x) => [x.day, x.events.map((e) => e.id)])).toEqual([["2026-11-02", ["a", "b"]], ["2026-11-01", ["c"]]]);
+  });
+  it("encabezado: hoy, ayer o solo la fecha", () => {
+    expect(dayHeading("2026-11-02", "2026-11-02")).toMatchObject({ label: "Hoy", date: "lunes, 2 nov" });
+    expect(dayHeading("2026-11-01", "2026-11-02").label).toBe("Ayer");
+    expect(dayHeading("2026-10-28", "2026-11-02").label).toBeNull();
+  });
+  it("familias de eventos", () => {
+    expect(["task", "done", "expense", "item", "photo", "created"].map((k) => kindGroup(k as never))).toEqual(["task", "maintenance", "expense", "box", "box", "box"]);
   });
 });

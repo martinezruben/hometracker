@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
 import { es } from "@/lib/i18n/es";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -22,7 +22,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#dbe6fb",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#dbe6fb" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f2142" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -30,7 +33,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${manrope.variable} h-full antialiased`}>
+    <html lang="es" className={`${outfit.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <OfflineBanner />
         <SyncStatus />
