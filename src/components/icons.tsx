@@ -78,3 +78,24 @@ export const ContactsIcon = (p: P) => (
 export const CalendarIcon = (p: P) => (
   <svg {...base(p)}><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
 );
+export const ClockIcon = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+);
+export const CheckCircleIcon = (p: P) => (
+  <svg {...base(p)}><circle cx="12" cy="12" r="9" /><path d="m8.5 12.5 2.5 2.5 4.5-5" /></svg>
+);
+export const ReceiptIcon = (p: P) => (
+  <svg {...base(p)}><path d="M6 3h12v18l-3-2-3 2-3-2-3 2Z" /><path d="M9 8h6M9 12h6" /></svg>
+);
+export const BagIcon = (p: P) => (
+  <svg {...base(p)}><path d="M5 8h14l-1 12H6Z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></svg>
+);
+export const ImageIcon = (p: P) => (
+  <svg {...base(p)}><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><circle cx="9" cy="10" r="1.5" /><path d="m4 17 5-4.5 3.5 3 3-2.5L20 17" /></svg>
+);
+export const BookIcon = (p: P) => (
+  <svg {...base(p)}><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5Z" /><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7h6" /></svg>
+);
+export const HistoryIcon = (p: P) => (
+  <svg {...base(p)}><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1L3.5 8.5" /><path d="M3.5 4v4.5H8M12 8v4l2.5 1.5" /></svg>
+);

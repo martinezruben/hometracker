@@ -2,9 +2,12 @@ import Link from "next/link";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { homeOverview } from "@/lib/home/upcoming";
 import { homeStats } from "@/lib/home/stats";
+import { recentActivity } from "@/lib/home/activity";
+import { splitTimeline } from "@/lib/timeline";
+import { Timeline } from "@/components/ui/Timeline";
 import { StatTiles } from "@/components/home/StatTiles";
 import { es } from "@/lib/i18n/es";
-import { BellIcon, BoxIcon, ContactsIcon, FileIcon, FilterIcon, SearchIcon, WalletIcon, WrenchIcon } from "@/components/icons";
+import { BellIcon, BoxIcon, ContactsIcon, FileIcon, FilterIcon, PlusIcon, SearchIcon, WalletIcon, WrenchIcon } from "@/components/icons";
 import { Greeting } from "@/components/home/Greeting";
 import { HealthCard } from "@/components/home/HealthCard";
 import { UpcomingRow } from "@/components/home/UpcomingRow";
@@ -22,7 +25,8 @@ const quick: { href: string; label: string; tint: Tint; Icon: typeof BoxIcon }[]
 
 export default async function HomePage() {
   const { user, household } = await requireActiveHousehold();
-  const [{ items, score, level, weekCount, hasOverdue, factors }, stats] = await Promise.all([homeOverview(household.id), homeStats(household.id)]);
+  const now = new Date();
+  const [{ items, score, level, weekCount, hasOverdue, factors }, stats, activity] = await Promise.all([homeOverview(household.id), homeStats(household.id), recentActivity(household.id, now)]);
   const displayName = user.name?.trim() || user.email.split("@")[0];
 
   return (
@@ -66,6 +70,26 @@ export default async function HomePage() {
 
       <StatTiles stats={stats} />
 
+      <section className="space-y-3" aria-label={es.quick.title}>
+        <h2 className="text-xl font-extrabold">{es.quick.title}</h2>
+        <ul className="grid grid-cols-4 gap-2">
+          {[
+            { href: "/boxes/new", label: es.quick.box, tint: "yellow" as Tint, Icon: BoxIcon },
+            { href: "/appliances/new", label: es.quick.appliance, tint: "blue" as Tint, Icon: WrenchIcon },
+            { href: "/expenses/new", label: es.quick.expense, tint: "orange" as Tint, Icon: WalletIcon },
+            { href: "/documents/new", label: es.quick.document, tint: "purple" as Tint, Icon: FileIcon },
+          ].map(({ href, label, tint, Icon }) => (
+            <li key={href}>
+              <Link href={href} className="card relative flex min-h-[92px] flex-col items-center justify-center gap-1.5 px-1 py-2 text-center">
+                <IconTile tint={tint}><Icon width={22} height={22} /></IconTile>
+                <span className="text-[12px] font-bold leading-tight">{label}</span>
+                <span aria-hidden className="absolute right-1.5 top-1.5 flex size-5 items-center justify-center rounded-full bg-primary text-white"><PlusIcon width={12} height={12} /></span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-extrabold">{es.upcoming.title}</h2>
@@ -76,6 +100,11 @@ export default async function HomePage() {
         ) : (
           <ul className="space-y-3">{items.map((i) => <UpcomingRow key={i.key} item={i} />)}</ul>
         )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-xl font-extrabold">{es.activity.title}</h2>
+        <Timeline upcoming={[]} past={splitTimeline(activity, now).past} now={now} empty={es.activity.empty} showToday={false} />
       </section>
     </div>
   );
