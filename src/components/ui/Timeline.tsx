@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { es } from "@/lib/i18n/es";
 import { relativeTime, type TimelineEvent, type TimelineKind, type TimelineTone } from "@/lib/timeline";
 import { formatDate } from "@/lib/format";
-import { BagIcon, CalendarIcon, CheckCircleIcon, ClockIcon, ListIcon, ReceiptIcon, ShieldIcon, WrenchIcon } from "@/components/icons";
+import { BagIcon, BoxIcon, CalendarIcon, CameraIcon, CheckCircleIcon, ClockIcon, ListIcon, PlusIcon, ReceiptIcon, ShieldIcon, WrenchIcon } from "@/components/icons";
 
 const icon: Record<TimelineKind, (p: { width: number; height: number }) => ReactNode> = {
   purchase: (p) => <BagIcon {...p} />,
@@ -12,6 +12,9 @@ const icon: Record<TimelineKind, (p: { width: number; height: number }) => React
   due: (p) => <WrenchIcon {...p} />,
   task: (p) => <ListIcon {...p} />,
   expense: (p) => <ReceiptIcon {...p} />,
+  created: (p) => <PlusIcon {...p} />,
+  item: (p) => <BoxIcon {...p} />,
+  photo: (p) => <CameraIcon {...p} />,
 };
 
 const tone: Record<TimelineTone, string> = {

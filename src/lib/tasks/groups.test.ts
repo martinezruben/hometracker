@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groupTasks, weekBounds, type DoneTaskView, type TaskView } from "./groups";
+import { weekProgress, groupTasks, weekBounds, type DoneTaskView, type TaskView } from "./groups";
 
 const t = (id: string, over: Partial<TaskView> = {}): TaskView => ({
   id, title: id, notes: null, dueAt: null, dueTime: null, repeatRule: null, assignedTo: null,
@@ -45,5 +45,19 @@ describe("groupTasks", () => {
     expect(g.summary).toEqual({ doneWeek: 2, totalWeek: 4, pendingWeek: 2, todayCount: 1 });
     expect(g.doneToday.map((x) => x.id)).toEqual(["hecha-hoy"]);
     expect(g.olderDone.map((x) => x.id)).toEqual(["vieja"]);
+  });
+});
+
+describe("progreso semanal", () => {
+  // 2026-11-04 es miércoles: la semana va del 2 al 8 de noviembre
+  it("reparte lo planeado y lo hecho por día, de lunes a domingo", () => {
+    const days = weekProgress(
+      [t("a", { dueAt: "2026-11-04" }), t("b", { dueAt: "2026-11-06" }), t("viejo", { dueAt: "2026-10-30" }), t("lejos", { dueAt: "2026-11-20" }), t("sin")],
+      [done("x", "2026-11-02T15:00:00.000Z"), done("y", "2026-11-04T09:00:00.000Z"), done("z", "2026-10-28T09:00:00.000Z")],
+      "2026-11-04",
+    );
+    expect(days.map((d) => d.date)).toEqual(["2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08"]);
+    expect(days.map((d) => d.planned)).toEqual([0, 0, 2, 0, 1, 0, 0]); // el vencido cuenta en hoy
+    expect(days.map((d) => d.done)).toEqual([1, 0, 1, 0, 0, 0, 0]);
   });
 });

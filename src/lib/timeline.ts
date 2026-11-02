@@ -2,7 +2,7 @@
 import { daysUntil, nextDueAfter, type IntervalUnit } from "@/lib/maintenance/schedule";
 
 export type TimelineTone = "ok" | "soon" | "overdue" | "info";
-export type TimelineKind = "purchase" | "warranty" | "done" | "due" | "task" | "expense";
+export type TimelineKind = "purchase" | "warranty" | "done" | "due" | "task" | "expense" | "created" | "item" | "photo";
 
 export type TimelineEvent = {
   id: string;
