@@ -43,6 +43,13 @@
       "when": 1793547519598,
       "tag": "0005_indice_planes_por_hogar",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1793624909249,
+      "tag": "0006_indices_actividad_por_hogar",
+      "breakpoints": true
     }
   ]
 }

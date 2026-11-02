@@ -148,7 +148,7 @@ export const boxItems = mysqlTable(
     category: varchar("category", { length: 80 }),
     notes: text("notes"),
   },
-  (t) => [index("box_items_box_idx").on(t.boxId)],
+  (t) => [index("box_items_box_idx").on(t.boxId), index("box_items_hh_idx").on(t.householdId, t.createdAt)], // actividad reciente por hogar
 );
 
 /** Fotos de cualquier entidad (caja, ítem, equipo, lista…). El archivo vive en el storage. */
@@ -245,7 +245,7 @@ export const maintenanceLogs = mysqlTable(
     providerId: char("provider_id", { length: 36 }).references(() => contacts.id),
     notes: text("notes"),
   },
-  (t) => [index("ml_appliance_idx").on(t.applianceId, t.doneAt)],
+  (t) => [index("ml_appliance_idx").on(t.applianceId, t.doneAt), index("ml_hh_idx").on(t.householdId, t.doneAt)], // actividad reciente por hogar
 );
 
 // ───────────── Listas y tareas ─────────────

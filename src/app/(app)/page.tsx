@@ -1,15 +1,14 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { requireActiveHousehold } from "@/lib/auth/access";
-import { equipmentOverview } from "@/lib/appliances/overview";
 import { homeOverview } from "@/lib/home/upcoming";
 import { homeStats } from "@/lib/home/stats";
 import { homeDay } from "@/lib/home/day";
-import { recentActivity } from "@/lib/home/activity";
-import { splitTimeline } from "@/lib/timeline";
 import { es } from "@/lib/i18n/es";
 import { BellIcon, BoxIcon, ContactsIcon, FileIcon, ListIcon, SearchIcon, WalletIcon, WrenchIcon } from "@/components/icons";
 import { HealthBreakdown } from "@/components/home/HealthBreakdown";
 import { NextUpBanner } from "@/components/home/NextUp";
+import { ActivitySection, EquipmentSection, SectionSkeleton } from "@/components/home/Sections";
 import { SkyCard } from "@/components/home/SkyCard";
 import { StatTiles } from "@/components/home/StatTiles";
 import { TodayLabel } from "@/components/home/TodayLabel";
@@ -17,8 +16,6 @@ import { UpcomingRow } from "@/components/home/UpcomingRow";
 import { InstallHint } from "@/components/InstallHint";
 import { Avatar, initialOf } from "@/components/ui/Avatar";
 import { IconTile, type Tint } from "@/components/ui/IconTile";
-import { StatusRing } from "@/components/ui/StatusRing";
-import { Timeline } from "@/components/ui/Timeline";
 
 const modules: { href: string; label: string; tint: Tint; Icon: typeof BoxIcon }[] = [
   { href: "/documents", label: es.documents.title, tint: "purple", Icon: FileIcon },
@@ -30,13 +27,8 @@ export default async function HomePage() {
   const { user, household } = await requireActiveHousehold();
   const now = new Date();
   const canEdit = household.role !== "viewer";
-  const [overview, stats, day, activity, equipment] = await Promise.all([
-    homeOverview(household.id),
-    homeStats(household.id),
-    homeDay(household.id, now),
-    recentActivity(household.id, now),
-    equipmentOverview(household.id, now),
-  ]);
+  // Lo de arriba (puntaje, dial, cifras) se pide junto; equipos y actividad llegan después, por partes.
+  const [overview, stats, day] = await Promise.all([homeOverview(household.id), homeStats(household.id), homeDay(household.id, now)]);
   const { items, score, level, weekCount, hasOverdue, factors } = overview;
   const displayName = user.name?.trim() || user.email.split("@")[0];
   const quick: { href: string; label: string; tint: Tint; Icon: typeof BoxIcon }[] = [
@@ -107,27 +99,9 @@ export default async function HomePage() {
 
       <StatTiles stats={stats} />
 
-      <section className="space-y-3" aria-label={es.nav.appliances}>
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">{es.nav.appliances}</h2>
-          <Link href="/appliances" className="flex min-h-11 items-center text-[15px] font-bold text-link">{es.home.seeAppliances}</Link>
-        </div>
-        <div className="card flex items-center gap-5 border border-border p-5">
-          <StatusRing
-            ok={equipment.counts.ok}
-            soon={equipment.counts.soon}
-            late={equipment.counts.overdue}
-            center={String(equipment.counts.ok)}
-            caption={es.home.ofTotal(equipment.appliancesTotal)}
-            label={es.home.ringLabel(equipment.counts.ok, equipment.appliancesTotal)}
-          />
-          <ul className="min-w-0 flex-1 space-y-3 text-[16px]">
-            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-ok-bar" /><span className="flex-1">{es.appliances.stat.ok}</span><b>{equipment.counts.ok}</b></li>
-            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-late-bar" /><span className="flex-1">{es.appliances.stat.overdue}</span><b>{equipment.counts.overdue}</b></li>
-            <li className="flex items-center gap-2.5"><span className="size-3 rounded-full bg-soon-bar" /><span className="flex-1">{es.appliances.stat.soon}</span><b>{equipment.counts.soon}</b></li>
-          </ul>
-        </div>
-      </section>
+      <Suspense fallback={<SectionSkeleton className="h-44" />}>
+        <EquipmentSection householdId={household.id} now={now} />
+      </Suspense>
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
@@ -141,13 +115,9 @@ export default async function HomePage() {
         )}
       </section>
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">{es.activity.title}</h2>
-          <Link href="/activity" className="flex min-h-11 items-center text-[15px] font-bold text-link">{es.activity.seeAll}</Link>
-        </div>
-        <Timeline upcoming={[]} past={splitTimeline(activity, now).past.slice(0, 5)} now={now} empty={es.activity.empty} showToday={false} />
-      </section>
+      <Suspense fallback={<SectionSkeleton className="h-56" />}>
+        <ActivitySection householdId={household.id} now={now} />
+      </Suspense>
     </div>
   );
 }
