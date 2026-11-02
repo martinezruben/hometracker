@@ -20,7 +20,7 @@ test("caja con contenido y foto, etiqueta QR, aislamiento y cambios sin conexió
   await page.getByRole("button", { name: "Agregar", exact: true }).click();
   await expect(page.locator("#contenido").getByText("Luces LED")).toBeVisible();
   await expect(page.locator("#contenido").getByText("×3")).toBeVisible();
-  await expect(page.getByText("Decoración")).toBeVisible();
+  await expect(page.locator("#contenido").getByText("Decoración")).toBeVisible();
 
   await page.setInputFiles("input[type=file][multiple]", { name: "foto.png", mimeType: "image/png", buffer: png() });
   await expect(page.locator('#fotos img[src*="/api/files/"]')).toHaveCount(1, { timeout: 15_000 });
