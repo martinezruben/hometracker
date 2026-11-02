@@ -28,7 +28,7 @@ export default async function DocumentPage({ params }: { params: Promise<{ id: s
       <Link href="/documents" className={linkBtnCls}>← {t.back}</Link>
       <header className="space-y-1">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-bold">{d.title}</h1>
+          <h1 className="text-[30px] font-extrabold leading-tight tracking-tight">{d.title}</h1>
           {d.expiresAt && <DueBadge nextDue={d.expiresAt} />}
         </div>
         <p className="text-muted">{t.kinds[d.kind]}{d.amount != null && ` · ${formatMoney(d.amount)}`}</p>

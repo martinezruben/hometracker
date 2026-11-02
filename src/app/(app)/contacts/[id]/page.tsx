@@ -22,7 +22,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
     <section className="space-y-4">
       <Link href="/contacts" className={linkBtnCls}>← {t.back}</Link>
       <header>
-        <h1 className="text-2xl font-bold">{c.name}</h1>
+        <h1 className="text-[30px] font-extrabold leading-tight tracking-tight">{c.name}</h1>
         <p className="text-muted">{[c.category, c.rating ? "★".repeat(c.rating) : null].filter(Boolean).join(" · ")}</p>
       </header>
       <div className="flex gap-3">

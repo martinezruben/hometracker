@@ -19,7 +19,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
   return (
     <section className="space-y-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t.title}</h1>
+        <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{t.title}</h1>
         {household.role !== "viewer" && (
           <Link href="/expenses/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {t.new}

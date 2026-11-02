@@ -13,7 +13,7 @@ export default async function LoginPage({
   if (await getSessionUser()) redirect(next);
   return (
     <>
-      <h1 className="text-2xl font-bold">{es.auth.loginTitle}</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight">{es.auth.loginTitle}</h1>
       <LoginForm next={next} />
     </>
   );

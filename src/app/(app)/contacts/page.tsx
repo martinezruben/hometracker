@@ -3,6 +3,8 @@ import { requireActiveHousehold } from "@/lib/auth/access";
 import { listContacts } from "@/lib/contacts/data";
 import { cleanPhone } from "@/lib/contacts/schemas";
 import { es } from "@/lib/i18n/es";
+import { ContactsIcon } from "@/components/icons";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PendingCreates } from "@/components/PendingCreates";
 import { SearchForm } from "@/components/SearchForm";
 
@@ -13,7 +15,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
   return (
     <section className="space-y-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{es.contacts.title}</h1>
+        <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{es.contacts.title}</h1>
         {household.role !== "viewer" && (
           <Link href="/contacts/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {es.contacts.new}
@@ -23,7 +25,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
       <SearchForm q={q} placeholder={es.contacts.searchPlaceholder} />
       <PendingCreates op="contact-create" hint={es.contacts.pending} />
       {contacts.length === 0 ? (
-        <p className="card p-4 text-muted">{q ? es.contacts.emptySearch : es.contacts.empty}</p>
+        <EmptyState icon={<ContactsIcon width={30} height={30} />} tint="orange">{q ? es.contacts.emptySearch : es.contacts.empty}</EmptyState>
       ) : (
         <ul className="space-y-3">
           {contacts.map((c) => (

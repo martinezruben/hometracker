@@ -15,7 +15,7 @@ export default async function OnboardingPage({
   if (await getActiveHousehold(user.id)) redirect(next);
   return (
     <>
-      <h1 className="text-2xl font-bold">{es.onboarding.title}</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight">{es.onboarding.title}</h1>
       <OnboardingForm next={next} askName={!user.name} />
     </>
   );

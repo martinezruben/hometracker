@@ -5,6 +5,8 @@ import { DOCUMENT_KINDS } from "@/lib/documents/schemas";
 import { formatDate, formatMoney } from "@/lib/format";
 import { es } from "@/lib/i18n/es";
 import { DueBadge } from "@/components/DueBadge";
+import { FileIcon } from "@/components/icons";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PendingCreates } from "@/components/PendingCreates";
 import { SearchForm } from "@/components/SearchForm";
 
@@ -21,7 +23,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
   return (
     <section className="space-y-4">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{es.documents.title}</h1>
+        <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{es.documents.title}</h1>
         {household.role !== "viewer" && (
           <Link href="/documents/new" className="min-h-11 rounded-xl bg-brand px-4 py-2.5 font-semibold text-white">
             {es.documents.new}
@@ -37,7 +39,7 @@ export default async function DocumentsPage({ searchParams }: { searchParams: Pr
       </nav>
       <PendingCreates op="document-create" hint={es.documents.new} />
       {docs.length === 0 ? (
-        <p className="card p-4 text-muted">{q || activeKind ? es.documents.emptySearch : es.documents.empty}</p>
+        <EmptyState icon={<FileIcon width={30} height={30} />} tint="purple">{q || activeKind ? es.documents.emptySearch : es.documents.empty}</EmptyState>
       ) : (
         <ul className="space-y-3">
           {docs.map((d) => (

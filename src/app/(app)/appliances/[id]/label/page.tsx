@@ -16,7 +16,7 @@ export default async function ApplianceLabelPage({ params }: { params: Promise<{
   const subtitle = [a.brand, a.model].filter(Boolean).join(" · ") || undefined;
   return (
     <section className="mx-auto max-w-lg space-y-4">
-      <h1 className="text-2xl font-bold">{es.labels.title}</h1>
+      <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{es.labels.title}</h1>
       <LabelStudio groups={[{ items: [{ id: a.id, title: a.name, subtitle, badge: es.labels.applianceBadge, url: applianceUrl(a.id) }] }]} />
     </section>
   );
