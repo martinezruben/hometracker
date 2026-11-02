@@ -8,7 +8,7 @@ export default async function JoinPage({ params }: { params: Promise<{ token: st
   if (!(await getSessionUser())) redirect(`/login?next=${encodeURIComponent(`/join/${token}`)}`);
   return (
     <>
-      <h1 className="text-2xl font-bold">{es.invite.joinTitle}</h1>
+      <h1 className="text-[28px] font-extrabold tracking-tight">{es.invite.joinTitle}</h1>
       <JoinButton token={token} />
     </>
   );

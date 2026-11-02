@@ -331,6 +331,15 @@ export const es = {
   },
   more: {
     title: "Más",
+    settings: "Ajustes",
+    hints: {
+      activity: "Todo lo que pasó en casa",
+      documents: "Facturas, contratos, garantías",
+      contacts: "Proveedores y personas",
+      expenses: "Lo que gastas cada mes",
+      labels: "Imprime o descarga QR",
+      reminders: "Avisos en tu iPhone",
+    },
   },
   auth: {
     loginTitle: "Entrar a HomeTracker",

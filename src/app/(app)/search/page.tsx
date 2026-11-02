@@ -22,7 +22,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
   const searched = q.trim().length >= 2;
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-bold">{t.title}</h1>
+      <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{t.title}</h1>
       <form action="/search" method="get" role="search">
         <input
           name="q"

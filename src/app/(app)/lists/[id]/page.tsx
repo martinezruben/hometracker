@@ -19,7 +19,7 @@ export default async function ListPage({ params }: { params: Promise<{ id: strin
     <section className="space-y-4">
       <Link href="/lists" className={linkBtnCls}>← {es.lists.back}</Link>
       <header>
-        <h1 className="text-2xl font-bold">{list.name}</h1>
+        <h1 className="text-[30px] font-extrabold leading-tight tracking-tight">{list.name}</h1>
         <p className="text-muted">{es.lists.types[list.type]}</p>
       </header>
       <ListDetail

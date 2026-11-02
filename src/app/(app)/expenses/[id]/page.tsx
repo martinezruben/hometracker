@@ -24,7 +24,7 @@ export default async function ExpensePage({ params }: { params: Promise<{ id: st
     <section className="space-y-4">
       <Link href="/expenses" className={linkBtnCls}>← {t.back}</Link>
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">{e.title}</h1>
+        <h1 className="text-[30px] font-extrabold leading-tight tracking-tight">{e.title}</h1>
         <p className="text-3xl font-bold">{formatMoney(e.amount)}</p>
         <p className="text-muted">{formatDate(e.spentAt)}{e.category && ` · ${e.category}`}</p>
         {provider && (

@@ -3,7 +3,8 @@ import { requireActiveHousehold } from "@/lib/auth/access";
 import { listBoxes } from "@/lib/boxes/data";
 import { es } from "@/lib/i18n/es";
 import { BoxCard } from "@/components/BoxCard";
-import { ChevronRightIcon, PlusIcon, ScanIcon, SearchIcon } from "@/components/icons";
+import { BoxIcon, ChevronRightIcon, PlusIcon, ScanIcon, SearchIcon } from "@/components/icons";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { PendingCreates } from "@/components/PendingCreates";
 import { Chip } from "@/components/ui/Chip";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -66,7 +67,7 @@ export default async function BoxesPage({ searchParams }: { searchParams: Promis
 
       <PendingCreates op="box-create" hint={es.sync.pendingBox} />
       {boxes.length === 0 ? (
-        <p className="card p-4 text-muted">{q ? es.boxes.emptySearch : es.boxes.empty}</p>
+        <EmptyState icon={<BoxIcon width={30} height={30} />} tint="teal">{q ? es.boxes.emptySearch : es.boxes.empty}</EmptyState>
       ) : (
         <>
           <ul className="grid grid-cols-2 gap-3">

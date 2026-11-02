@@ -177,6 +177,7 @@
 /* Tarjeta blanca redondeada con sombra suave (sin borde). */
 @utility card {
   background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 1.25rem;
   box-shadow: var(--shadow-card);
 }

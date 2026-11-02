@@ -10,7 +10,7 @@ export default async function LabelsPage() {
   const [boxes, appliances] = await Promise.all([listBoxes(household.id), listAppliances(household.id)]);
   return (
     <section className="space-y-4">
-      <h1 className="text-2xl font-bold">{es.labels.title}</h1>
+      <h1 className="text-[36px] font-extrabold leading-tight tracking-tight">{es.labels.title}</h1>
       <LabelStudio
         groups={[
           { title: es.labels.boxes, items: boxes.map((b) => ({ id: b.id, title: b.name, subtitle: b.location ?? undefined, badge: es.labels.boxBadge(b.number), url: boxUrl(b.id) })) },
