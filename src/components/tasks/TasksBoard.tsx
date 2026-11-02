@@ -7,7 +7,8 @@ import { todayInput } from "@/lib/format";
 import { mutate } from "@/lib/offline/outbox";
 import { overlayTasks } from "@/lib/offline/overlay";
 import { useOutbox } from "@/lib/offline/useOutbox";
-import { groupTasks, type DoneTaskView, type TaskView } from "@/lib/tasks/groups";
+import { groupTasks, weekProgress, type DoneTaskView, type TaskView } from "@/lib/tasks/groups";
+import { WeekChart } from "@/components/tasks/WeekChart";
 import { FilterIcon, PlusIcon } from "@/components/icons";
 import { NewTaskSheet, type NewTask } from "@/components/tasks/NewTaskSheet";
 import { DoneTaskRow, OpenTaskRow, type Person } from "@/components/tasks/TaskRow";
@@ -100,6 +101,8 @@ export function TasksBoard({
           <FilterIcon width={20} height={20} />
         </button>
       </section>
+
+      {(totalWeek > 0 || doneWeek > 0) && <WeekChart days={weekProgress(visible, done, today)} today={today} />}
 
       {empty && <p className="card p-4 text-muted">{t.empty}</p>}
 

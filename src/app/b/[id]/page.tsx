@@ -9,8 +9,12 @@ import { es } from "@/lib/i18n/es";
 import { qrSvg } from "@/lib/qr";
 import { BoxContent } from "@/components/BoxContent";
 import { BoxIllustration } from "@/components/BoxIllustration";
-import { CameraIcon, ChevronLeftIcon, MoreIcon, PinIcon, PrinterIcon } from "@/components/icons";
+import { BoxIcon, CameraIcon, ChevronLeftIcon, HistoryIcon, ImageIcon, MoreIcon, PinIcon, PrinterIcon } from "@/components/icons";
 import { PhotoCarousel } from "@/components/PhotoCarousel";
+import { CategoryBars } from "@/components/boxes/CategoryBars";
+import { Timeline } from "@/components/ui/Timeline";
+import { buildBoxTimeline, categoryBreakdown } from "@/lib/boxes/insights";
+import { splitTimeline } from "@/lib/timeline";
 
 const circle = "flex size-11 items-center justify-center rounded-full bg-card/90 text-foreground shadow-[0_2px_8px_rgb(15_27_61/0.15)]";
 
@@ -31,6 +35,12 @@ export default async function BoxPage({ params }: { params: Promise<{ id: string
   const content = await getBoxContent(box);
   const objects = content.items.reduce((n, i) => n + i.quantity, 0);
   const qr = await qrSvg(boxUrl(box.id));
+  const now = new Date();
+  const shares = categoryBreakdown(content.items);
+  const activity = splitTimeline(
+    buildBoxTimeline(box, content.items, content.photos, { created: es.boxInsights.created, itemAdded: es.boxInsights.itemAdded, photoAdded: es.boxInsights.photoAdded }),
+    now,
+  ).past;
 
   return (
     // La portada llega al borde de la pantalla: se cancelan los márgenes del contenedor.
@@ -85,12 +95,33 @@ export default async function BoxPage({ params }: { params: Promise<{ id: string
           <PrinterIcon width={22} height={22} /> {es.boxes.printLabel}
         </Link>
 
+        <nav aria-label={es.boxInsights.jumpTo} className="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
+          {[
+            { href: "#contenido", label: es.boxInsights.jumpContent, Icon: BoxIcon },
+            { href: "#fotos", label: es.boxInsights.jumpPhotos, Icon: ImageIcon },
+            { href: "#actividad", label: es.boxInsights.jumpActivity, Icon: HistoryIcon },
+          ].map(({ href, label, Icon }) => (
+            <a key={href} href={href} className="flex min-h-11 shrink-0 items-center gap-2 rounded-full bg-tile px-4 text-sm font-extrabold">
+              <Icon width={18} height={18} /> {label}
+            </a>
+          ))}
+        </nav>
+
+        <CategoryBars shares={shares} />
+
+        <div id="contenido" className="scroll-mt-4">
         <BoxContent
           box={{ id: box.id, name: box.name, location: box.location, notes: box.notes, color: box.color }}
           items={content.items.map((i) => ({ id: i.id, title: i.title, quantity: i.quantity, category: i.category, notes: i.notes }))}
           photos={content.photos.map((p) => ({ id: p.id }))}
           canEdit={role !== "viewer"}
         />
+        </div>
+
+        <section id="actividad" className="scroll-mt-4 space-y-3">
+          <h2 className="text-xl font-extrabold">{es.boxInsights.activityTitle}</h2>
+          <Timeline upcoming={[]} past={activity} now={now} empty={es.timeline.empty} showToday={false} />
+        </section>
       </div>
     </div>
   );

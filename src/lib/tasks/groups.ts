@@ -74,3 +74,20 @@ export function groupTasks(open: TaskView[], done: DoneTaskView[], today: string
     summary: { doneWeek: doneWeekList.length, totalWeek: pendingWeek + doneWeekList.length, pendingWeek, todayCount: todayList.length },
   };
 }
+
+export type DayProgress = { date: string; planned: number; done: number };
+
+/** Lunes a domingo de la semana de `today`: cuántos pendientes vencen cada día y cuántos se completaron. */
+export function weekProgress(open: TaskView[], done: DoneTaskView[], today: string): DayProgress[] {
+  const { start } = weekBounds(today);
+  const first = new Date(`${start}T00:00:00.000Z`).getTime();
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(first + i * dayMs).toISOString().slice(0, 10);
+    return {
+      date,
+      // los vencidos sin completar cuentan en hoy, igual que en la lista
+      planned: open.filter((t) => t.dueAt !== null && (t.dueAt === date || (date === today && t.dueAt < today))).length,
+      done: done.filter((d) => toDay(d.doneAt) === date).length,
+    };
+  });
+}
