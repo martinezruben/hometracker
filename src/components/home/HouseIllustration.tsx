@@ -23,25 +23,29 @@ export function HouseIllustration({ className }: { className?: string }) {
     grid.push(d([[i, -4, 0], [i, 4, 0]]), d([[-4, i, 0], [4, i, 0]]));
   }
   const dots = [...a, ...top, ...ridge];
+  const glow = { filter: "drop-shadow(0 0 3px currentColor)" };
+  // Colores por clases de Tailwind y opacidades como atributos (Safari ignora `stop-opacity` y similares en `style`).
   return (
-    <svg viewBox="0 0 240 180" className={className} aria-hidden fill="none" strokeLinejoin="round" strokeLinecap="round">
+    <svg viewBox="0 0 240 180" className={`text-link ${className ?? ""}`} aria-hidden fill="none" strokeLinejoin="round" strokeLinecap="round">
       <defs>
         <radialGradient id="hw-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0" style={{ stopColor: "var(--link)", stopOpacity: 0.3 }} />
-          <stop offset="1" style={{ stopColor: "var(--link)", stopOpacity: 0 }} />
+          <stop offset="0" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="1" stopColor="currentColor" stopOpacity="0" />
         </radialGradient>
       </defs>
       <ellipse cx="120" cy="104" rx="112" ry="52" fill="url(#hw-glow)" />
       {/* suelo */}
-      <path d={d([[-4, -4, 0], [4, -4, 0], [4, 4, 0], [-4, 4, 0]], true)} strokeWidth="1.2" style={{ stroke: "var(--link)", strokeOpacity: 0.55 }} />
-      <path d={grid.join("")} strokeWidth="0.8" style={{ stroke: "var(--link)", strokeOpacity: 0.28 }} />
+      <path d={d([[-4, -4, 0], [4, -4, 0], [4, 4, 0], [-4, 4, 0]], true)} strokeWidth="1.2" stroke="currentColor" strokeOpacity="0.55" />
+      <path d={grid.join("")} strokeWidth="0.8" stroke="currentColor" strokeOpacity="0.28" />
       {/* aristas traseras */}
-      <path d={d([a[0], top[0]]) + d([a[0], a[1]]) + d([a[0], a[3]])} strokeWidth="1" strokeDasharray="3 3" style={{ stroke: "var(--link)", strokeOpacity: 0.4 }} />
+      <path d={d([a[0], top[0]]) + d([a[0], a[1]]) + d([a[0], a[3]])} strokeWidth="1" strokeDasharray="3 3" stroke="currentColor" strokeOpacity="0.4" />
       {/* caras con vidrio */}
-      <path d={d([a[1], a[2], top[2], top[1]], true)} style={{ fill: "var(--primary-2)", fillOpacity: 0.1 }} />
-      <path d={d([a[2], a[3], top[3], top[2]], true)} style={{ fill: "var(--primary-2)", fillOpacity: 0.2 }} />
-      <path d={d([top[2], top[3], [-2.3, 0, R], [2.3, 0, R]], true)} style={{ fill: "var(--primary-2)", fillOpacity: 0.3 }} />
-      <g strokeWidth="1.6" style={{ stroke: "var(--link)", filter: "drop-shadow(0 0 3px var(--link))" }}>
+      <g className="fill-primary-2">
+        <path d={d([a[1], a[2], top[2], top[1]], true)} fillOpacity="0.1" />
+        <path d={d([a[2], a[3], top[3], top[2]], true)} fillOpacity="0.2" />
+        <path d={d([top[2], top[3], [-2.3, 0, R], [2.3, 0, R]], true)} fillOpacity="0.3" />
+      </g>
+      <g strokeWidth="1.6" stroke="currentColor" style={glow}>
         {/* muros */}
         <path d={d([a[1], a[2], top[2], top[1]], true)} />
         <path d={d([a[2], a[3], top[3], top[2]], true)} />
@@ -53,7 +57,7 @@ export function HouseIllustration({ className }: { className?: string }) {
         <path d={d([[1, -0.9, 3.1], [1, -0.9, 4.5], [1.6, -0.9, 4.5], [1.6, -0.9, 3.4]]) + d([[1.6, -0.9, 4.5], [1.6, -0.3, 4.5], [1, -0.3, 4.5], [1, -0.9, 4.5]])} />
       </g>
       {/* puerta y ventanas */}
-      <g strokeWidth="1.4" style={{ stroke: "var(--ok-bar)", filter: "drop-shadow(0 0 3px var(--ok-bar))" }}>
+      <g strokeWidth="1.4" className="stroke-ok-bar text-ok-bar" style={glow}>
         <path d={d([[2, 0.2, 0], [2, 0.2, 1.7], [2, 1.2, 1.7], [2, 1.2, 0]])} />
         <path d={d([[2, -1.4, 0.9], [2, -1.4, 1.8], [2, -0.4, 1.8], [2, -0.4, 0.9]], true)} />
         <path d={d([[0.2, 2, 0.9], [0.2, 2, 1.8], [1.4, 2, 1.8], [1.4, 2, 0.9]], true)} />
@@ -61,7 +65,7 @@ export function HouseIllustration({ className }: { className?: string }) {
       </g>
       {/* vértices */}
       {dots.map((p, i) => (
-        <circle key={i} cx={pt(p)[0]} cy={pt(p)[1]} r="2" style={{ fill: "var(--card)", stroke: "var(--link)" }} strokeWidth="1.4" />
+        <circle key={i} cx={pt(p)[0]} cy={pt(p)[1]} r="2" className="fill-card" stroke="currentColor" strokeWidth="1.4" />
       ))}
     </svg>
   );

@@ -82,7 +82,7 @@ export function EntityPhotos({
 
   return (
     <section className="space-y-3">
-      <h2 className="font-semibold">{title}</h2>
+      <h2 className="text-xl font-extrabold">{title}</h2>
       {(shown.length > 0 || pendingAdds.length > 0) && (
         <ul className="grid grid-cols-3 gap-2">
           {shown.map((p) => (

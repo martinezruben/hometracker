@@ -28,7 +28,7 @@ export function ApplianceManual({ id, hasManual, canEdit }: { id: string; hasMan
 
   return (
     <section className="space-y-2">
-      <h2 className="font-semibold">{t.manual}</h2>
+      <h2 className="text-xl font-extrabold">{t.manual}</h2>
       {hasManual ? (
         <a className={`${buttonCls} flex items-center justify-center`} href={`/api/appliances/${id}/manual`} target="_blank" rel="noreferrer">
           {t.viewManual}

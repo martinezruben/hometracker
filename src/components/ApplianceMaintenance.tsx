@@ -52,7 +52,7 @@ export function ApplianceMaintenance({
 
   return (
     <section className="space-y-3">
-      <h2 className="font-semibold">{t.maintenance}</h2>
+      <h2 className="text-xl font-extrabold">{t.maintenance}</h2>
       {plans.length === 0 ? (
         <p className="card p-4 text-muted">{t.maintenanceEmpty}</p>
       ) : (
@@ -60,13 +60,13 @@ export function ApplianceMaintenance({
           {plans.map((p) => (
             <li key={p.id} className="space-y-2 card p-4">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold">{p.title}</p>
+                <div className="min-w-0">
+                  <p className="font-extrabold">{p.title}</p>
                   <p className="text-sm text-muted">
-                    {t.every} {p.intervalValue} {t.units[p.intervalUnit]} · {p.nextDueLabel}
+                    {t.every} {p.intervalValue} {(p.intervalValue === 1 ? t.unitsOne : t.units)[p.intervalUnit]} · {p.nextDueLabel}
                   </p>
                 </div>
-                {p.badge}
+                <div className="shrink-0 whitespace-nowrap">{p.badge}</div>
               </div>
               {canEdit && completing !== p.id && (
                 <div className="flex items-center gap-4">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { healthLevel, healthScore } from "./health";
+import { healthFactors, healthLevel, healthScore } from "./health";
 
 const none = { overdueMaintenance: 0, soonMaintenance: 0, overdueTasks: 0, expiredDocuments: 0, expiringDocuments: 0 };
 
@@ -22,5 +22,13 @@ describe("salud del hogar", () => {
     expect(healthLevel(70)).toBe("good");
     expect(healthLevel(50)).toBe("attention");
     expect(healthLevel(10)).toBe("critical");
+  });
+  it("explica qué resta: solo categorías con problemas, la más pesada primero, y suma lo que resta el puntaje", () => {
+    expect(healthFactors(none)).toEqual([]);
+    const input = { ...none, overdueMaintenance: 2, overdueTasks: 1, expiringDocuments: 9 };
+    const f = healthFactors(input);
+    expect(f.map((x) => x.key)).toEqual(["overdueMaintenance", "expiringDocuments", "overdueTasks"]);
+    expect(f.map((x) => x.points)).toEqual([24, 6, 5]);
+    expect(100 - f.reduce((n, x) => n + x.points, 0)).toBe(healthScore(input));
   });
 });

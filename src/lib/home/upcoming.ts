@@ -1,7 +1,7 @@
 import { and, asc, eq, isNotNull, isNull } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { daysUntil, dueStatus, type DueStatus } from "@/lib/maintenance/schedule";
-import { healthLevel, healthScore, type HealthLevel } from "./health";
+import { healthFactors, healthLevel, healthScore, type HealthFactor, type HealthLevel } from "./health";
 
 const { maintenancePlans, appliances, tasks, documents, users } = schema;
 
@@ -21,6 +21,7 @@ export type HomeOverview = {
   items: UpcomingItem[];
   score: number;
   level: HealthLevel;
+  factors: HealthFactor[];
   weekCount: number;
   hasOverdue: boolean;
 };
@@ -65,18 +66,20 @@ export async function homeOverview(householdId: string, now = new Date(), limit 
   const all = await loadUpcoming(householdId, now);
 
   const count = (kind: UpcomingItem["kind"], pred: (i: UpcomingItem) => boolean) => all.filter((i) => i.kind === kind && pred(i)).length;
-  const score = healthScore({
+  const input = {
     overdueMaintenance: count("maintenance", (i) => i.status === "overdue"),
     soonMaintenance: count("maintenance", (i) => i.status === "soon"),
     overdueTasks: count("task", (i) => i.status === "overdue"),
     expiredDocuments: count("document", (i) => i.status === "overdue"),
     expiringDocuments: count("document", (i) => i.status === "soon" || (i.days > 14 && i.days <= 30)),
-  });
+  };
+  const score = healthScore(input);
 
   return {
     items: all.slice(0, limit),
     score,
     level: healthLevel(score),
+    factors: healthFactors(input),
     weekCount: all.filter((i) => i.kind !== "document" && i.days <= 7).length,
     hasOverdue: all.some((i) => i.status === "overdue"),
   };
