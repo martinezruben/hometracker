@@ -1,6 +1,8 @@
 import { es } from "@/lib/i18n/es";
 import type { HealthLevel } from "@/lib/home/health";
 import { HouseIllustration } from "@/components/home/HouseIllustration";
+import { HealthFactors } from "@/components/home/HealthFactors";
+import type { HealthFactor } from "@/lib/home/health";
 
 const levelTone: Record<HealthLevel, string> = {
   great: "bg-ok-bg text-ok",
@@ -35,21 +37,21 @@ function Gauge({ score }: { score: number }) {
   });
   return (
     <div className="relative size-[148px]" role="img" aria-label={`${score} ${es.health.outOf}`}>
-      <svg viewBox="0 0 160 160" className="absolute inset-0 h-full w-full" aria-hidden fill="none" strokeLinecap="round">
+      <svg viewBox="0 0 160 160" className="absolute inset-0 h-full w-full text-link" aria-hidden fill="none" strokeLinecap="round">
         <defs>
           <linearGradient id="gauge" x1="0" x2="1" y1="1" y2="0">
             <stop offset="0" style={{ stopColor: "var(--link)" }} />
             <stop offset="1" style={{ stopColor: "var(--primary)" }} />
           </linearGradient>
         </defs>
-        <path d={arc(0, sweep)} strokeWidth="10" style={{ stroke: "var(--border)" }} />
+        <path d={arc(0, sweep)} strokeWidth="10" className="stroke-border" />
         {score > 0 && (
-          <path d={arc(0, end)} strokeWidth="10" stroke="url(#gauge)" style={{ filter: "drop-shadow(0 0 4px var(--link))" }} />
+          <path d={arc(0, end)} strokeWidth="10" stroke="url(#gauge)" style={{ filter: "drop-shadow(0 0 4px currentColor)" }} />
         )}
         {ticks.map((t, i) => (
-          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} strokeWidth="1.5" style={{ stroke: t.on ? "var(--link)" : "var(--border)", strokeOpacity: t.on ? 0.8 : 1 }} />
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} strokeWidth="1.5" className={t.on ? "stroke-link" : "stroke-border"} strokeOpacity={t.on ? 0.8 : 1} />
         ))}
-        <circle cx={hx} cy={hy} r="4" style={{ fill: "var(--card)", stroke: "var(--link)" }} strokeWidth="2.5" />
+        <circle cx={hx} cy={hy} r="4" className="fill-card stroke-link" strokeWidth="2.5" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center pt-1 leading-none">
         <span className="text-[36px] font-extrabold tracking-tight">{score}</span>
@@ -59,7 +61,7 @@ function Gauge({ score }: { score: number }) {
   );
 }
 
-export function HealthCard({ householdName, score, level, weekCount }: { householdName: string; score: number; level: HealthLevel; weekCount: number }) {
+export function HealthCard({ householdName, score, level, weekCount, factors }: { householdName: string; score: number; level: HealthLevel; weekCount: number; factors: HealthFactor[] }) {
   return (
     <section className="card relative overflow-hidden p-5" aria-label="Salud del hogar">
       <div className="flex items-start justify-between gap-3">
@@ -79,6 +81,7 @@ export function HealthCard({ householdName, score, level, weekCount }: { househo
         </div>
         <HouseIllustration className="-mr-2 w-[56%] max-w-[210px]" />
       </div>
+      <HealthFactors factors={factors} />
     </section>
   );
 }

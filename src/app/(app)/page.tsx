@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { requireActiveHousehold } from "@/lib/auth/access";
 import { homeOverview } from "@/lib/home/upcoming";
+import { homeStats } from "@/lib/home/stats";
+import { StatTiles } from "@/components/home/StatTiles";
 import { es } from "@/lib/i18n/es";
 import { BellIcon, BoxIcon, ContactsIcon, FileIcon, FilterIcon, SearchIcon, WalletIcon, WrenchIcon } from "@/components/icons";
 import { Greeting } from "@/components/home/Greeting";
@@ -20,7 +22,7 @@ const quick: { href: string; label: string; tint: Tint; Icon: typeof BoxIcon }[]
 
 export default async function HomePage() {
   const { user, household } = await requireActiveHousehold();
-  const { items, score, level, weekCount, hasOverdue } = await homeOverview(household.id);
+  const [{ items, score, level, weekCount, hasOverdue, factors }, stats] = await Promise.all([homeOverview(household.id), homeStats(household.id)]);
   const displayName = user.name?.trim() || user.email.split("@")[0];
 
   return (
@@ -51,7 +53,7 @@ export default async function HomePage() {
 
       <InstallHint />
 
-      <HealthCard householdName={household.name} score={score} level={level} weekCount={weekCount} />
+      <HealthCard householdName={household.name} score={score} level={level} weekCount={weekCount} factors={factors} />
 
       <nav aria-label="Accesos rápidos" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
         {quick.map(({ href, label, tint, Icon }) => (
@@ -61,6 +63,8 @@ export default async function HomePage() {
           </Link>
         ))}
       </nav>
+
+      <StatTiles stats={stats} />
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">

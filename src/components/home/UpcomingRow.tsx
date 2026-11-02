@@ -26,7 +26,7 @@ export function UpcomingRow({ item }: { item: UpcomingItem }) {
       <Link href={item.href} className="card flex min-h-[72px] items-center gap-3 p-3">
         <IconTile tint={tint}><Icon width={22} height={22} /></IconTile>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[15px] font-extrabold">{item.title}</p>
+          <p className="line-clamp-2 break-words text-[15px] font-extrabold leading-snug">{item.title}</p>
           <p className="flex items-center gap-1.5 truncate text-[13px] text-muted">
             <CalendarIcon width={14} height={14} />
             <span className="truncate">{[when, context].filter(Boolean).join(" · ")}</span>

@@ -43,7 +43,7 @@ export function OpenTaskRow({
           onChange={onComplete}
         />
         <button className="min-h-11 min-w-0 flex-1 text-left" aria-expanded={open} onClick={() => setOpen(!open)}>
-          <span className="block truncate text-[16px] font-extrabold leading-snug">{task.title}</span>
+          <span className="line-clamp-2 break-words text-[16px] font-extrabold leading-snug">{task.title}</span>
           {(sub.length > 0 || task.pending) && (
             <span className="block truncate text-[13px] text-muted">{[...sub, task.pending ? es.sync.pendingTag : null].filter(Boolean).join(" · ")}</span>
           )}

@@ -27,7 +27,8 @@ test("equipo con plan vencido: aparece en Inicio, se completa con costo y se rep
   await page.getByLabel("Costo (opcional)").fill("45.50");
   await page.getByRole("button", { name: "Confirmar" }).click();
   await expect(page.getByText("Vence en 182 días").or(page.getByText("Vence en 181 días"))).toBeVisible();
-  await expect(page.getByText(/45,50/)).toBeVisible(); // historial con el costo
+  await expect(page.getByText(/· 45,50.* · Próximo:/)).toBeVisible(); // historial con el costo
+  await expect(page.getByRole("definition").filter({ hasText: "45,50" })).toBeVisible(); // y en la cifra de gastado
 
   // sin conexión
   await page.reload();
