@@ -1,6 +1,6 @@
 import "server-only";
 import { cache } from "react";
-import { and, eq, gt } from "drizzle-orm";
+import { and, asc, eq, gt } from "drizzle-orm";
 import { cookies, headers } from "next/headers";
 import { db, schema } from "@/db";
 import { randomToken, sha256 } from "./crypto";
@@ -34,6 +34,37 @@ export const getSessionUser = cache(async () => {
     .innerJoin(schema.users, eq(schema.users.id, schema.sessions.userId))
     .where(and(eq(schema.sessions.id, sha256(token)), gt(schema.sessions.expiresAt, new Date())));
   return row ?? null;
+});
+
+/**
+ * Usuario y hogar activo (el primero al que se unió) en UNA consulta: es lo que necesita cada pantalla de la app.
+ * `cache` lo comparte entre el layout y la página dentro de la misma petición.
+ */
+export const getSessionContext = cache(async () => {
+  const token = (await cookies()).get(COOKIE)?.value;
+  if (!token) return null;
+  const { users, sessions, householdMembers, households } = schema;
+  const [row] = await db
+    .select({
+      id: users.id,
+      email: users.email,
+      name: users.name,
+      householdId: households.id,
+      householdName: households.name,
+      role: householdMembers.role,
+    })
+    .from(sessions)
+    .innerJoin(users, eq(users.id, sessions.userId))
+    .leftJoin(householdMembers, eq(householdMembers.userId, users.id))
+    .leftJoin(households, eq(households.id, householdMembers.householdId))
+    .where(and(eq(sessions.id, sha256(token)), gt(sessions.expiresAt, new Date())))
+    .orderBy(asc(householdMembers.createdAt))
+    .limit(1);
+  if (!row) return null;
+  return {
+    user: { id: row.id, email: row.email, name: row.name },
+    household: row.householdId ? { id: row.householdId, name: row.householdName!, role: row.role! } : null,
+  };
 });
 
 /** Id (hash) de la sesión actual, para conservarla al cerrar las demás. */

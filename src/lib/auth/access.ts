@@ -1,7 +1,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
-import { getSessionUser } from "./session";
-import { getActiveHousehold, requireRole } from "./membership";
+import { getSessionContext, getSessionUser } from "./session";
+import { requireRole } from "./membership";
 import { UnauthorizedError, type Role } from "./roles";
 
 export async function requireUser() {
@@ -21,10 +21,10 @@ export async function requireMember(householdId: string, min: Role = "viewer") {
 }
 
 export async function requireActiveHousehold() {
-  const user = await requireUser();
-  const household = await getActiveHousehold(user.id);
-  if (!household) redirect("/onboarding");
-  return { user, household };
+  const ctx = await getSessionContext();
+  if (!ctx) redirect("/login");
+  if (!ctx.household) redirect("/onboarding");
+  return { user: ctx.user, household: ctx.household };
 }
 
 /** Variantes para Route Handlers: lanzan errores (401/403) en vez de redirigir. */
