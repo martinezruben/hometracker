@@ -172,6 +172,6 @@ Vercel gratis para empezar; MySQL gestionado ≈ 5–15 USD/mes (Railway/Aiven) 
 
 ## Fase 8 — Detectar objetos de una caja con IA
 - [x] 8.1 Base: `POST /api/boxes/[id]/analyze` (modelo de visión con salida estructurada, normalización, límite en memoria, pruebas sin red y e2e de permisos). Falta poner `ANTHROPIC_API_KEY` en el servidor y probar con fotos reales.
-- [ ] 8.2 Pantalla de revisión (detectar, editar, quitar, confirmar) y creación de los objetos con marca "detectado por IA"
+- [x] 8.2 Pantalla de revisión en la caja (foto → detectar → editar/quitar → confirmar); los objetos se crean con la cola de siempre y `box_items.source = 'ai'` (etiqueta «IA»)
 - [ ] 8.3 Tope mensual por hogar, interruptor del administrador, aviso de privacidad y manejo de errores
 - [ ] 8.4 (opcional) varias fotos por caja y búsqueda por lo detectado

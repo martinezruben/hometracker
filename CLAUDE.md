@@ -94,8 +94,9 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 
 ## Detección de objetos con IA
 - `POST /api/boxes/<id>/analyze` (multipart `file`: JPEG/PNG/WebP ≤ 5 MB) llama a un modelo de visión y **solo devuelve** la lista; no guarda nada. La persona revisa y los objetos se crean con los endpoints de siempre.
-- Cliente y reglas en `src/lib/vision` (`analyzeBoxPhoto`, `normalizeItems`; con tests sin red). Modelo por `AI_VISION_MODEL` (por defecto `claude-sonnet-5-5`); la clave `ANTHROPIC_API_KEY` solo en el servidor y sin ella la función responde 503 `ai_not_configured`.
-- Límite en memoria por persona (6/min) y por hogar (40/h) en `src/lib/rate-limit.ts`; el tope mensual por hogar y la pantalla de revisión son las fases siguientes (`PLAN.md`, Fase 8).
+- Cliente y reglas en `src/lib/vision` (`analyzeBoxPhoto`, `normalizeItems`; con tests sin red). Clave y modelo por hogar en Más › Inteligencia artificial (solo administradores; clave cifrada en `ai_settings`); `ANTHROPIC_API_KEY`/`AI_VISION_MODEL` del servidor son el respaldo. Sin clave la función responde 503 `ai_not_configured`.
+- Pantalla de revisión: `src/components/boxes/AiDetect.tsx` (dentro de `BoxContent`). Al confirmar crea los objetos con `mutate()` y `source: "ai"` (columna `box_items.source`, `manual` por defecto).
+- Límite en memoria por persona (6/min) y por hogar (40/h) en `src/lib/rate-limit.ts`; el tope mensual por hogar es la fase siguiente (`PLAN.md`, Fase 8).
 
 ## Archivos y fotos
 - Las fotos se comprimen en el cliente (`src/lib/image.ts`: 1600 px + miniatura 400 px, JPEG) y se suben a `/api/photos` (multipart, idempotente por `id`).

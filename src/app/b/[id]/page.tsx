@@ -112,7 +112,7 @@ export default async function BoxPage({ params }: { params: Promise<{ id: string
         <div id="contenido" className="scroll-mt-4">
         <BoxContent
           box={{ id: box.id, name: box.name, location: box.location, notes: box.notes, color: box.color }}
-          items={content.items.map((i) => ({ id: i.id, title: i.title, quantity: i.quantity, category: i.category, notes: i.notes }))}
+          items={content.items.map((i) => ({ id: i.id, title: i.title, quantity: i.quantity, category: i.category, notes: i.notes, source: i.source }))}
           photos={content.photos.map((p) => ({ id: p.id }))}
           canEdit={role !== "viewer"}
         />

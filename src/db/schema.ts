@@ -147,6 +147,8 @@ export const boxItems = mysqlTable(
     quantity: int("quantity").notNull().default(1),
     category: varchar("category", { length: 80 }),
     notes: text("notes"),
+    /** De dónde salió el objeto: lo escribió una persona o lo detectó la IA (y una persona lo confirmó). */
+    source: varchar("source", { length: 10 }).notNull().default("manual"),
   },
   (t) => [index("box_items_box_idx").on(t.boxId), index("box_items_hh_idx").on(t.householdId, t.createdAt)], // actividad reciente por hogar
 );

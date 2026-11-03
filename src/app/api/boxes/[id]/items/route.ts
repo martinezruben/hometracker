@@ -28,6 +28,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
         quantity: input.quantity,
         category: input.category || null,
         notes: input.notes ?? null,
+        source: input.source,
       })
       .onDuplicateKeyUpdate({ set: { id } });
     const [item] = await db.select().from(schema.boxItems).where(eq(schema.boxItems.id, id));
