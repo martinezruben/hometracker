@@ -29,3 +29,10 @@ export function assertRole(role: Role | null | undefined, min: Role): Role {
   if (!role || !hasRole(role, min)) throw new ForbiddenError();
   return role;
 }
+
+export class RateLimitError extends Error {
+  constructor() {
+    super("Demasiados intentos. Intenta de nuevo más tarde.");
+    this.name = "RateLimitError";
+  }
+}
