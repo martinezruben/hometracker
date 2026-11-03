@@ -7,7 +7,9 @@ import { PasswordForm } from "@/components/PasswordForm";
 import { BellIcon, ContactsIcon, FileIcon, HistoryIcon, PrinterIcon, WalletIcon } from "@/components/icons";
 import { Avatar, initialOf } from "@/components/ui/Avatar";
 import { IconTile, type Tint } from "@/components/ui/IconTile";
+import { AiSettingsForm } from "@/components/AiSettingsForm";
 import { requireActiveHousehold } from "@/lib/auth/access";
+import { getAiStatus } from "@/lib/vision/settings";
 import { es } from "@/lib/i18n/es";
 
 const roleLabel = { admin: es.invite.roles.admin, member: es.invite.roles.member, viewer: es.invite.roles.viewer } as const;
@@ -15,6 +17,7 @@ const roleLabel = { admin: es.invite.roles.admin, member: es.invite.roles.member
 export default async function MorePage() {
   const { user, household } = await requireActiveHousehold();
   const admin = household.role === "admin";
+  const ai = admin ? await getAiStatus(household.id) : null;
   const modules: { href: string; label: string; hint: string; tint: Tint; Icon: typeof FileIcon }[] = [
     { href: "/activity", label: es.activity.pageTitle, hint: es.more.hints.activity, tint: "green", Icon: HistoryIcon },
     { href: "/documents", label: es.documents.title, hint: es.more.hints.documents, tint: "purple", Icon: FileIcon },
@@ -54,6 +57,7 @@ export default async function MorePage() {
       {admin && <HouseholdNameForm householdId={household.id} initialName={household.name} />}
       <AccountForm initialName={user.name ?? ""} email={user.email} />
       <PasswordForm />
+      {ai && <AiSettingsForm initial={ai} />}
       {admin && <InviteForm householdId={household.id} />}
       {admin && (
         <section className="card space-y-2 p-4">

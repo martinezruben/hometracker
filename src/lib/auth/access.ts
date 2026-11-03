@@ -2,7 +2,8 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { getSessionContext, getSessionUser } from "./session";
 import { requireRole } from "./membership";
-import { UnauthorizedError, type Role } from "./roles";
+import { assertRole } from "./roles";
+import { NotFoundError, UnauthorizedError, type Role } from "./roles";
 
 export async function requireUser() {
   const user = await getSessionUser();
@@ -24,6 +25,15 @@ export async function requireActiveHousehold() {
   const ctx = await getSessionContext();
   if (!ctx) redirect("/login");
   if (!ctx.household) redirect("/onboarding");
+  return { user: ctx.user, household: ctx.household };
+}
+
+/** Para Route Handlers de ajustes del hogar: persona con sesión que es administradora de su hogar activo. */
+export async function requireApiAdminHousehold() {
+  const ctx = await getSessionContext();
+  if (!ctx) throw new UnauthorizedError();
+  if (!ctx.household) throw new NotFoundError();
+  assertRole(ctx.household.role, "admin");
   return { user: ctx.user, household: ctx.household };
 }
 

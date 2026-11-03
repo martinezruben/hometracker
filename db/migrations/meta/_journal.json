@@ -50,6 +50,13 @@
       "when": 1793624909249,
       "tag": "0006_indices_actividad_por_hogar",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1793669846679,
+      "tag": "0007_ajustes_ia_por_hogar",
+      "breakpoints": true
     }
   ]
 }

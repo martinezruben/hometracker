@@ -151,3 +151,57 @@ test("el administrador cambia el nombre de la casa y se ve en Inicio; es distint
   await page.goto("/");
   await expect(page.getByText("Apartamento Playa")).toBeVisible();
 });
+
+test("ajustes de IA: el administrador guarda clave y modelo (la clave no vuelve a mostrarse) y un miembro no puede verlos", async ({ browser }) => {
+  const owner = await newUser(browser, "iaowner", "Casa IA");
+  const KEY = "sk-ant-api03-" + "k".repeat(30) + "AB12";
+  await owner.page.goto("/more");
+  const form = owner.page.getByRole("form", { name: "Inteligencia artificial" });
+  await expect(form.getByText("Sin clave: la función está apagada")).toBeVisible();
+
+  await form.getByLabel("Clave de la API de Anthropic").fill("no-es-una-clave");
+  await form.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(alertBox(owner.page)).toHaveText("La clave no parece válida: debe empezar por sk-ant-.");
+
+  await form.getByLabel("Clave de la API de Anthropic").fill(KEY);
+  await form.getByRole("radio", { name: /Haiku 5\.5/ }).check();
+  await form.getByRole("button", { name: "Guardar", exact: true }).click();
+  await expect(form.getByText("Clave configurada · termina en AB12")).toBeVisible();
+  await expect(form.getByLabel("Clave de la API de Anthropic")).toHaveValue("");
+
+  // tras recargar: el modelo persiste y la clave completa no aparece en ningún lado de la página ni de la API
+  await owner.page.reload();
+  await expect(owner.page.getByRole("radio", { name: /Haiku 5\.5/ })).toBeChecked();
+  expect(await owner.page.content()).not.toContain(KEY);
+  const status = await owner.context.request.get("/api/ai-settings");
+  expect(await status.json()).toEqual({ model: "claude-haiku-5-5", source: "household", last4: "AB12", unreadable: false });
+  expect((await owner.context.request.put("/api/ai-settings", { data: { model: "gpt-5" } })).status()).toBe(400);
+
+  // un miembro (no administrador) del mismo hogar no puede ni leer ni cambiar nada
+  await owner.page.getByLabel("Rol").selectOption("member");
+  await owner.page.getByRole("button", { name: "Generar enlace" }).click();
+  const link = await owner.page.locator("input[readonly]").inputValue();
+  const guest = await browser.newContext({ viewport: { width: 390, height: 800 } });
+  const gp = await guest.newPage();
+  await login(gp, uniqueEmail("iamember"));
+  await gp.waitForURL("**/onboarding**");
+  await gp.goto(link);
+  await gp.getByRole("button", { name: "Aceptar invitación" }).click();
+  await expect(gp.getByText("Casa IA")).toBeVisible();
+  expect((await guest.request.get("/api/ai-settings")).status()).toBe(403);
+  expect((await guest.request.put("/api/ai-settings", { data: { model: "claude-opus-5-5" } })).status()).toBe(403);
+  expect((await guest.request.post("/api/ai-settings/test", { data: {} })).status()).toBe(403);
+  await gp.goto("/more");
+  await expect(gp.getByRole("form", { name: "Inteligencia artificial" })).toHaveCount(0);
+
+  // y otro hogar no ve la clave de este
+  const other = await newUser(browser, "iaotro", "Casa Otra");
+  expect(await (await other.context.request.get("/api/ai-settings")).json()).toMatchObject({ source: null, last4: null });
+
+  // quitar la clave
+  await owner.page.getByRole("button", { name: "Quitar clave" }).click();
+  await expect(owner.page.getByText("Sin clave: la función está apagada")).toBeVisible();
+  await owner.context.close();
+  await guest.close();
+  await other.context.close();
+});
