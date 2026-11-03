@@ -104,3 +104,45 @@ test("analizar foto con IA: sin clave configurada responde 503; es solo para mie
   await a.context.close();
   await b.context.close();
 });
+
+test("revisión de lo detectado por IA: editar, quitar y confirmar crea los objetos con marca IA", async ({ browser }) => {
+  const a = await newUser(browser, "iarev", "Casa Revisión");
+  const { page } = a;
+  await page.goto("/boxes/new");
+  await page.getByLabel("Nombre").fill("Garaje");
+  await page.getByRole("button", { name: "Crear caja" }).click();
+  await page.waitForURL(/\/b\/[0-9a-f-]{36}/);
+
+  // Respuesta simulada del servidor: aquí se prueba la pantalla de revisión, no al modelo.
+  await page.route("**/api/boxes/*/analyze", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        items: [
+          { title: "Taladro", quantity: 1, category: "Herramientas", confidence: "alta" },
+          { title: "Cable naranja", quantity: 2, category: "Eléctrico", confidence: "baja" },
+          { title: "Objeto dudoso", quantity: 1, category: null, confidence: "baja" },
+        ],
+        model: "claude-sonnet-5-5",
+        usage: {},
+      }),
+    }),
+  );
+
+  const ai = page.getByTestId("ai-detect");
+  await ai.locator('input[type=file]:not([capture])').setInputFiles({ name: "foto.png", mimeType: "image/png", buffer: png() });
+  await expect(page.getByRole("heading", { name: "Revisa lo detectado" })).toBeVisible();
+  await expect(ai.getByText("Revisar: poca certeza")).toHaveCount(2);
+
+  await ai.getByLabel("Quitar Objeto dudoso").click();
+  await ai.getByLabel("Nombre del objeto").nth(1).fill("Cable extensión");
+  await ai.getByRole("button", { name: "Agregar 2 objetos" }).click();
+
+  const contenido = page.locator("#contenido");
+  await expect(contenido.getByText("Taladro")).toBeVisible();
+  await expect(contenido.getByText("Cable extensión")).toBeVisible();
+  await expect(contenido.getByText("Objeto dudoso")).toHaveCount(0);
+  await expect(contenido.getByText("IA", { exact: true })).toHaveCount(2);
+  await a.context.close();
+});

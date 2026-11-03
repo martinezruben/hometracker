@@ -9,10 +9,11 @@ import { useOutbox } from "@/lib/offline/useOutbox";
 import type { OutboxMeta } from "@/lib/offline/db";
 import { BoxIcon, PlusIcon } from "@/components/icons";
 import { EntityPhotos } from "@/components/EntityPhotos";
+import { AiDetect, type NewAiItem } from "@/components/boxes/AiDetect";
 import { IconTile, type Tint } from "@/components/ui/IconTile";
 import { buttonCls, inputCls, linkBtnCls } from "@/components/ui";
 
-type Item = { id: string; title: string; quantity: number; category: string | null; notes: string | null };
+type Item = { id: string; title: string; quantity: number; category: string | null; notes: string | null; source?: string };
 type Photo = { id: string };
 type Color = "blue" | "orange" | "green" | "purple";
 type Box = { id: string; name: string; location: string | null; notes: string | null; color: Color };
@@ -75,7 +76,10 @@ export function BoxContent({ box, items, photos, canEdit }: { box: Box; items: I
               <li key={it.id} className="flex items-center gap-3 py-3">
                 <IconTile tint={tintFor(it.category)}><BoxIcon width={22} height={22} /></IconTile>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-extrabold">{it.title}</p>
+                  <p className="truncate font-extrabold">
+                    {it.title}
+                    {it.source === "ai" && <span className="ml-2 rounded-full bg-tile px-2 py-0.5 align-middle text-[11px] font-bold text-link">{es.boxes.aiTag}</span>}
+                  </p>
                   {(it.category || it.notes) && <p className="truncate text-sm text-muted">{[it.category, it.notes].filter(Boolean).join(" · ")}</p>}
                 </div>
                 <span className="shrink-0 font-extrabold text-link">×{it.quantity}</span>
@@ -101,6 +105,21 @@ export function BoxContent({ box, items, photos, canEdit }: { box: Box; items: I
               </li>
             ))}
           </ul>
+        )}
+        {canEdit && (
+          <AiDetect
+            boxId={box.id}
+            onConfirm={async (list: NewAiItem[]) => {
+              setError(null);
+              try {
+                for (const it of list) {
+                  await call(`/api/boxes/${box.id}/items`, "POST", { op: "item-add", itemId: it.id, title: it.title, data: { title: it.title, quantity: it.quantity, category: it.category } }, { id: it.id, title: it.title, quantity: it.quantity, category: it.category, source: "ai" });
+                }
+              } finally {
+                if (navigator.onLine) router.refresh();
+              }
+            }}
+          />
         )}
         {canEdit && (
           <form

@@ -20,6 +20,7 @@ export const itemCreate = z.object({
   quantity: z.number().int().min(1).max(9999).default(1),
   category: z.string().trim().max(80).nullish(),
   notes: z.string().trim().max(5000).nullish(),
+  source: z.enum(["manual", "ai"]).default("manual"),
 });
 
-export const itemUpdate = itemCreate.omit({ id: true }).partial();
+export const itemUpdate = itemCreate.omit({ id: true, source: true }).partial();

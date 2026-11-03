@@ -1,0 +1,1 @@
+ALTER TABLE `box_items` ADD `source` varchar(10) DEFAULT 'manual' NOT NULL;
