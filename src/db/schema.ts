@@ -400,3 +400,18 @@ export const notificationPrefs = mysqlTable(
   },
   (t) => [primaryKey({ columns: [t.userId, t.type] })],
 );
+
+/**
+ * Ajustes de IA por hogar. La clave del proveedor se guarda CIFRADA (AES-256-GCM) y solo se devuelve su final;
+ * esta tabla se excluye a propósito de la exportación de datos.
+ */
+export const aiSettings = mysqlTable("ai_settings", {
+  householdId: char("household_id", { length: 36 })
+    .primaryKey()
+    .references(() => households.id, { onDelete: "cascade" }),
+  apiKeyEnc: varchar("api_key_enc", { length: 700 }),
+  apiKeyLast4: char("api_key_last4", { length: 4 }),
+  model: varchar("model", { length: 60 }).notNull().default("claude-sonnet-5-5"),
+  updatedBy: char("updated_by", { length: 36 }),
+  updatedAt: updatedAt(),
+});

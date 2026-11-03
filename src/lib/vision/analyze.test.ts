@@ -67,11 +67,8 @@ describe("analizar foto de caja", () => {
     await expect(analyzeBoxPhoto(image, { client })).rejects.toMatchObject({ code: "ai_unavailable" });
   });
 
-  it("sin clave configurada falla antes de llamar", async () => {
-    const prev = process.env.ANTHROPIC_API_KEY;
-    delete process.env.ANTHROPIC_API_KEY;
+  it("sin clave falla antes de llamar", async () => {
     await expect(analyzeBoxPhoto(image)).rejects.toMatchObject({ code: "ai_not_configured" });
-    if (prev) process.env.ANTHROPIC_API_KEY = prev;
   });
 });
 

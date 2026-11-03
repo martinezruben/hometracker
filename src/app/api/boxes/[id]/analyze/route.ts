@@ -4,7 +4,8 @@ import { getBoxAccess } from "@/lib/boxes/data";
 import { uuid } from "@/lib/boxes/schemas";
 import { handleError, json } from "@/lib/http";
 import { consume } from "@/lib/rate-limit";
-import { aiConfigured, analyzeBoxPhoto, VisionError, type ImageType } from "@/lib/vision/analyze";
+import { analyzeBoxPhoto, VisionError, type ImageType } from "@/lib/vision/analyze";
+import { resolveAiConfig } from "@/lib/vision/settings";
 
 const ALLOWED: ImageType[] = ["image/jpeg", "image/png", "image/webp"];
 const MAX_FILE = 5 * 1024 * 1024;
@@ -23,7 +24,8 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     const access = await getBoxAccess(user.id, boxId);
     if (!access) throw new NotFoundError();
     assertRole(access.role, "member");
-    if (!aiConfigured()) return json({ error: "ai_not_configured" }, 503);
+    const ai = await resolveAiConfig(access.box.householdId); // clave y modelo de Ajustes (o la del servidor)
+    if (!ai) return json({ error: "ai_not_configured" }, 503);
 
     const file = (await request.formData()).get("file");
     if (!(file instanceof File) || !ALLOWED.includes(file.type as ImageType) || file.size > MAX_FILE || file.size === 0) {
@@ -34,7 +36,7 @@ export async function POST(request: Request, ctx: { params: Promise<{ id: string
     consume(`ai:user:${user.id}`, 6, 60_000);
     consume(`ai:household:${access.box.householdId}`, 40, 3_600_000);
 
-    const result = await analyzeBoxPhoto({ data: Buffer.from(await file.arrayBuffer()), mediaType: file.type as ImageType });
+    const result = await analyzeBoxPhoto({ data: Buffer.from(await file.arrayBuffer()), mediaType: file.type as ImageType }, { apiKey: ai.apiKey, model: ai.model });
     return json({ items: result.items, model: result.model, usage: result.usage });
   } catch (err) {
     if (err instanceof VisionError) return json({ error: err.code }, STATUS[err.code]);
