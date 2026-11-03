@@ -169,3 +169,9 @@ Vercel gratis para empezar; MySQL gestionado ≈ 5–15 USD/mes (Railway/Aiven) 
 - Dominio definitivo (afecta los QR impresos); lo dará el usuario más adelante.
 - Moneda y formato de fecha por defecto.
 - Tamaño de etiqueta QR (hoja A4 de etiquetas o impresora térmica).
+
+## Fase 8 — Detectar objetos de una caja con IA
+- [x] 8.1 Base: `POST /api/boxes/[id]/analyze` (modelo de visión con salida estructurada, normalización, límite en memoria, pruebas sin red y e2e de permisos). Falta poner `ANTHROPIC_API_KEY` en el servidor y probar con fotos reales.
+- [ ] 8.2 Pantalla de revisión (detectar, editar, quitar, confirmar) y creación de los objetos con marca "detectado por IA"
+- [ ] 8.3 Tope mensual por hogar, interruptor del administrador, aviso de privacidad y manejo de errores
+- [ ] 8.4 (opcional) varias fotos por caja y búsqueda por lo detectado

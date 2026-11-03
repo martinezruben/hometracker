@@ -7,12 +7,8 @@ export const OTP_TTL_MS = 10 * 60 * 1000;
 export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_MAX_PER_HOUR = 5;
 
-export class RateLimitError extends Error {
-  constructor() {
-    super("Demasiados intentos. Intenta de nuevo más tarde.");
-    this.name = "RateLimitError";
-  }
-}
+export { RateLimitError } from "./roles";
+import { RateLimitError } from "./roles";
 
 /** Crea un código nuevo. Devuelve el código en claro para enviarlo por correo. */
 export async function createOtp(rawEmail: string, now = new Date()) {

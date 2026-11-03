@@ -83,3 +83,24 @@ test("la búsqueda encuentra una caja por su contenido", async ({ browser }) => 
   await expect(page.getByRole("heading", { name: "Cajas" })).toBeVisible();
   await context.close();
 });
+
+test("analizar foto con IA: sin clave configurada responde 503; es solo para miembros del hogar de la caja", async ({ browser }) => {
+  const a = await newUser(browser, "iaa", "Casa IA");
+  const b = await newUser(browser, "iab", "Casa Ajena");
+  await a.page.goto("/boxes/new");
+  await a.page.getByLabel("Nombre").fill("Cocina vieja");
+  await a.page.getByRole("button", { name: "Crear caja" }).click();
+  await a.page.waitForURL(/\/b\/[0-9a-f-]{36}/);
+  const id = a.page.url().split("/b/")[1];
+
+  const post = (ctx: typeof a.context, boxId: string, name = "caja.png", mimeType = "image/png") =>
+    ctx.request.post(`/api/boxes/${boxId}/analyze`, { multipart: { file: { name, mimeType, buffer: png() } } });
+
+  const ok = await post(a.context, id);
+  expect(ok.status()).toBe(503);
+  expect(await ok.json()).toEqual({ error: "ai_not_configured" });
+  expect((await post(b.context, id)).status()).toBe(404); // otro hogar no la ve
+  expect((await post(a.context, "no-es-un-uuid")).status()).toBe(400);
+  await a.context.close();
+  await b.context.close();
+});

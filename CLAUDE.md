@@ -92,6 +92,11 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 - Los recordatorios los genera `runReminders` (`src/lib/reminders/run.ts`) desde `next_due - remind_days_before`: filas únicas por (usuario, tipo, plan, momento), envío como máximo una vez (se reclama la fila antes de enviar) y se libera si todos los envíos fallan por error transitorio. Se corre desde `/api/cron/reminders` (Bearer `CRON_SECRET`).
 - Push: el service worker siempre muestra una notificación (iOS lo exige). El permiso se pide solo con un gesto del usuario y, en iPhone, solo con la app instalada.
 
+## Detección de objetos con IA
+- `POST /api/boxes/<id>/analyze` (multipart `file`: JPEG/PNG/WebP ≤ 5 MB) llama a un modelo de visión y **solo devuelve** la lista; no guarda nada. La persona revisa y los objetos se crean con los endpoints de siempre.
+- Cliente y reglas en `src/lib/vision` (`analyzeBoxPhoto`, `normalizeItems`; con tests sin red). Modelo por `AI_VISION_MODEL` (por defecto `claude-sonnet-5-5`); la clave `ANTHROPIC_API_KEY` solo en el servidor y sin ella la función responde 503 `ai_not_configured`.
+- Límite en memoria por persona (6/min) y por hogar (40/h) en `src/lib/rate-limit.ts`; el tope mensual por hogar y la pantalla de revisión son las fases siguientes (`PLAN.md`, Fase 8).
+
 ## Archivos y fotos
 - Las fotos se comprimen en el cliente (`src/lib/image.ts`: 1600 px + miniatura 400 px, JPEG) y se suben a `/api/photos` (multipart, idempotente por `id`).
 - Se sirven solo por `/api/files/<id>` (autoriza por membresía); nunca exponer URLs directas del bucket.

@@ -32,6 +32,7 @@ export default defineConfig({
       SMTP_URL: `smtp://127.0.0.1:${SMTP_PORT}`,
       MAIL_FROM: "HomeTracker <e2e@test.local>",
       NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}`,
+      ANTHROPIC_API_KEY: "", // las pruebas nunca llaman al servicio de IA
     },
   },
 });

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/auth/roles";
-import { RateLimitError } from "@/lib/auth/otp";
+import { ForbiddenError, NotFoundError, RateLimitError, UnauthorizedError } from "@/lib/auth/roles";
 
 export const json = (data: unknown, status = 200) => NextResponse.json(data, { status });
 
