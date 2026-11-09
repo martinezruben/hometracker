@@ -64,6 +64,13 @@
       "when": 1793691538908,
       "tag": "0008_objetos_detectados_por_ia",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1794260061806,
+      "tag": "0009_facturas_de_equipos",
+      "breakpoints": true
     }
   ]
 }

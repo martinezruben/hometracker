@@ -20,3 +20,5 @@ async function resize(file: Blob, maxDim: number, quality: number): Promise<Comp
 
 export const compressPhoto = (file: Blob) => resize(file, 1600, 0.8);
 export const makeThumbnail = (file: Blob) => resize(file, 400, 0.7);
+/** Facturas fotografiadas: más resolución para que el texto pequeño siga legible al acercar. */
+export const compressInvoice = (file: Blob) => resize(file, 2400, 0.85);

@@ -5,7 +5,7 @@ import { db, schema } from "@/db";
 import type { Role } from "@/lib/auth/roles";
 import { nextDueAfter } from "@/lib/maintenance/schedule";
 
-const { appliances, maintenancePlans, maintenanceLogs, photos, householdMembers } = schema;
+const { appliances, applianceInvoices, maintenancePlans, maintenanceLogs, photos, householdMembers } = schema;
 
 const member = (householdCol: AnyMySqlColumn, userId: string) =>
   and(eq(householdMembers.householdId, householdCol), eq(householdMembers.userId, userId));
@@ -171,4 +171,22 @@ export async function completePlan(
     const [log] = await tx.select().from(maintenanceLogs).where(eq(maintenanceLogs.id, input.id));
     return { log, repeated: false };
   });
+}
+
+export async function getInvoiceAccess(userId: string, id: string) {
+  const [row] = await db
+    .select({ invoice: applianceInvoices, role: householdMembers.role })
+    .from(applianceInvoices)
+    .innerJoin(householdMembers, member(applianceInvoices.householdId, userId))
+    .where(and(eq(applianceInvoices.id, id), isNull(applianceInvoices.deletedAt)));
+  return row ?? null;
+}
+
+/** Facturas del equipo, de la más reciente a la más antigua. */
+export function listInvoices(a: { id: string; householdId: string }) {
+  return db
+    .select({ id: applianceInvoices.id, mime: applianceInvoices.mime, size: applianceInvoices.size, createdAt: applianceInvoices.createdAt })
+    .from(applianceInvoices)
+    .where(and(eq(applianceInvoices.applianceId, a.id), eq(applianceInvoices.householdId, a.householdId), isNull(applianceInvoices.deletedAt)))
+    .orderBy(desc(applianceInvoices.createdAt));
 }

@@ -12,7 +12,7 @@ export async function exportHousehold(householdId: string) {
     .select({ id: s.households.id, name: s.households.name })
     .from(s.households)
     .where(eq(s.households.id, householdId));
-  const [boxes, boxItems, appliances, maintenancePlans, maintenanceLogs, lists, listItems, tasks, contacts, documents, expenses] =
+  const [boxes, boxItems, appliances, maintenancePlans, maintenanceLogs, lists, listItems, tasks, contacts, documents, expenses, applianceInvoices] =
     await Promise.all([
       db.select().from(s.boxes).where(scope(s.boxes)),
       db.select().from(s.boxItems).where(scope(s.boxItems)),
@@ -25,6 +25,7 @@ export async function exportHousehold(householdId: string) {
       db.select().from(s.contacts).where(scope(s.contacts)),
       db.select().from(s.documents).where(scope(s.documents)),
       db.select().from(s.expenses).where(scope(s.expenses)),
+      db.select().from(s.applianceInvoices).where(scope(s.applianceInvoices)),
     ]);
   return {
     exportedAt: new Date().toISOString(),
@@ -39,6 +40,7 @@ export async function exportHousehold(householdId: string) {
     tasks,
     contacts,
     documents,
+    applianceInvoices,
     expenses,
   };
 }

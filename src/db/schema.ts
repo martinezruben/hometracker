@@ -211,6 +211,21 @@ export const appliances = mysqlTable(
   (t) => [index("appliances_hh_idx").on(t.householdId, t.deletedAt)],
 );
 
+/** Facturas de un equipo (PDF o foto; puede haber varias). El archivo vive en el storage y se sirve solo por /api/appliance-invoices/<id>. */
+export const applianceInvoices = mysqlTable(
+  "appliance_invoices",
+  {
+    ...householdScoped(),
+    applianceId: char("appliance_id", { length: 36 })
+      .notNull()
+      .references(() => appliances.id),
+    fileKey: varchar("file_key", { length: 500 }).notNull(),
+    mime: varchar("mime", { length: 60 }).notNull(),
+    size: int("size").notNull().default(0),
+  },
+  (t) => [index("appliance_invoices_appliance_idx").on(t.applianceId, t.deletedAt)],
+);
+
 export const maintenancePlans = mysqlTable(
   "maintenance_plans",
   {

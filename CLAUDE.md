@@ -74,6 +74,7 @@ Next.js (App Router) + TypeScript + Tailwind · MySQL 8 + Drizzle ORM (`mysql2`)
 ## Equipos
 - Un proveedor recibido en cualquier endpoint se valida con `validateLinks(householdId, providerId)` antes de guardarlo.
 - El manual del equipo usa `uploadManual` y `/api/appliances/<id>/manual` (mismo patrón que documentos).
+- Facturas del equipo (varias, PDF o foto): tabla `appliance_invoices`, subida en `POST /api/appliances/<id>/invoices` (un archivo por petición, fotos a 2400 px) y archivo por `/api/appliance-invoices/<id>` (GET autenticado, DELETE lógico). Se ven en `FileViewer` (`src/components/ui/FileViewer.tsx`): modal con zoom; los PDF se dibujan con pdf.js cargado bajo demanda.
 
 ## Gastos
 - Importes en `DECIMAL(12,2)` (number en Drizzle); moneda con `NEXT_PUBLIC_CURRENCY` (por defecto USD). El resumen mensual usa rangos `[inicio, fin)` en UTC (`src/lib/expenses/month.ts`).
