@@ -377,6 +377,7 @@ export const es = {
     openNew: "Abrir en una pestaña nueva",
     loading: "Cargando documento…",
     error: "No se pudo mostrar el documento.",
+    fallbackTitle: "Documento",
     page: (n: number, total: number) => `Página ${n} de ${total}`,
   },
   ai: {

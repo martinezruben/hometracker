@@ -69,3 +69,21 @@ test("facturas del equipo: varias (PDF y foto), visor con zoom, borrado y aislam
   await a.context.close();
   await b.context.close();
 });
+
+test("si pdf.js no carga, el visor muestra el PDF con el visor del navegador", async ({ browser }) => {
+  const a = await newUser(browser, "factfb", "Casa Respaldo");
+  const { page } = a;
+  await page.goto("/appliances/new");
+  await page.getByPlaceholder("Aire acondicionado de la sala").fill("Horno");
+  await page.getByRole("button", { name: "Crear equipo" }).click();
+  await page.waitForURL(/\/appliances\/[0-9a-f-]{36}/);
+  const section = page.locator("#facturas");
+  await section.locator("input[type=file][multiple]").setInputFiles({ name: "f.pdf", mimeType: "application/pdf", buffer: validPdf() });
+  await expect(section.getByText("1 factura", { exact: true })).toBeVisible({ timeout: 15_000 });
+
+  // pdf.js descarga el archivo con fetch: se lo negamos; el iframe (documento) sí puede cargarlo.
+  await page.route("**/api/appliance-invoices/*", (r) => (r.request().resourceType() === "fetch" ? r.abort() : r.continue()));
+  await section.getByRole("button", { name: "Ver factura 1" }).click();
+  await expect(page.getByTestId("file-viewer").locator("iframe")).toBeVisible({ timeout: 15_000 });
+  await a.context.close();
+});

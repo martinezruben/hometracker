@@ -79,7 +79,7 @@ export function FileViewer({ url, mime, title, onClose }: { url: string; mime: s
   );
 }
 
-type PdfDoc = import("pdfjs-dist").PDFDocumentProxy;
+type PdfDoc = import("pdfjs-dist/legacy/build/pdf.mjs").PDFDocumentProxy;
 
 function PdfPages({ url, zoom }: { url: string; zoom: number }) {
   const wrap = useRef<HTMLDivElement>(null);
@@ -93,8 +93,9 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
     let task: { destroy: () => Promise<void> } | null = null;
     (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+        // Build "legacy": funciona también en iPhone con iOS antiguos (la normal exige Safari muy reciente).
+        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+        pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
         const res = await fetch(url);
         if (!res.ok) throw new Error("fetch");
         const loading = pdfjs.getDocument({ data: new Uint8Array(await res.arrayBuffer()) });
@@ -103,7 +104,8 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
         if (cancelled) return;
         setDoc(loaded);
         setStatus("ready");
-      } catch {
+      } catch (err) {
+        console.error("No se pudo dibujar el PDF con pdf.js", err);
         if (!cancelled) setStatus("error");
       }
     })();
@@ -160,7 +162,10 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
   return (
     <div ref={wrap} className="w-full">
       {status === "loading" && <p role="status" className="p-6 text-center text-white/80">{t.loading}</p>}
-      {status === "error" && <p role="alert" className="p-6 text-center text-white/80">{t.error}</p>}
+      {status === "error" && (
+        // Respaldo: el visor nativo del navegador (Safari muestra PDF en un iframe).
+        <iframe src={url} title={t.fallbackTitle} className="h-[75vh] w-full border-0 bg-white" />
+      )}
       {doc && (
         <div className="mx-auto flex w-max min-w-full flex-col items-center gap-3 py-3" data-testid="pdf-pages">
           {Array.from({ length: doc.numPages }, (_, i) => (
