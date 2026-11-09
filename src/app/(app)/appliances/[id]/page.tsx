@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/access";
-import { getApplianceAccess, getApplianceContent } from "@/lib/appliances/data";
+import { getApplianceAccess, getApplianceContent, listInvoices } from "@/lib/appliances/data";
 import { uuid } from "@/lib/appliances/schemas";
 import { formatDate, formatMoney, toDateInput } from "@/lib/format";
 import { es } from "@/lib/i18n/es";
@@ -15,9 +15,10 @@ import { ApplianceActions } from "@/components/ApplianceActions";
 import { ApplianceMaintenance } from "@/components/ApplianceMaintenance";
 import { DueBadge } from "@/components/DueBadge";
 import { ApplianceManual } from "@/components/ApplianceManual";
+import { ApplianceInvoices } from "@/components/ApplianceInvoices";
 import { EntityPhotos } from "@/components/EntityPhotos";
 import { listContacts } from "@/lib/contacts/data";
-import { BookIcon, HistoryIcon, ImageIcon, PinIcon, PrinterIcon, WrenchIcon } from "@/components/icons";
+import { BookIcon, FileIcon, HistoryIcon, ImageIcon, PinIcon, PrinterIcon, WrenchIcon } from "@/components/icons";
 import { IconTile, type Tint } from "@/components/ui/IconTile";
 import { StatusPill } from "@/components/ui/Status";
 
@@ -31,7 +32,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
   if (!access) return <p className="card p-4 text-muted">{t.noAccess}</p>;
 
   const { appliance: a, role } = access;
-  const [{ plans, logs, photos }, contacts] = await Promise.all([getApplianceContent(a), listContacts(a.householdId)]);
+  const [{ plans, logs, photos }, contacts, invoices] = await Promise.all([getApplianceContent(a), listContacts(a.householdId), listInvoices(a)]);
   const providerName = new Map(contacts.map((c) => [c.id, c.name]));
   const canEdit = role !== "viewer";
   const now = new Date();
@@ -130,6 +131,7 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
         {[
           { href: "#planes", label: t.jumpPlans, Icon: WrenchIcon },
           { href: "#manual", label: t.jumpManual, Icon: BookIcon },
+          { href: "#facturas", label: t.jumpInvoices, Icon: FileIcon },
           { href: "#fotos", label: t.jumpPhotos, Icon: ImageIcon },
           { href: "#linea-de-tiempo", label: t.jumpTimeline, Icon: HistoryIcon },
         ].map(({ href, label, Icon }) => (
@@ -193,6 +195,14 @@ export default async function ApplianceDetailPage({ params }: { params: Promise<
 
       <div id="manual" className="scroll-mt-4">
         <ApplianceManual id={a.id} hasManual={!!a.manualKey} canEdit={canEdit} />
+      </div>
+
+      <div id="facturas" className="scroll-mt-4">
+        <ApplianceInvoices
+          applianceId={a.id}
+          canEdit={canEdit}
+          invoices={invoices.map((i) => ({ id: i.id, mime: i.mime, size: i.size, dateLabel: formatDate(i.createdAt) }))}
+        />
       </div>
 
       <div id="fotos" className="scroll-mt-4">
