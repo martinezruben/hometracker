@@ -86,6 +86,7 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
   const canvases = useRef<(HTMLCanvasElement | null)[]>([]);
   const [doc, setDoc] = useState<PdfDoc | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [detail, setDetail] = useState("");
   const [width, setWidth] = useState(0);
 
   useEffect(() => {
@@ -97,8 +98,11 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
         const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
         pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url).toString();
         const res = await fetch(url);
-        if (!res.ok) throw new Error("fetch");
-        const loading = pdfjs.getDocument({ data: new Uint8Array(await res.arrayBuffer()) });
+        if (!res.ok) throw new Error(`descarga ${res.status}`);
+        const bytes = new Uint8Array(await res.arrayBuffer());
+        const head = String.fromCharCode(...bytes.slice(0, 5));
+        if (!head.startsWith("%PDF")) throw new Error(`el archivo no empieza como un PDF (${bytes.length} bytes, "${head.replace(/[^\x20-\x7e]/g, "?")}")`);
+        const loading = pdfjs.getDocument({ data: bytes });
         task = loading;
         const loaded = await loading.promise;
         if (cancelled) return;
@@ -106,7 +110,10 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
         setStatus("ready");
       } catch (err) {
         console.error("No se pudo dibujar el PDF con pdf.js", err);
-        if (!cancelled) setStatus("error");
+        if (!cancelled) {
+          setDetail(err instanceof Error ? `${err.name}: ${err.message}` : String(err));
+          setStatus("error");
+        }
       }
     })();
     return () => {
@@ -164,7 +171,10 @@ function PdfPages({ url, zoom }: { url: string; zoom: number }) {
       {status === "loading" && <p role="status" className="p-6 text-center text-white/80">{t.loading}</p>}
       {status === "error" && (
         // Respaldo: el visor nativo del navegador (Safari muestra PDF en un iframe).
-        <iframe src={url} title={t.fallbackTitle} className="h-[75vh] w-full border-0 bg-white" />
+        <div className="space-y-2 p-3">
+          <p role="alert" className="text-sm text-white/80">{t.error} <span className="break-words opacity-70">({detail})</span></p>
+          <iframe src={url} title={t.fallbackTitle} className="h-[65vh] w-full border-0 bg-white" />
+        </div>
       )}
       {doc && (
         <div className="mx-auto flex w-max min-w-full flex-col items-center gap-3 py-3" data-testid="pdf-pages">
