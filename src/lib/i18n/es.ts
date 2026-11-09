@@ -376,7 +376,7 @@ export const es = {
     reset: "Restablecer zoom",
     openNew: "Abrir en una pestaña nueva",
     loading: "Cargando documento…",
-    error: "No se pudo mostrar el documento.",
+    error: "No se pudo mostrar el documento con el visor. Prueba «Abrir en una pestaña nueva».",
     fallbackTitle: "Documento",
     page: (n: number, total: number) => `Página ${n} de ${total}`,
   },
